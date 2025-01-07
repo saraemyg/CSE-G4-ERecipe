@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Reports</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="brand">
+                <h2>Admin Panel</h2>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('adminhome') }}">Dashboard</a></li>
+                    <li><a href="{{ url_for('notifications') }}">Notifications</a></li>
+                    <li><a href="{{ url_for('reports') }}" class="active">Reports</a></li>
+                    <li><a href="{{ url_for('manage') }}">Manage</a></li>
+                    <li><a href="{{ url_for('settings') }}">Settings</a></li>
+                    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="content-header">
+                <h1>Reports</h1>
+            </div>
+            
+            <div class="card">
+                <h3 class="card-title">All Reports</h3>
+                <div class="card-list">
+                    {% if reports %}
+                        {% for report in reports %}
+                        <div class="card-item">
+                            <div class="card-header">
+                                <span class="card-id">#{{ report['reportID'] }}</span>
+                                <span class="card-status {{ report['reportStatus'] }}">{{ report['reportStatus'] }}</span>
+                            </div>
+                            <p class="card-details">{{ report['reportDetails'] }}</p>
+                            <div class="card-footer">
+                                <span class="card-time">{{ report['reportTime'] }}</span>
+                                <span class="card-reference">Recipe #{{ report['reportedRecipeID'] }}</span>
+                                <form action="{{ url_for('update_report_status', id=report['reportID']) }}" method="POST" class="status-form">
+                                    <select name="status" onchange="this.form.submit()">
+                                        <option value="pending" {% if report['reportStatus'] == 'pending' %}selected{% endif %}>Pending</option>
+                                        <option value="resolved" {% if report['reportStatus'] == 'resolved' %}selected{% endif %}>Resolved</option>
+                                        <option value="dismissed" {% if report['reportStatus'] == 'dismissed' %}selected{% endif %}>Dismissed</option>
+                                    </select>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>No reports available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

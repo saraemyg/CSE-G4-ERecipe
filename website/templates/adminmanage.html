@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="brand">
+                <h2>Admin Panel</h2>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('adminhome') }}">Dashboard</a></li>
+                    <li><a href="{{ url_for('notifications') }}">Notifications</a></li>
+                    <li><a href="{{ url_for('reports') }}">Reports</a></li>
+                    <li><a href="{{ url_for('manage') }}" class="active">Manage</a></li>
+                    <li><a href="{{ url_for('settings') }}">Settings</a></li>
+                    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="content-header">
+                <h1>Manage Users & Recipes</h1>
+                <select id="contentSelector" class="content-selector" onchange="toggleContent()">
+                    <option value="all">Show All</option>
+                    <option value="users">Show Users</option>
+                    <option value="recipes">Show Recipes</option>
+                </select>
+            </div>
+
+            <div class="dashboard-content">
+                <div class="card" id="usersCard">
+                    <h3 class="card-title">Registered Users</h3>
+                    <div class="card-grid">
+                        {% if users %}
+                            {% for user in users %}
+                            <div class="card-item">
+                                <img src="{{ user['userHeaderPic'] }}" alt="Header" class="user-header-pic">
+                                <div class="user-profile-container">
+                                    <img src="{{ user['userProfilePic'] }}" alt="Profile" class="user-profile-pic">
+                                </div>
+                                <div class="card-header">
+                                    <span class="card-id">#{{ user['userID'] }}</span>
+                                    <h4 class="card-subtitle">{{ user['userName'] }}</h4>
+                                    <span class="card-tag {{ user['userStatus'] }}">{{ user['userStatus'] }}</span>
+                                </div>
+                                <p class="card-bio">{{ user['userBio'] }}</p>
+                                <p class="card-details">{{ user['userEmail'] }}</p>
+                                <div class="card-footer">
+                                    <span class="card-package">{{ user['userPackage'] }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>No users available</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="card" id="recipesCard">
+                    <h3 class="card-title">Published Recipes</h3>
+                    <div class="card-grid">
+                        {% if recipes %}
+                            {% for recipe in recipes %}
+                            <div class="recipe-card-item">
+                                <img src="{{ recipe['recipePic'] }}" alt="{{ recipe['recipeTitle'] }}" class="recipe-image">
+                                <div class="recipe-card-header">
+                                    <span class="card-id">#{{ recipe['recipeID'] }}</span>
+                                    <h4 class="card-subtitle">{{ recipe['recipeTitle'] }}</h4>
+                                    <span class="card-tag {{ recipe['recipeStatus'] }}">{{ recipe['recipeStatus'] }}</span>
+                                </div>
+                                <p class="recipe-card-details">{{ recipe['recipeDescription'] }}</p>
+                                <div class="recipe-card-footer">
+                                    <span class="card-time">{{ recipe['recipeTime'] }} mins</span>
+                                    <span class="card-calories">{{ recipe['recipeCalories'] }} cal</span>
+                                    <span class="card-cuisine">{{ recipe['recipeCuisine'] }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>No recipes available</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleContent() {
+            const selector = document.getElementById('contentSelector');
+            const usersCard = document.getElementById('usersCard');
+            const recipesCard = document.getElementById('recipesCard');
+            
+            switch(selector.value) {
+                case 'users':
+                    usersCard.style.display = 'block';
+                    recipesCard.style.display = 'none';
+                    break;
+                case 'recipes':
+                    usersCard.style.display = 'none';
+                    recipesCard.style.display = 'block';
+                    break;
+                default:
+                    usersCard.style.display = 'block';
+                    recipesCard.style.display = 'block';
+            }
+        }
+        </script>
+
+</body>
+</html>
