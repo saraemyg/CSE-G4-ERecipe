@@ -18,3 +18,5 @@ sara
 
 - nadia nampak tak kalau ya tulis ya 
 [ ]
+
+yoooooo wassap bro
