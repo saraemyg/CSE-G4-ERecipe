@@ -15,3 +15,6 @@ please share your thoughts here and also for to do list
 sara 
 - create new class separated for admin, user, premium, guest in separate py files instead of init and models py
 - test owow
+
+- nadia nampak tak kalau ya tulis ya 
+[ ]
