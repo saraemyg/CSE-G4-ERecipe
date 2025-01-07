@@ -11,10 +11,10 @@ class RegisteredUser:
         try:
             conn = get_db()
             cursor = conn.cursor()
+            # Simplified query for combined table
             cursor.execute("""
-                SELECT ru.*, p.userBio, p.userProfilePic, p.userHeaderPic
-                FROM registeredUser ru
-                LEFT JOIN profile p ON ru.userID = p.userID
+                SELECT *
+                FROM registeredUser
             """)
             users = cursor.fetchall()
             conn.close()
@@ -29,10 +29,9 @@ class RegisteredUser:
             conn = get_db()
             cursor = conn.cursor()
             cursor.execute("""
-                SELECT ru.*, p.userBio, p.userProfilePic, p.userHeaderPic
-                FROM registeredUser ru
-                LEFT JOIN profile p ON ru.userID = p.userID
-                WHERE ru.userID = ?
+                SELECT *
+                FROM registeredUser
+                WHERE userID = ?
             """, (user_id,))
             user = cursor.fetchone()
             conn.close()

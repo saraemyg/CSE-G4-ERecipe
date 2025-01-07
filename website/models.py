@@ -17,6 +17,7 @@ class DatabaseManager:
             cursor = conn.cursor()
             
             # Create tables
+
             cursor.execute("""
             CREATE TABLE IF NOT EXISTS registeredUser (
                 userID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -24,18 +25,38 @@ class DatabaseManager:
                 userPassword TEXT NOT NULL,
                 userEmail TEXT NOT NULL,
                 userPackage TEXT NOT NULL,
-                userStatus TEXT NOT NULL
+                userStatus TEXT NOT NULL,
+                userBio TEXT,
+                userProfilePic TEXT,
+                userHeaderPic TEXT
             )
             """)
 
-            cursor.execute("""
-            CREATE TABLE IF NOT EXISTS profile (
-                userID INTEGER PRIMARY KEY,
-                userBio TEXT NOT NULL,
-                userProfilePic TEXT,
-                userHeaderPic TEXT,
-                FOREIGN KEY (userID) REFERENCES registeredUser(userID)
-            )""")
+            cursor.executemany("""
+            INSERT INTO registeredUser (userName, userPassword, userEmail, userPackage, userStatus, userBio, userProfilePic, userHeaderPic) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, [
+                ('john_doe', 'hashed_password1', 'john@example.com', 'premium', 'active',
+                 'Food enthusiast and home chef. Love experimenting with new recipes and sharing cooking tips.',
+                 'https://i.pinimg.com/736x/91/11/0f/91110f54c48f7196cf9af376416aada5.jpg', 
+                 'https://i.pinimg.com/736x/02/5a/15/025a156857a5a4784dd6b61e7398bfd2.jpg'),
+                ('jane_smith', 'hashed_password2', 'jane@example.com', 'premium', 'active',
+                 'Professional baker with 5 years experience. Specializing in pastries and desserts.',
+                 'https://i.pinimg.com/736x/a7/14/1d/a7141d860f5e54ac15b40cf5b672e577.jpg', 
+                 'https://i.pinimg.com/736x/7f/5e/62/7f5e629664cc372b6d505d8a18682e89.jpg'),
+                ('alice_jones', 'hashed_password3', 'alice@example.com', 'free', 'active',
+                 'Passionate about healthy cooking and nutrition. Sharing balanced meal recipes.',
+                 'https://i.pinimg.com/736x/84/e9/34/84e934bd5d08fbd3ff1ea7e29a69c5ec.jpg', 
+                 'https://i.pinimg.com/736x/60/19/de/6019deab1e45a989f37f8f96fffdbf82.jpg'),
+                ('bob_wilson', 'hashed_password4', 'bob@example.com', 'premium', 'suspended',
+                 'Traditional cuisine lover. Exploring and preserving family recipes.',
+                 'https://i.pinimg.com/736x/7e/dd/01/7edd01552dd2d8cbb99b4b967692d50c.jpg', 
+                 'https://i.pinimg.com/736x/b0/8c/8d/b08c8d19049319406f3150379a30bb14.jpg'),
+                ('emma_davis', 'hashed_password5', 'emma@example.com', 'free', 'active',
+                 'Food photographer and recipe developer. Making cooking accessible for everyone.',
+                 'https://i.pinimg.com/736x/26/6e/ae/266eae833606799f101cb37f93f0774d.jpg', 
+                 'https://i.pinimg.com/736x/a9/5a/04/a95a049c84c4bb80837e49ae551818eb.jpg')
+            ])
 
             cursor.execute("""
             CREATE TABLE IF NOT EXISTS notification (
@@ -78,39 +99,6 @@ class DatabaseManager:
                 FOREIGN KEY (reportedRecipeID) REFERENCES recipe(recipeID)
             )
             """)          
-
-            # Insert sample only for debugging and testing, delete before real submission
-            cursor.executemany("""
-            INSERT INTO registeredUser (userName, userPassword, userEmail, userPackage, userStatus) 
-            VALUES (?, ?, ?, ?, ?)
-            """, [
-                ('john_doe', 'hashed_password1', 'john@example.com', 'premium', 'active'),
-                ('jane_smith', 'hashed_password2', 'jane@example.com', 'premium', 'active'),
-                ('alice_jones', 'hashed_password3', 'alice@example.com', 'free', 'active'),
-                ('bob_wilson', 'hashed_password4', 'bob@example.com', 'premium', 'suspended'),
-                ('emma_davis', 'hashed_password5', 'emma@example.com', 'free', 'active')
-            ])
-
-            cursor.executemany("""
-            INSERT INTO profile (userID, userBio, userProfilePic, userHeaderPic) 
-            VALUES (?, ?, ?, ?)
-            """, [
-                (1, 'Food enthusiast and home chef. Love experimenting with new recipes and sharing cooking tips.', 
-                    'https://i.pinimg.com/736x/91/11/0f/91110f54c48f7196cf9af376416aada5.jpg', 
-                    'https://i.pinimg.com/736x/02/5a/15/025a156857a5a4784dd6b61e7398bfd2.jpg'),
-                (2, 'Professional baker with 5 years experience. Specializing in pastries and desserts.',
-                    'https://i.pinimg.com/736x/a7/14/1d/a7141d860f5e54ac15b40cf5b672e577.jpg',
-                    'https://i.pinimg.com/736x/7f/5e/62/7f5e629664cc372b6d505d8a18682e89.jpg'),
-                (3, 'Passionate about healthy cooking and nutrition. Sharing balanced meal recipes.',
-                    'https://i.pinimg.com/736x/84/e9/34/84e934bd5d08fbd3ff1ea7e29a69c5ec.jpg',
-                    'https://i.pinimg.com/736x/60/19/de/6019deab1e45a989f37f8f96fffdbf82.jpg'),
-                (4, 'Traditional cuisine lover. Exploring and preserving family recipes.',
-                    'https://i.pinimg.com/736x/7e/dd/01/7edd01552dd2d8cbb99b4b967692d50c.jpg',
-                    'https://i.pinimg.com/736x/b0/8c/8d/b08c8d19049319406f3150379a30bb14.jpg'),
-                (5, 'Food photographer and recipe developer. Making cooking accessible for everyone.',
-                    'https://i.pinimg.com/736x/26/6e/ae/266eae833606799f101cb37f93f0774d.jpg',
-                    'https://i.pinimg.com/736x/a9/5a/04/a95a049c84c4bb80837e49ae551818eb.jpg')
-            ])
 
             cursor.executemany("""
             INSERT INTO notification (notiTitle, notiDetails, notiReceiver) 
