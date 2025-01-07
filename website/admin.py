@@ -2,7 +2,7 @@ import sqlite3
 from os import path
 
 def get_db():
-    conn = sqlite3.connect('instance/database.db')
+    conn = sqlite3.connect('instance/database2.db')
     conn.row_factory = sqlite3.Row
     return conn
 

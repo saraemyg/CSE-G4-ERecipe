@@ -1,8 +1,9 @@
 import sqlite3
 from os import path
+import os
 
-DB_NAME = "database.db"
-DB_PATH = f'instance/{DB_NAME}'
+DB_NAME = "database2.db"
+DB_PATH = path.join('instance', DB_NAME)
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
@@ -12,31 +13,77 @@ def get_db():
 class DatabaseManager:
     @staticmethod
     def init_db():
-        if not path.exists(DB_PATH):
+        # if not path.exists(DB_PATH):
+        #     conn = get_db()
+        #     cursor = conn.cursor()
+        os.makedirs('instance', exist_ok=True)
+
+        try:
             conn = get_db()
             cursor = conn.cursor()
-            
-            # Create tables
 
-            cursor.execute("""
-            CREATE TABLE IF NOT EXISTS registeredUser (
-                userID INTEGER PRIMARY KEY AUTOINCREMENT,
-                userName TEXT NOT NULL,
-                userPassword TEXT NOT NULL,
-                userEmail TEXT NOT NULL,
-                userPackage TEXT NOT NULL,
-                userStatus TEXT NOT NULL,
-                userBio TEXT,
-                userProfilePic TEXT,
-                userHeaderPic TEXT
-            )
+            cursor.executescript("""
+                -- Drop existing tables in reverse order
+                DROP TABLE IF EXISTS report;
+                DROP TABLE IF EXISTS recipe;
+                DROP TABLE IF EXISTS notification;
+                DROP TABLE IF EXISTS registeredUser;
+
+                -- Create tables in correct order
+                CREATE TABLE registeredUser (
+                    userID INTEGER PRIMARY KEY AUTOINCREMENT,
+                    userName TEXT NOT NULL UNIQUE,
+                    userPassword TEXT NOT NULL,
+                    userEmail TEXT NOT NULL UNIQUE,
+                    userPackage TEXT NOT NULL,
+                    userStatus TEXT NOT NULL,
+                    userBio TEXT,
+                    userProfilePic TEXT,
+                    userHeaderPic TEXT
+                );
+
+                CREATE TABLE notification (
+                    notiID INTEGER PRIMARY KEY AUTOINCREMENT,
+                    notiTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    notiTitle TEXT NOT NULL,
+                    notiDetails TEXT NOT NULL,
+                    notiReceiver TEXT NOT NULL,
+                    FOREIGN KEY (notiReceiver) REFERENCES registeredUser(userPackage)
+                );
+
+                CREATE TABLE recipe (
+                    recipeID INTEGER PRIMARY KEY AUTOINCREMENT,
+                    recipeTitle TEXT NOT NULL,
+                    recipeDescription TEXT NOT NULL,
+                    recipeIngredients TEXT NOT NULL,
+                    recipeSteps TEXT NOT NULL,
+                    recipePic TEXT,
+                    recipeTime INTEGER NOT NULL,
+                    recipeCalories INTEGER NOT NULL,
+                    recipeLabel TEXT,
+                    recipeCuisine TEXT,
+                    recipeStatus TEXT NOT NULL,
+                    userID INTEGER NOT NULL,
+                    FOREIGN KEY (userID) REFERENCES registeredUser(userID)
+                );
+
+                CREATE TABLE report (
+                    reportID INTEGER PRIMARY KEY AUTOINCREMENT,
+                    reportTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    reportStatus TEXT NOT NULL DEFAULT 'pending',
+                    reportDetails TEXT NOT NULL,
+                    reportSenderUserID INTEGER NOT NULL,
+                    reportedRecipeID INTEGER NOT NULL,
+                    FOREIGN KEY (reportSenderUserID) REFERENCES registeredUser(userID),
+                    FOREIGN KEY (reportedRecipeID) REFERENCES recipe(recipeID)
+                );
             """)
 
             cursor.executemany("""
             INSERT INTO registeredUser (userName, userPassword, userEmail, userPackage, userStatus, userBio, userProfilePic, userHeaderPic) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """, [
-                ('john_doe', 'hashed_password1', 'john@example.com', 'premium', 'active',
+                ('johan_doe', 'hashed_password1', 'john@example.com', 'premium', 'active',
                  'Food enthusiast and home chef. Love experimenting with new recipes and sharing cooking tips.',
                  'https://i.pinimg.com/736x/91/11/0f/91110f54c48f7196cf9af376416aada5.jpg', 
                  'https://i.pinimg.com/736x/02/5a/15/025a156857a5a4784dd6b61e7398bfd2.jpg'),
@@ -57,48 +104,6 @@ class DatabaseManager:
                  'https://i.pinimg.com/736x/26/6e/ae/266eae833606799f101cb37f93f0774d.jpg', 
                  'https://i.pinimg.com/736x/a9/5a/04/a95a049c84c4bb80837e49ae551818eb.jpg')
             ])
-
-            cursor.execute("""
-            CREATE TABLE IF NOT EXISTS notification (
-                notiID INTEGER PRIMARY KEY AUTOINCREMENT,
-                notiTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                notiTitle TEXT NOT NULL,
-                notiDetails TEXT NOT NULL,
-                notiReceiver TEXT NOT NULL,
-                FOREIGN KEY (notiReceiver) REFERENCES registeredUser(userPackage)
-            )
-            """)
-
-            cursor.execute("""
-            CREATE TABLE IF NOT EXISTS recipe (
-                recipeID INTEGER PRIMARY KEY AUTOINCREMENT,
-                recipeTitle TEXT NOT NULL,
-                recipeDescription TEXT NOT NULL,
-                recipeIngredients TEXT NOT NULL,
-                recipeSteps TEXT NOT NULL,
-                recipePic TEXT,  
-                recipeTime INTEGER NOT NULL,
-                recipeCalories INTEGER NOT NULL,
-                recipeLabel TEXT,
-                recipeCuisine TEXT,
-                recipeStatus TEXT NOT NULL,
-                userID INTEGER NOT NULL,
-                FOREIGN KEY (userID) REFERENCES registeredUser(userID)
-            )
-            """)
-
-            cursor.execute("""
-            CREATE TABLE IF NOT EXISTS report (
-                reportID INTEGER PRIMARY KEY AUTOINCREMENT,
-                reportTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                reportStatus TEXT NOT NULL DEFAULT 'pending',
-                reportDetails TEXT NOT NULL,
-                reportSenderUserID INTEGER NOT NULL,
-                reportedRecipeID INTEGER NOT NULL,
-                FOREIGN KEY (reportSenderUserID) REFERENCES registeredUser(userID),
-                FOREIGN KEY (reportedRecipeID) REFERENCES recipe(recipeID)
-            )
-            """)          
 
             cursor.executemany("""
             INSERT INTO notification (notiTitle, notiDetails, notiReceiver) 
@@ -134,5 +139,13 @@ class DatabaseManager:
             ])
 
             conn.commit()
-            conn.close()
+            # conn.close()
             print('Database created successfully!')
+        
+        except sqlite3.Error as e:
+                print(f"Database error: {e}")
+                if conn:
+                    conn.close()
+        finally:
+            if conn:
+                conn.close()
