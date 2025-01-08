@@ -75,10 +75,6 @@ def create_app():
         users = RegisteredUser.get_all_users()
         recipes = Recipe.get_all_recipes()
         return render_template('adminmanage.html', users=users, recipes=recipes)
-
-    @app.route('/settings')
-    def settings():
-        return render_template('adminsettings.html')
     
     @app.route('/logout')
     def logout():

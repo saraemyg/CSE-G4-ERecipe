@@ -19,7 +19,6 @@
                     <li><a href="{{ url_for('notifications') }}">Notifications</a></li>
                     <li><a href="{{ url_for('reports') }}">Reports</a></li>
                     <li><a href="{{ url_for('manage') }}" class="active">Manage</a></li>
-                    <li><a href="{{ url_for('settings') }}">Settings</a></li>
                     <li><a href="{{ url_for('logout') }}">Logout</a></li>
                 </ul>
             </nav>
@@ -70,15 +69,15 @@
                     <div class="card-grid">
                         {% if recipes %}
                             {% for recipe in recipes %}
-                            <div class="recipe-card-item">
+                            <div class="card-item">
                                 <img src="{{ recipe['recipePic'] }}" alt="{{ recipe['recipeTitle'] }}" class="recipe-image">
-                                <div class="recipe-card-header">
+                                <div class="card-header">
                                     <span class="card-id">#{{ recipe['recipeID'] }}</span>
                                     <h4 class="card-subtitle">{{ recipe['recipeTitle'] }}</h4>
                                     <span class="card-tag {{ recipe['recipeStatus'] }}">{{ recipe['recipeStatus'] }}</span>
                                 </div>
-                                <p class="recipe-card-details">{{ recipe['recipeDescription'] }}</p>
-                                <div class="recipe-card-footer">
+                                <div class="card-details">{{ recipe['recipeDescription'] }}</div>
+                                <div class="card-footer">
                                     <span class="card-time">{{ recipe['recipeTime'] }} mins</span>
                                     <span class="card-calories">{{ recipe['recipeCalories'] }} cal</span>
                                     <span class="card-cuisine">{{ recipe['recipeCuisine'] }}</span>
