@@ -19,14 +19,13 @@
             <nav>
                 <ul>
                     <li><a href="{{ url_for('userhome') }}" class="active">Home</a></li>
-                    <li><a href="{{ url_for('createrecipe') }}">Create New Recipe</a></li>
-                    <li><a href="{{ url_for('collections') }}">Collections</a></li>
-                    <li><a href="{{ url_for('Settings') }}">Settings</a></li>
+                    <li><a href="{{ url_for('createrecipe') }}">Create Recipe</a></li>
                 </ul>
             </nav>
         </div>
 
-        <div class="container">
+        <!-- Main Content -->
+        <div class="main-content">
             <div class="topbar">
                 <h1>Recipe Book</h1>
                 <div class="searchbar">
@@ -36,18 +35,11 @@
 
                 <nav>
                     <ul>
-                        <li><a href="{{ url_for('filters') }}" class="active">filters</a></li>
-                        <li><a href="{{ url_for('sortrecipe') }}">Sort By</a></li>
-                        <li><a href="{{ url_for('usernotifications') }}">Notifications</a></li>
                         <li><a href="{{ url_for('profile') }}">Profile</a></li>
                     </ul>
                 </nav>
-
             </div>
-        </div>
 
-        <!-- Main Content -->
-        <div class="main-content">
             <div class="content-header">
                 <h1>E-Recipe Hub</h1>
             </div>
@@ -76,6 +68,8 @@
                         {% endif %}
                     </div>
                 </div>
+            </div>
         </div>
+    </div>
 </body>
 </html>

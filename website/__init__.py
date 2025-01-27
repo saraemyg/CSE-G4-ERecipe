@@ -12,7 +12,11 @@ def create_app():
     
     DatabaseManager.init_db()
 
-    @app.route('/')
+    @app.route("/")
+    def main():
+        return render_template('main.html')
+    
+    @app.route('/adminhome')
     def adminhome():
         reports = Report.get_all_reports()
         notifications = Notification.get_all_notifications()
@@ -79,5 +83,17 @@ def create_app():
     @app.route('/logout')
     def logout():
         return redirect(url_for('home'))
+    
+    @app.route('/userhome')
+    def userhome():
+        return render_template('userhome.html')
+    
+    @app.route('/createrecipe')
+    def createrecipe():
+        return render_template('createrecipe.html')
+    
+    @app.route('/profile')
+    def profile():
+        return render_template('profile.html')
     
     return app
