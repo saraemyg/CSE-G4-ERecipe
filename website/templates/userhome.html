@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Brand/Logo -->
+            <div class="brand">
+                <h2>User Panel</h2>
+            </div>
+
+            <!-- Navigation -->
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('userhome') }}" class="active">Home</a></li>
+                    <li><a href="{{ url_for('createrecipe') }}">Create New Recipe</a></li>
+                    <li><a href="{{ url_for('collections') }}">Collections</a></li>
+                    <li><a href="{{ url_for('Settings') }}">Settings</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="container">
+            <div class="topbar">
+                <h1>Recipe Book</h1>
+                <div class="searchbar">
+                    <input type="text" placeholder="Search for recipes...">
+                    <button>Search</button>
+                </div>
+
+                <nav>
+                    <ul>
+                        <li><a href="{{ url_for('filters') }}" class="active">filters</a></li>
+                        <li><a href="{{ url_for('sortrecipe') }}">Sort By</a></li>
+                        <li><a href="{{ url_for('usernotifications') }}">Notifications</a></li>
+                        <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                    </ul>
+                </nav>
+
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="content-header">
+                <h1>E-Recipe Hub</h1>
+            </div>
+            
+            <div class="dashboard-content">
+                
+                <div class="card">
+                    <h3 class="card-title">Recommended for You</h3>
+                    <div class="card-list">
+                        {% if recipes %}
+                            {% for recipe in recipes %}
+                            <div class="card-item">
+                                <div class="card-header">
+                                    <span class="card-id">#{{ recipe['recipeID'] }}</span>
+                                    <h4 class="card-subtitle">{{ recipe['recipeName'] }}</h4>
+                                    <span class="card-tag">{{ recipe['recipeCategory'] }}</span>
+                                </div>
+                                <p class="card-details">{{ recipe['recipeDescription'] }}</p>
+                                <div class="card-footer">
+                                    <span class="card-time">{{ recipe['recipeTime'] }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>No recipes available</p>
+                        {% endif %}
+                    </div>
+                </div>
+        </div>
+</body>
+</html>
