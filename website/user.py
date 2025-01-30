@@ -14,7 +14,7 @@ class RegisteredUser:
             # Simplified query for combined table
             cursor.execute("""
                 SELECT *
-                FROM registeredUser
+                FROM user
             """)
             users = cursor.fetchall()
             conn.close()
@@ -30,7 +30,7 @@ class RegisteredUser:
             cursor = conn.cursor()
             cursor.execute("""
                 SELECT *
-                FROM registeredUser
+                FROM user
                 WHERE userID = ?
             """, (user_id,))
             user = cursor.fetchone()
@@ -46,7 +46,7 @@ class RegisteredUser:
             conn = get_db()
             cursor = conn.cursor()
             cursor.execute("""
-                UPDATE registeredUser 
+                UPDATE user 
                 SET userStatus = ? 
                 WHERE userID = ?""", (new_status, user_id))
             conn.commit()

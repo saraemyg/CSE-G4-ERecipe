@@ -9,16 +9,7 @@ templates -> all html files
 static -> styles.css for styles
 instance -> database.db
 
+---- download extension sqlite3 editor for database visualisation
+
 
 please share your thoughts here and also for to do list
-
-sara 
-- create new class separated for admin, user, premium, guest in separate py files instead of init and models py
-- test owow
-
-- nadia nampak tak kalau ya tulis ya 
-[ ]
-
-yoooooo wassap bro
-
-susususuoernova
