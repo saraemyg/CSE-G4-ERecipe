@@ -22,15 +22,15 @@ def create_app():
         notifications = Notification.get_all_notifications()
         return render_template('adminhome.html', reports=reports, notifications=notifications)
     
-    @app.route('/notifications')
-    def notifications():
-        notifications = Notification.get_all_notifications()
-        return render_template('adminnoti.html', notifications=notifications)
-    
     @app.route('/reports')
     def reports():
         reports = Report.get_all_reports()
         return render_template('adminreport.html', reports=reports)
+    
+    @app.route('/notifications')
+    def notifications():
+        notifications = Notification.get_all_notifications()
+        return render_template('adminnoti.html', notifications=notifications)
     
     @app.route('/notification/delete/<int:id>', methods=['POST'])
     def delete_notification(id):
@@ -78,8 +78,41 @@ def create_app():
     def manage():
         users = RegisteredUser.get_all_users()
         recipes = Recipe.get_all_recipes()
+        userDetails = RegisteredUser.get_user_by_id(id)
         return render_template('adminmanage.html', users=users, recipes=recipes)
     
+    @app.route('/user/<int:id>')
+    def get_user(id):
+        user = RegisteredUser.get_user_by_id(id)
+        if user:
+            return {
+                'userID': user['userID'],  # Use dictionary-style access
+                'userName': user['userName'],
+                'userEmail': user['userEmail'],
+                'userBio': user['userBio'],
+                'userPackage': user['userPackage'],
+                'userHeaderPic': user['userHeaderPic'],  # Ensure this is included
+                'userProfilePic': user['userProfilePic'],  # Ensure this is included
+                'userStatus': user['userStatus']  # Ensure this is included
+            }
+        return {'error': 'User  not found'}, 404
+
+
+    @app.route('/user/suspend/<int:id>', methods=['POST'])
+    def suspend_user(id):
+        # Logic to suspend the user
+        user = RegisteredUser .get_user_by_id(id)
+        if user:
+            # Assuming you have a method to suspend the user
+            RegisteredUser .suspend_user(id)
+            return '', 204  # No content response
+        return {'error': 'User  not found'}, 404
+
+    @app.route('/user/delete/<int:id>', methods=['POST'])
+    def delete_user(id):
+        RegisteredUser .delete_user(id)  # Implement this method in your RegisteredUser  class
+        return redirect(url_for('manage'))  # Redirect to the manage page or wherever appropriate
+
     @app.route('/logout')
     def logout():
         return redirect(url_for('home'))

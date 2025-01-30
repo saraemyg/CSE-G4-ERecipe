@@ -55,3 +55,21 @@ class RegisteredUser:
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return False
+        
+    @staticmethod
+    def get_recipes_by_user_id(user_id):
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT *
+                FROM recipe
+                WHERE userID = ?
+            """, (user_id,))
+            recipes = cursor.fetchall()
+            conn.close()
+            return recipes
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return []
+        

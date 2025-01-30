@@ -9,7 +9,7 @@
 <body>
     <div class="container">
         <!-- Sidebar -->
-        <div class="sidebar">
+        <aside class="sidebar">
             <div class="brand">
                 <h2>Admin Panel</h2>
             </div>
@@ -22,99 +22,175 @@
                     <li><a href="{{ url_for('logout') }}">Logout</a></li>
                 </ul>
             </nav>
-        </div>
+        </aside>
 
         <!-- Main Content -->
-        <div class="main-content">
-            <div class="content-header">
+        <main class="main-content">
+            <header class="content-header">
                 <h1>Manage Users & Recipes</h1>
-                <select id="contentSelector" class="content-selector" onchange="toggleContent()">
-                    <option value="all">Show All</option>
-                    <option value="users">Show Users</option>
-                    <option value="recipes">Show Recipes</option>
-                </select>
-            </div>
+                <div class="search-section">
+                    <input type="text" id="searchBar" placeholder="Search..." onkeyup="filterContent()">
+                    <img id="searchButton" src="https://i.pinimg.com/736x/36/16/e3/3616e36e83edc6b2404204491ceb1c77.jpg" alt="Search" onclick="filterContent()">
+                    <select id="contentSelector" class="content-selector" onchange="toggleContent()">
+                        <option value="all">Show All</option>
+                        <option value="users">Show Users</option>
+                        <option value="recipes">Show Recipes</option>
+                    </select>
+                </div>
+            </header>
 
-            <div class="dashboard-content">
+            <section class="dashboard-content">
+                <!-- Users Card -->
                 <div class="card" id="usersCard">
                     <h3 class="card-title">Registered Users</h3>
-                    <div class="card-grid">
+                    <div class="card-grid" id="usersGrid">
                         {% if users %}
                             {% for user in users %}
-                            <div class="card-item">
-                                <img src="{{ user['userHeaderPic'] }}" alt="Header" class="user-header-pic">
-                                <div class="user-profile-container">
-                                    <img src="{{ user['userProfilePic'] }}" alt="Profile" class="user-profile-pic">
+                                <div class="card-item" data-name="{{ user['userName'] | e }}" onclick="showUser('{{ user.userID }}')">
+                                    <img src="{{ user['userHeaderPic'] | e }}" alt="Header" class="user-header-pic">
+                                    <div class="user-profile-container">
+                                        <img src="{{ user['userProfilePic'] | e }}" alt="Profile" class="user-profile-pic">
+                                    </div>
+                                    <div class="card-header">
+                                        <span class="card-id">#{{ user['userID'] | e }}</span>
+                                        <h4 class="card-subtitle">{{ user['userName'] }}</h4>
+                                        <span class="card-tag {{ user['userStatus'] | e }}">{{ user['userStatus'] }}</span>
+                                    </div>
+                                    <p class="card-bio">{{ user['userBio'] | e }}</p>
+                                    <p class="card-details">{{ user['userEmail'] | e }}</p>
+                                    <div class="card-footer">
+                                        <span class="card-package">{{ user['userPackage'] | e }}</span>
+                                    </div>
                                 </div>
-                                <div class="card-header">
-                                    <span class="card-id">#{{ user['userID'] }}</span>
-                                    <h4 class="card-subtitle">{{ user['userName'] }}</h4>
-                                    <span class="card-tag {{ user['userStatus'] }}">{{ user['userStatus'] }}</span>
-                                </div>
-                                <p class="card-bio">{{ user['userBio'] }}</p>
-                                <p class="card-details">{{ user['userEmail'] }}</p>
-                                <div class="card-footer">
-                                    <span class="card-package">{{ user['userPackage'] }}</span>
-                                </div>
-                            </div>
                             {% endfor %}
                         {% else %}
                             <p>No users available</p>
                         {% endif %}
                     </div>
                 </div>
-                
+
+                <!-- Recipes Card -->
                 <div class="card" id="recipesCard">
                     <h3 class="card-title">Published Recipes</h3>
-                    <div class="card-grid">
+                    <div class="card-grid" id="recipesGrid">
                         {% if recipes %}
                             {% for recipe in recipes %}
-                            <div class="card-item">
-                                <img src="{{ recipe['recipePic'] }}" alt="{{ recipe['recipeTitle'] }}" class="recipe-image">
-                                <div class="card-header">
-                                    <span class="card-id">#{{ recipe['recipeID'] }}</span>
-                                    <h4 class="card-subtitle">{{ recipe['recipeTitle'] }}</h4>
-                                    <span class="card-tag {{ recipe['recipeStatus'] }}">{{ recipe['recipeStatus'] }}</span>
+                                <div class="card-item" data-title="{{ recipe['recipeTitle'] | e }}">
+                                    <img src="{{ recipe['recipePic'] | e }}" alt="{{ recipe['recipeTitle'] | e }}" class="recipe-image">
+                                    <div class="card-header">
+                                        <span class="card-id">#{{ recipe['recipeID'] | e }}</span>
+                                        <h4 class="card-subtitle">{{ recipe['recipeTitle'] | e }}</h4>
+                                        <span class="card-tag {{ recipe['recipeStatus'] | e }}">{{ recipe['recipeStatus'] | e }}</span>
+                                    </div>
+                                    <div class="card-details">{{ recipe['recipeDescription'] | e }}</div>
+                                    <div class="card-footer">
+                                        <span class="card-time">{{ recipe['recipeTime'] | e }} mins</span>
+                                        <span class="card-calories">{{ recipe['recipeCalories'] | e }} cal</span>
+                                        <span class="card-cuisine">{{ recipe['recipeCuisine'] | e }}</span>
+                                    </div>
                                 </div>
-                                <div class="card-details">{{ recipe['recipeDescription'] }}</div>
-                                <div class="card-footer">
-                                    <span class="card-time">{{ recipe['recipeTime'] }} mins</span>
-                                    <span class="card-calories">{{ recipe['recipeCalories'] }} cal</span>
-                                    <span class="card-cuisine">{{ recipe['recipeCuisine'] }}</span>
-                                </div>
-                            </div>
                             {% endfor %}
                         {% else %}
                             <p>No recipes available</p>
                         {% endif %}
                     </div>
                 </div>
-            </div>
-            </div>
-        </div>
+
+                <!-- User Details Card -->
+                <div class="card hidden" id="userDetailsCard">
+                    <h3 class="card-title">User Details</h3>
+                    <button onclick="closeUser()">Close</button>
+                    <div class="card-content" id="userDetailsContent"></div>
+                </div>
+            </section>
+        </main>
     </div>
 
     <script>
         function toggleContent() {
             const selector = document.getElementById('contentSelector');
-            const usersCard = document.getElementById('usersCard');
-            const recipesCard = document.getElementById('recipesCard');
-            
-            switch(selector.value) {
-                case 'users':
-                    usersCard.style.display = 'block';
-                    recipesCard.style.display = 'none';
-                    break;
-                case 'recipes':
-                    usersCard.style.display = 'none';
-                    recipesCard.style.display = 'block';
-                    break;
-                default:
-                    usersCard.style.display = 'block';
-                    recipesCard.style.display = 'block';
+            document.getElementById('usersCard').classList.toggle('hidden', selector.value !== 'users' && selector.value !== 'all');
+            document.getElementById('recipesCard').classList.toggle('hidden', selector.value !== 'recipes' && selector.value !== 'all');
+        }
+
+        function filterContent() {
+            const searchInput = document.getElementById('searchBar').value.toLowerCase();
+            const userItems = document.getElementById('usersGrid').getElementsByClassName('card-item');
+            const recipeItems = document.getElementById('recipesGrid').getElementsByClassName('card-item');
+
+            Array.from(userItems).forEach(item => {
+                item.style.display = item.getAttribute('data-name').toLowerCase().includes(searchInput) ? '' : 'none';
+            });
+
+            Array.from(recipeItems).forEach(item => {
+                item.style.display = item.getAttribute('data-title').toLowerCase().includes(searchInput) ? '' : 'none';
+            });
+        }
+
+        function showUser(userId) {
+            const userDetailsContent = document.getElementById('userDetailsContent');
+
+            fetch(`/user/${userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        userDetailsContent.innerHTML = `<p>${data.error}</p>`;
+                    } else {
+                        userDetailsContent.innerHTML = `
+                            <div class="card-item" data-name="${data.userName}">
+                                <img src="${data.userHeaderPic}" alt="Header" class="user-header-pic">
+                                <div class="user-profile-container">
+                                    <img src="${data.userProfilePic}" alt="Profile" class="user-profile-pic">
+                                </div>
+                                <div class="card-header">
+                                    <span class="card-id">#${data.userID}</span>
+                                    <h4 class="card-subtitle">${data.userName}</h4>
+                                    <span class="card-tag">${data.userStatus}</span>
+                                </div>
+                                <p class="card-bio">${data.userBio}</p>
+                                <p class="card-details">${data.userEmail}</p>
+                                <div class="card-footer">
+                                    <span class="card-package">${data.userPackage}</span>
+                                    <button onclick="suspendUser('${data.userID}')" class="btn btn-suspend">Suspend</button>
+                                    <form action="/user/delete/${data.userID}" method="POST" style="display: inline;">
+                                        <button type="submit" class="btn btn-delete">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                            <h3>Published Recipes</h3>
+                            <div class="card-grid" id="recipesGrid"></div>
+                        `;
+                    }
+                })
+                .catch(() => {
+                    userDetailsContent.innerHTML = '<p>Error fetching user details.</p>';
+                });
+
+            document.getElementById('userDetailsCard').classList.remove('hidden');
+            document.getElementById('recipesCard').classList.add('hidden');
+        }
+
+        function closeUser() {
+            document.getElementById('userDetailsCard').classList.add('hidden');
+            document.getElementById('recipesCard').classList.remove('hidden');
+        }
+
+        function suspendUser(userId) {
+            if (confirm("Are you sure you want to suspend this user?")) {
+                fetch(`/user/suspend/${userId}`, { method: 'POST' })
+                    .then(response => {
+                        if (response.ok) {
+                            alert("User suspended successfully.");
+                            location.reload();
+                        } else {
+                            alert("Failed to suspend user.");
+                        }
+                    })
+                    .catch(() => {
+                        alert("An error occurred while suspending the user.");
+                    });
             }
         }
-        </script>
-
+    </script>
 </body>
 </html>
