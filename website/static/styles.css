@@ -449,11 +449,6 @@ header h1 {
     color: #045346;
 }
 
-/* .card-status.published {
-    background: #b4eae9;
-    color: #045346;
-} */
-
 .card-subtitle {
     font-size: 16px;
     color: #2c3e50;
@@ -621,3 +616,32 @@ header h1 {
 .btn-suspend {
     margin-right: 30px; /* Add space to the right of the Suspend button */
 }
+
+#viewProfileCard {
+    position: relative;
+    padding: 20px;
+}
+
+#viewRecipeCard {
+    position: relative;
+    padding: 20px;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 25px;
+    background: none;
+    color: rgb(39, 39, 39);
+    border: none;
+    font-size: 30px;  /* Adjust the size of the X */
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.close-button:hover {
+    color: #d33;
+}
+
+
+

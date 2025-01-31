@@ -46,7 +46,7 @@
                     <div class="card-grid" id="usersGrid">
                         {% if users %}
                             {% for user in users %}
-                                <div class="card-item" data-name="{{ user['userName'] | e }}" onclick="showUser('{{ user.userID }}')">
+                                <div class="card-item" data-name="{{ user['userName'] | e }}" onclick="viewUserProfile('{{ user.userID }}')">
                                     <img src="{{ user['userHeaderPic'] | e }}" alt="Header" class="user-header-pic">
                                     <div class="user-profile-container">
                                         <img src="{{ user['userProfilePic'] | e }}" alt="Profile" class="user-profile-pic">
@@ -75,7 +75,7 @@
                     <div class="card-grid" id="recipesGrid">
                         {% if recipes %}
                             {% for recipe in recipes %}
-                                <div class="card-item" data-title="{{ recipe['recipeTitle'] | e }}">
+                                <div class="card-item" data-title="{{ recipe['recipeTitle'] | e }}" onclick="viewRecipeDetails('{{ recipe.recipeID }}')">
                                     <img src="{{ recipe['recipePic'] | e }}" alt="{{ recipe['recipeTitle'] | e }}" class="recipe-image">
                                     <div class="card-header">
                                         <span class="card-id">#{{ recipe['recipeID'] | e }}</span>
@@ -96,12 +96,45 @@
                     </div>
                 </div>
 
-                <!-- User Details Card -->
-                <div class="card hidden" id="userDetailsCard">
-                    <h3 class="card-title">User Details</h3>
-                    <button onclick="closeUser()">Close</button>
-                    <div class="card-content" id="userDetailsContent"></div>
+                <!-- View Recipes Card -->
+                <div class="card hidden" id="viewRecipeCard">
+                    <h3 class="card-title">View Recipe</h3>
+                    <button class="close-button" onclick="closeRecipeDetails()"> x </button>
+                    <img id="recipeHeaderPic" class="recipe-image" alt="Recipe Image">
+                    <div class="card-header">
+                        <span id="recipeId" class="card-id"></span>
+                        <h4 id="recipeTitle" class="card-subtitle"></h4>
+                        <span id="recipeStatus" class="card-tag"></span>
+                    </div>
+                    <div id="recipeDescription" class="card-details"></div>
+                    <div class="card-footer">
+                        <span id="recipeTime" class="card-time"></span>
+                        <span id="recipeCalories" class="card-calories"></span>
+                        <span id="recipeCuisine" class="card-cuisine"></span>
+                    </div>  
                 </div>
+
+                <!-- View Profile Card -->
+                <div class="card hidden" id="viewProfileCard">
+                    <h3 class="card-title">View User Profile</h3>
+                    <button class="close-button" onclick="closeUserProfile()"> x </button>
+                    <img id="profileHeaderPic" class="user-header-pic" alt="Header Picture">
+                    <div class="user-profile-container">
+                        <img id="profileProfilePic" class="user-profile-pic" alt="Profile Picture">
+                    </div>
+                    <div class="card-header">
+                        <span id="profileId" class="card-id"></span>
+                        <h4 id="profileName" class="card-subtitle"></h4>
+                        <span id="profileStatus" class="card-tag"></span>
+                    </div>
+                    <p id="profileBio" class="card-bio"></p>
+                    <p id="profileEmail" class="card-details"></p>
+                    <div class="card-footer">
+                        <span id="profilePackage" class="card-package"></span>
+                    </div>
+                    </div>
+                </div>
+
             </section>
         </main>
     </div>
@@ -127,55 +160,68 @@
             });
         }
 
-        function showUser(userId) {
-            const userDetailsContent = document.getElementById('userDetailsContent');
+        function viewUserProfile(userId) {
+            const viewProfileCard = document.getElementById('viewProfileCard');
+            viewProfileCard.classList.remove('hidden');
 
             fetch(`/user/${userId}`)
                 .then(response => response.json())
                 .then(data => {
-                    if (data.error) {
-                        userDetailsContent.innerHTML = `<p>${data.error}</p>`;
-                    } else {
-                        userDetailsContent.innerHTML = `
-                            <div class="card-item" data-name="${data.userName}">
-                                <img src="${data.userHeaderPic}" alt="Header" class="user-header-pic">
-                                <div class="user-profile-container">
-                                    <img src="${data.userProfilePic}" alt="Profile" class="user-profile-pic">
-                                </div>
-                                <div class="card-header">
-                                    <span class="card-id">#${data.userID}</span>
-                                    <h4 class="card-subtitle">${data.userName}</h4>
-                                    <span class="card-tag">${data.userStatus}</span>
-                                </div>
-                                <p class="card-bio">${data.userBio}</p>
-                                <p class="card-details">${data.userEmail}</p>
-                                <div class="card-footer">
-                                    <span class="card-package">${data.userPackage}</span>
-                                    <button onclick="suspendUser('${data.userID}')" class="btn btn-suspend">Suspend</button>
-                                    <form action="/user/delete/${data.userID}" method="POST" style="display: inline;">
-                                        <button type="submit" class="btn btn-delete">Delete</button>
-                                    </form>
-                                </div>
-                            </div>
-                            <h3>Published Recipes</h3>
-                            <div class="card-grid" id="recipesGrid"></div>
-                        `;
-                    }
+                    document.getElementById('profileId').innerText = `#${data.userID}`;
+                    document.getElementById('profileName').innerText = data.userName;
+                    document.getElementById('profileEmail').innerText = data.userEmail;
+                    document.getElementById('profileBio').innerText = data.userBio;
+                    document.getElementById('profileStatus').innerText = data.userStatus;
+                    document.getElementById('profilePackage').innerText = data.userPackage;
+                    document.getElementById('profileHeaderPic').src = data.userHeaderPic;
+                    document.getElementById('profileProfilePic').src = data.userProfilePic;
                 })
                 .catch(() => {
-                    userDetailsContent.innerHTML = '<p>Error fetching user details.</p>';
+                    viewProfileCard.innerHTML = '<p>Error fetching user details.</p>';
                 });
-
-            document.getElementById('userDetailsCard').classList.remove('hidden');
+            document.getElementById('usersCard').classList.add('hidden');
             document.getElementById('recipesCard').classList.add('hidden');
         }
 
-        function closeUser() {
-            document.getElementById('userDetailsCard').classList.add('hidden');
+        function closeUserProfile() {
+            const viewProfileCard = document.getElementById('viewProfileCard');
+            viewProfileCard.classList.add('hidden');
+            document.getElementById('usersCard').classList.remove('hidden');
             document.getElementById('recipesCard').classList.remove('hidden');
         }
 
-        function suspendUser(userId) {
+        function viewRecipeDetails(recipeId) {
+            const viewRecipeCard = document.getElementById('viewRecipeCard');
+            viewRecipeCard.classList.remove('hidden');
+
+            fetch(`/recipe/${recipeId}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('recipeId').innerText = `#${data.recipeID}`;
+                    document.getElementById('recipeTitle').innerText = data.recipeTitle;
+                    document.getElementById('recipeDescription').innerText = data.recipeDescription;
+                    document.getElementById('recipeStatus').innerText = data.recipeStatus;
+                    document.getElementById('recipeTime').innerText = `${data.recipeTime} mins`;
+                    document.getElementById('recipeCalories').innerText = `${data.recipeCalories} cal`;
+                    document.getElementById('recipeCuisine').innerText = data.recipeCuisine;
+                    document.getElementById('recipeHeaderPic').src = data.recipePic;
+                })
+                .catch(() => {
+                    viewRecipeCard.innerHTML = '<p>Error fetching recipe details.</p>';
+                });
+
+            document.getElementById('usersCard').classList.add('hidden');
+            document.getElementById('recipesCard').classList.add('hidden');
+        }
+
+        function closeRecipeDetails() {
+            const viewRecipeCard = document.getElementById('viewRecipeCard');
+            viewRecipeCard.classList.add('hidden');
+            document.getElementById('usersCard').classList.remove('hidden');
+            document.getElementById('recipesCard').classList.remove('hidden');
+        }
+
+        function suspendUser(userId) {     // check this later
             if (confirm("Are you sure you want to suspend this user?")) {
                 fetch(`/user/suspend/${userId}`, { method: 'POST' })
                     .then(response => {
@@ -191,6 +237,8 @@
                     });
             }
         }
+    
+
     </script>
 </body>
 </html>

@@ -12,10 +12,52 @@ def create_app():
     
     DatabaseManager.init_db()
 
+    # ----------------- MAIN ROUTES -----------------
     @app.route("/")
     def main():
         return render_template('main.html')
     
+    @app.route('/user/<int:id>')
+    def get_user(id):
+        user = RegisteredUser.get_user_by_id(id)
+        if user:
+            return {
+                'userID': user['userID'],  
+                'userName': user['userName'],
+                'userEmail': user['userEmail'],
+                'userBio': user['userBio'],
+                'userPackage': user['userPackage'],
+                'userHeaderPic': user['userHeaderPic'], 
+                'userProfilePic': user['userProfilePic'], 
+                'userStatus': user['userStatus']  
+            }
+        return {'error': 'User  not found'}, 404
+
+    @app.route('/recipe/<int:id>')
+    def get_recipe(id):
+        recipe = Recipe.get_recipe_by_id(id)
+        if recipe:
+            return {
+                'recipeID': recipe['recipeID'],
+                'recipeTitle': recipe['recipeTitle'],
+                'recipeDescription': recipe['recipeDescription'],
+                'recipeIngredients': recipe['recipeIngredients'],
+                'recipeSteps': recipe['recipeSteps'],
+                'recipePic': recipe['recipePic'],
+                'recipeTime': recipe['recipeTime'],
+                'recipeCalories': recipe['recipeCalories'],
+                'recipeLabel': recipe['recipeLabel'],
+                'recipeCuisine': recipe['recipeCuisine'],
+                'recipeStatus': recipe['recipeStatus'],
+                'userID': recipe['userID']
+            }
+        return {'error': 'Recipe not found'}, 404
+
+    @app.route('/logout')
+    def logout():
+        return redirect(url_for('home'))
+
+    # ----------------- ADMIN ROUTES -----------------
     @app.route('/adminhome')
     def adminhome():
         reports = Report.get_all_reports()
@@ -78,26 +120,9 @@ def create_app():
     def manage():
         users = RegisteredUser.get_all_users()
         recipes = Recipe.get_all_recipes()
-        userDetails = RegisteredUser.get_user_by_id(id)
+        userDetails = RegisteredUser.get_user_by_id(id)     # check what is this for
         return render_template('adminmanage.html', users=users, recipes=recipes)
     
-    @app.route('/user/<int:id>')
-    def get_user(id):
-        user = RegisteredUser.get_user_by_id(id)
-        if user:
-            return {
-                'userID': user['userID'],  # Use dictionary-style access
-                'userName': user['userName'],
-                'userEmail': user['userEmail'],
-                'userBio': user['userBio'],
-                'userPackage': user['userPackage'],
-                'userHeaderPic': user['userHeaderPic'],  # Ensure this is included
-                'userProfilePic': user['userProfilePic'],  # Ensure this is included
-                'userStatus': user['userStatus']  # Ensure this is included
-            }
-        return {'error': 'User  not found'}, 404
-
-
     @app.route('/user/suspend/<int:id>', methods=['POST'])
     def suspend_user(id):
         # Logic to suspend the user
@@ -112,11 +137,10 @@ def create_app():
     def delete_user(id):
         RegisteredUser .delete_user(id)  # Implement this method in your RegisteredUser  class
         return redirect(url_for('manage'))  # Redirect to the manage page or wherever appropriate
-
-    @app.route('/logout')
-    def logout():
-        return redirect(url_for('home'))
     
+    # ----------------- USER ROUTES -----------------
+
+
     @app.route('/userhome')
     def userhome():
         return render_template('userhome.html')
@@ -129,4 +153,6 @@ def create_app():
     def profile():
         return render_template('profile.html')
     
+    # ----------------- -----------------
+
     return app
