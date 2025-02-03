@@ -73,3 +73,13 @@ class RegisteredUser:
             print(f"Database error: {e}")
             return []
         
+    @staticmethod
+    def delete_user(user_id):
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM users WHERE userID = ?", (user_id,))
+            conn.commit()  # Commit the changes to the database
+            conn.close()
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")

@@ -10,10 +10,9 @@
     <div class="container">
         <!-- Sidebar - Same as adminhome.html -->
         <div class="sidebar">
-            <div class="brand">
-                <h2>Admin Panel</h2>
+            <div class="user-profile-sidebar">
+                <img src="https://i.pinimg.com/736x/66/d1/9b/66d19b58cb787b236acfc999b422c40a.jpg" alt="Profile" class="user-profile-pic">
             </div>
-
             <nav>
                 <ul>
                     <li><a href="{{ url_for('adminhome') }}">Dashboard</a></li>
@@ -89,28 +88,8 @@
     </div>
 
     <script>
-        function openEditPanel(notiId) {
-            const panel = document.getElementById('editPanel');
-            panel.classList.add('active');
-            
-            // Update form action URL
-            const form = document.getElementById('editForm');
-            form.action = `/notification/edit/${notiId}`;
-            
-            // Get notification data and populate form
-            fetch(`/notification/${notiId}`)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('editTitle').value = data.title;
-                    document.getElementById('editDetails').value = data.details;
-                    document.getElementById('editReceiver').value = data.receiver;
-                });
-        }
 
-        function closeEditPanel() {
-            const panel = document.getElementById('editPanel');
-            panel.classList.remove('active');
-        }
+
     </script>
 
             <!-- Create Panel -->
@@ -141,6 +120,31 @@
     </div>
 
     <script>
+
+    function openEditPanel(notiId) {
+            const panel = document.getElementById('editPanel');
+            panel.classList.add('active');
+            
+            // Update form action URL
+            const form = document.getElementById('editForm');
+            form.action = `/notification/edit/${notiId}`;
+            
+            // Get notification data and populate form
+            fetch(`/notification/${notiId}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('editTitle').value = data.title;
+                    document.getElementById('editDetails').value = data.details;
+                    document.getElementById('editReceiver').value = data.receiver;
+                });
+        }
+
+        function closeEditPanel() {
+            const panel = document.getElementById('editPanel');
+            panel.classList.remove('active');
+        }
+
+
         // Add these functions to existing script
         function openCreatePanel() {
             document.getElementById('createPanel').classList.add('active');
@@ -148,7 +152,10 @@
 
         function closeCreatePanel() {
             document.getElementById('createPanel').classList.remove('active');
-        }
+        } //change active to hideen later
+
+
     </script>   
+
 </body>
 </html>

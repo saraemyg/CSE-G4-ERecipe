@@ -19,24 +19,13 @@ body {
 
 /* ------- Sidebar Styles --------- */
 .sidebar {
-    width: 250px;
+    width: 150px;
     background: #2c3e50;
     color: white;
     padding: 20px;
     box-shadow: 2px 0 5px rgba(0,0,0,0.1);
     height: 100vh;
     position: fixed;
-}
-
-.brand {
-    padding: 20px 0;
-    text-align: center;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-
-.brand h2 {
-    font-size: 24px;
-    font-weight: 500;
 }
 
 /* Navigation */
@@ -71,6 +60,8 @@ body {
     flex: 1;
     background: #f8f9fa;
     padding: 20px;
+    width: calc(100vw - 170px); /* Accounts for both padding and sidebar */
+    max-width: 100%; /* Ensures it doesn't overflow */
 }
 
 .content {
@@ -157,11 +148,13 @@ header h1 {
 
 .main-content {
     flex: 1;
-    margin-left: 250px;
+    margin-left: 150px;
     display: flex;
     flex-direction: column;
     height: 100vh;
+    max-width: calc(100vw - 150px);
     padding: 20px;
+    overflow-x: hidden;
 }
 
 /* ---- others ---- */
@@ -324,10 +317,37 @@ header h1 {
 
 .card-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 20px;
     padding: 20px;
     justify-items: center;
+}
+
+.card-view {
+    width: 100%;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+    overflow: hidden; /* Ensure content doesn't overflow */
+    display: flex;
+    flex-direction: column;
+}
+
+
+.card-view::-webkit-scrollbar {
+    width: 6px;
+}
+
+.card-view::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+}
+
+.card-view::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.5);
 }
 
 .card-item {
@@ -562,6 +582,13 @@ header h1 {
     padding: 0 20px;
 }
 
+.user-profile-sidebar {
+    position: relative;
+    margin-top: 0px;
+    margin-bottom: 10px;
+    padding: 0 20px;
+}
+
 .user-profile-pic {
     width: 80px;
     height: 80px;
@@ -645,3 +672,303 @@ header h1 {
 
 
 
+/* ---------- */
+
+.card-item-template {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    break-inside: avoid;
+    margin-bottom: 10px;
+    transition: transform 0.2s;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    visibility: hidden; /* Initially hidden as template */
+}
+
+.card-item-template:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.card-item-template .recipe-image {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.card-item-template .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    gap: 10px;
+}
+
+.card-item-template .card-id {
+    color: #666;
+    font-size: 12px;
+    min-width: 50px;
+}
+
+.card-item-template .card-subtitle {
+    margin: 0;
+    font-size: 16px;
+    color: #2c3e50;
+    flex-grow: 1;
+}
+
+.card-item-template .card-tag {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    background: #e8f0fe;
+    color: #1a73e8;
+    white-space: nowrap;
+}
+
+.card-item-template .card-details {
+    padding: 0 15px;
+    color: #666;
+}
+
+.card-item-template .card-footer {
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    color: #888;
+}
+
+.card-item-template .card-time,
+.card-item-template .card-calories,
+.card-item-template .card-cuisine {
+    font-size: 12px;
+}
+
+.card-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px; /* Space between the image and content */
+}
+
+.recipeImageContainer {
+    flex-shrink: 0;
+    width: 40%; /* Adjust image width as needed */
+    aspect-ratio: 4 / 5; /* 4:5 Aspect Ratio */
+}
+
+.recipe-view-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Keeps image aspect ratio intact */
+    border-radius: 10px; /* Optional: Adds border radius for rounded corners */
+}
+
+.card-info {
+    flex: 1; /* Takes remaining space */
+}
+
+.card-title, .card-header, .card-footer {
+    margin-bottom: 15px;
+}
+
+.card-details, .card-subtitle, .card-id, .card-tag {
+    font-size: 14px;
+    color: #666;
+}
+
+.card-ingredients, .card-steps {
+    margin-top: 20px;
+}
+
+.card-ingredients h5, .card-steps h5 {
+    font-size: 16px;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+#ingredientsText, #stepsText {
+    font-size: 14px;
+    color: #666;
+    white-space: pre-line; /* To preserve line breaks in steps */
+}
+
+.card-content {
+    padding-bottom: 20px; /* Ensure there's spacing before the buttons */
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px;
+    background-color: #f9f9f9;
+    border-top: 1px solid #ddd;
+}
+
+.card-content {
+    position: relative; /* Make sure card-content is positioned relatively */
+    padding-bottom: 60px; /* Ensure space for the action footer */
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px;
+    background-color: #f9f9f9;
+    border-top: 1px solid #ddd;
+}
+
+.card-action-footer {
+    position: absolute;  /* Position the footer at the bottom of the content */
+    bottom: 0;
+    left: 0;
+    width: 100%;  /* Full width of the parent */
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    padding: 10px 15px;
+    background-color: #f9f9f9;
+    border-top: 1px solid #ddd;
+}
+
+.btn-suspend {
+    background-color: #1a73e8; /* Blue */
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-suspend:hover {
+    background-color: #155db3; /* Darker blue on hover */
+}
+
+.btn-delete {
+    background-color: #e74c3c; /* Red */
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: 10px; /* Add some space between buttons */
+}
+
+.btn-delete:hover {
+    background-color: #c0392b; /* Darker red on hover */
+}
+
+/* Improve card transitions */
+.card {
+    transition: opacity 0.3s ease;
+}
+
+.comment-section {
+    border-top: 1px solid #ddd;
+    padding-top: 8px;
+    margin-top: 12px;
+    background-color: #f9f9f9;
+    max-height: 200px;
+    overflow-y: auto;
+    border-radius: 8px;
+}
+
+.comment-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.comment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.comment-item {
+    background-color: #ffffff;
+    border-radius: 6px;
+    padding: 8px;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.comment-item p {
+    margin: 2px 0;
+    font-size: 14px;
+}
+
+.comment-item hr {
+    border: none;
+    border-top: 1px solid #eee;
+    margin-top: 6px;
+    margin-bottom: 4px;
+}
+.section-container {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.section-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.section-list div {
+    background-color: #ffffff;
+    padding: 8px;
+    border-radius: 6px;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+    font-size: 14px;
+}
+
+.recipeImageContainer {
+    position: relative;
+    display: inline-block;
+}
+
+.like-container {
+    position: absolute;
+    bottom: 20px;
+    right: 16px;
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 8px 12px;
+    border-radius: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.heart-icon {
+    font-size: 24px; /* Increased size */
+    color: hsl(339, 72%, 69%);
+    cursor: pointer;
+    margin-right: 8px;
+    user-select: none;
+    transition: transform 0.2s;
+}
+
+.heart-icon.liked {
+    color: hsl(349, 81%, 51%);
+    transform: scale(1.3); /* Larger heart animation when clicked */
+}
+
+#likeCount {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}

@@ -11,8 +11,8 @@
         <!-- Sidebar -->
         <div class="sidebar">
             <!-- Brand/Logo -->
-            <div class="brand">
-                <h2>Admin Panel</h2>
+            <div class="user-profile-sidebar">
+                <img src="https://i.pinimg.com/736x/66/d1/9b/66d19b58cb787b236acfc999b422c40a.jpg" alt="Profile" class="user-profile-pic">
             </div>
 
             <!-- Navigation -->
@@ -80,15 +80,42 @@
                         {% endif %}
                     </div>
                 </div>
-                
-                <!-- <div class="card">
-                    <h3>Recent Activities</h3>
-                    <p>Monitor system activities</p>
-                </div>
-            </div>
-        </div> -->
-
-
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Add click event listener to each card-item
+            document.querySelectorAll('.card-item').forEach(function(cardItem) {
+                cardItem.addEventListener('click', function() {
+                    var reportID = cardItem.getAttribute('data-report-id');
+    
+                    // Check if the details card is already present
+                    if (!document.querySelector(`#details-card-${reportID}`)) {
+                        var newCard = document.createElement('div');
+                        newCard.classList.add('card-item');
+                        newCard.id = `details-card-${reportID}`;
+    
+                        // You can dynamically generate the content for the new card based on the report details
+                        var newCardContent = `
+                            <div class="card-header">
+                                <span class="card-id">#${reportID}</span>
+                                <span class="card-status">Details</span>
+                            </div>
+                            <p class="card-details">Details about report #${reportID}</p>
+                            <div class="card-footer">
+                                <span class="card-time">Time: 2025-02-03</span>
+                                <span class="card-reference">Related Recipe #123</span>
+                            </div>
+                        `;
+                        newCard.innerHTML = newCardContent;
+    
+                        // Insert the new card beside the clicked card-item
+                        cardItem.insertAdjacentElement('afterend', newCard);
+                    }
+                });
+            });
+        });
+    </script>
+    
 </body>
 </html>

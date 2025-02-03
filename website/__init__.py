@@ -3,6 +3,7 @@ from .models import DatabaseManager
 from .admin import Report, Notification
 from .user import RegisteredUser
 from .recipe import Recipe
+from .comment import Comment
 
 def create_app():
     
@@ -16,6 +17,10 @@ def create_app():
     @app.route("/")
     def main():
         return render_template('main.html')
+    
+    @app.route('/logout')
+    def logout():
+        return redirect(url_for('home'))
     
     @app.route('/user/<int:id>')
     def get_user(id):
@@ -37,6 +42,7 @@ def create_app():
     def get_recipe(id):
         recipe = Recipe.get_recipe_by_id(id)
         if recipe:
+            like_count = Recipe.get_recipe_like_count(id)  # Fetch the like count
             return {
                 'recipeID': recipe['recipeID'],
                 'recipeTitle': recipe['recipeTitle'],
@@ -49,13 +55,34 @@ def create_app():
                 'recipeLabel': recipe['recipeLabel'],
                 'recipeCuisine': recipe['recipeCuisine'],
                 'recipeStatus': recipe['recipeStatus'],
-                'userID': recipe['userID']
+                'userID': recipe['userID'],
+                'likeCount': like_count,  # Include the like count in the response
+
             }
         return {'error': 'Recipe not found'}, 404
 
-    @app.route('/logout')
-    def logout():
-        return redirect(url_for('home'))
+    @app.route('/user/<int:id>/recipes')
+    def get_user_recipes(id):
+        # Fetch user recipes
+        recipes = Recipe.get_recipe_by_user_id(id)
+        if recipes:
+            return {'recipes': [dict(recipe) for recipe in recipes]}  # Return a list of recipes in a JSON-friendly format
+        return {'recipes': []}  # If no recipes are found, return an empty list
+
+    @app.route('/recipe/<int:id>/likes')
+    def get_recipe_like_count(id):
+        # Fetch the total like count for the specified recipe
+        like_count = Recipe.get_recipe_like_count(id)
+        return {'recipeID': id, 'likeCount': like_count}
+
+
+    # ----------------- COMMENT ROUTES -----------------
+    @app.route('/recipe/<int:id>/comments')
+    def get_recipe_comments(id):
+        comments = Comment.get_comments_by_recipe_id(id)
+        return {
+            'comments': [dict(comment) for comment in comments]
+        }
 
     # ----------------- ADMIN ROUTES -----------------
     @app.route('/adminhome')
@@ -123,20 +150,28 @@ def create_app():
         userDetails = RegisteredUser.get_user_by_id(id)     # check what is this for
         return render_template('adminmanage.html', users=users, recipes=recipes)
     
-    @app.route('/user/suspend/<int:id>', methods=['POST'])
-    def suspend_user(id):
-        # Logic to suspend the user
-        user = RegisteredUser .get_user_by_id(id)
-        if user:
-            # Assuming you have a method to suspend the user
-            RegisteredUser .suspend_user(id)
-            return '', 204  # No content response
-        return {'error': 'User  not found'}, 404
+    @app.route('/recipe/<int:id>/suspend', methods=['POST'])
+    def suspend_recipe(id):
+        try:
+            # Suspend the recipe by updating its status to 'suspended'
+            Recipe.suspend_recipe(id)
+            flash('Recipe has been suspended successfully.', 'success')
+            return redirect(url_for('view_recipe', id=id))  # Redirect to the recipe view page or a manage page
+        except Exception as e:
+            flash(f'Error suspending recipe: {e}', 'error')
+            return redirect(url_for('view_recipe', id=id))  # Handle error and redirect back
 
-    @app.route('/user/delete/<int:id>', methods=['POST'])
-    def delete_user(id):
-        RegisteredUser .delete_user(id)  # Implement this method in your RegisteredUser  class
-        return redirect(url_for('manage'))  # Redirect to the manage page or wherever appropriate
+    @app.route('/recipe/<int:id>/delete', methods=['POST'])
+    def delete_recipe(id):
+        try:
+            # Delete the recipe from the database
+            Recipe.delete_recipe(id)
+            flash('Recipe has been deleted successfully.', 'success')
+            return redirect(url_for('manage'))  # Redirect to the manage recipes page
+        except Exception as e:
+            flash(f'Error deleting recipe: {e}', 'error')
+            return redirect(url_for('view_recipe', id=id))  # Handle error and redirect back
+
     
     # ----------------- USER ROUTES -----------------
 

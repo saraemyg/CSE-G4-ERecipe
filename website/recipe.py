@@ -31,6 +31,19 @@ class Recipe:
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return None
+        
+    @staticmethod
+    def get_recipe_by_user_id(user_id):
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM recipe WHERE userID = ?", (user_id,))
+            recipes = cursor.fetchall()
+            conn.close()
+            return recipes
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return []
 
     @staticmethod
     def update_recipe_status(recipe_id, new_status):
@@ -47,3 +60,40 @@ class Recipe:
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return False
+        
+    @staticmethod
+    def get_recipe_like_count(recipe_id):
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM `like` WHERE recipeID = ?", (recipe_id,))
+            result = cursor.fetchone()
+            conn.close()
+            return result[0] if result else 0  # result[0] holds the like count
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return 0
+
+    @staticmethod
+    def suspend_recipe(recipe_id):
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("UPDATE recipe SET recipeStatus = 'suspended' WHERE recipeID = ?", (recipe_id,))
+            conn.commit()
+            conn.close()
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            raise Exception("Error suspending the recipe.")
+
+    @staticmethod
+    def delete_recipe(recipe_id):
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM recipe WHERE recipeID = ?", (recipe_id,))
+            conn.commit()
+            conn.close()
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            raise Exception("Error deleting the recipe.")

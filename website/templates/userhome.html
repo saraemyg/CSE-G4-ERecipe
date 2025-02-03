@@ -73,3 +73,23 @@
     </div>
 </body>
 </html>
+
+
+let likeCount = 0;
+let liked = false;
+
+function toggleLike() {
+    const heartIcon = document.querySelector('.heart-icon');
+    const likeCountElement = document.getElementById('likeCount');
+
+    liked = !liked;
+    heartIcon.classList.toggle('liked');
+    
+    likeCount = liked ? likeCount + 1 : likeCount - 1;
+    likeCountElement.textContent = likeCount;
+}
+
+<div class="like-container">
+    <span class="heart-icon" onclick="toggleLike()">&hearts;</span>
+    <span id="likeCount">0</span>
+</div>
