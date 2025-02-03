@@ -3,94 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>User Homepage</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <div class="container">
         <!-- Sidebar -->
-        <div class="sidebar">
-            <!-- Brand/Logo -->
-            <div class="brand">
-                <h2>User Panel</h2>
-            </div>
-
-            <!-- Navigation -->
+        <aside class="sidebar" style="background-color: white;">
             <nav>
                 <ul>
-                    <li><a href="{{ url_for('userhome') }}" class="active">Home</a></li>
-                    <li><a href="{{ url_for('createrecipe') }}">Create Recipe</a></li>
-                    <li><a href="{{ url_for('login') }}">Login</a></li>
+                    <li><a href="#">🏠</a></li>
+                    <li><a href="#">➕</a></li>
+                    <li><a href="#">❤️</a></li>
+                    <li><a href="#">💬</a></li>
+                    <li><a href="#">⚙️</a></li>
                 </ul>
             </nav>
-        </div>
+        </aside>
 
         <!-- Main Content -->
-        <div class="main-content">
-            <div class="topbar">
-                <h1>Recipe Book</h1>
-                <div class="searchbar">
-                    <input type="text" placeholder="Search for recipes...">
-                    <button>Search</button>
-                </div>
+        <main class="main-content">
+            <header class="content-header">
+                <input type="text" placeholder="Any cravings today?" class="search-bar">
+                <button class="filter-btn">Filters</button>
+                <button class="sort-btn">Sort By</button>
+                <button class="notification-btn">🔔</button> <!-- Bell icon moved here -->
+                <button class="profile-btn">👤</button>
+            </header>
 
-                <nav>
-                    <ul>
-                        <li><a href="{{ url_for('profile') }}">Profile</a></li>
-                    </ul>
-                </nav>
-            </div>
-
-            <div class="content-header">
-                <h1>E-Recipe Hub</h1>
-            </div>
-            
-            <div class="dashboard-content">
-                
+            <h2>Recommended For You</h2>
+            <div class="card-container">
                 <div class="card">
-                    <h3 class="card-title">Recommended for You</h3>
-                    <div class="card-list">
-                        {% if recipes %}
-                            {% for recipe in recipes %}
-                            <div class="card-item">
-                                <div class="card-header">
-                                    <span class="card-id">#{{ recipe['recipeID'] }}</span>
-                                    <h4 class="card-subtitle">{{ recipe['recipeName'] }}</h4>
-                                    <span class="card-tag">{{ recipe['recipeCategory'] }}</span>
-                                </div>
-                                <p class="card-details">{{ recipe['recipeDescription'] }}</p>
-                                <div class="card-footer">
-                                    <span class="card-time">{{ recipe['recipeTime'] }}</span>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        {% else %}
-                            <p>No recipes available</p>
-                        {% endif %}
-                    </div>
+                    <img src="churros.jpg" alt="Churros">
+                    <h4>Churros</h4>
+                </div>
+                <div class="card">
+                    <img src="brownies.jpg" alt="Chocolate Brownies">
+                    <h4>Chocolate Brownies</h4>
+                </div>
+                <div class="card">
+                    <img src="strawberry_sando.jpg" alt="Strawberry Sando">
+                    <h4>Strawberry Sando</h4>
+                </div>
+                <div class="card">
+                    <img src="mango_sticky_rice.jpg" alt="Mango Sticky Rice">
+                    <h4>Mango Sticky Rice</h4>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 </body>
 </html>
-
-
-let likeCount = 0;
-let liked = false;
-
-function toggleLike() {
-    const heartIcon = document.querySelector('.heart-icon');
-    const likeCountElement = document.getElementById('likeCount');
-
-    liked = !liked;
-    heartIcon.classList.toggle('liked');
-    
-    likeCount = liked ? likeCount + 1 : likeCount - 1;
-    likeCountElement.textContent = likeCount;
-}
-
-<div class="like-container">
-    <span class="heart-icon" onclick="toggleLike()">&hearts;</span>
-    <span id="likeCount">0</span>
-</div>
