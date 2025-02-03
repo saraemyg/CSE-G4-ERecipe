@@ -18,6 +18,15 @@ def create_app():
     def main():
         return render_template('main.html')
     
+    @app.route('/login', methods=['GET', 'POST'])
+    def login():
+        if request.method == 'POST':
+            username = request.form['username']
+            password = request.form['password']
+            # Add your authentication logic here
+            return redirect(url_for('userhome'))
+        return render_template('login.html')
+    
     @app.route('/logout')
     def logout():
         return redirect(url_for('home'))
