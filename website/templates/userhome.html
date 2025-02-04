@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <div class="container">
+    <div class="container userhome">
         <!-- Sidebar -->
         <aside class="sidebar" style="background-color: white;">
             <nav>
@@ -33,22 +33,26 @@
 
             <h2>Recommended For You</h2>
             <div class="card-container">
-                <div class="card">
-                    <img src="churros.jpg" alt="Churros">
-                    <h4>Churros</h4>
-                </div>
-                <div class="card">
-                    <img src="brownies.jpg" alt="Chocolate Brownies">
-                    <h4>Chocolate Brownies</h4>
-                </div>
-                <div class="card">
-                    <img src="strawberry_sando.jpg" alt="Strawberry Sando">
-                    <h4>Strawberry Sando</h4>
-                </div>
-                <div class="card">
-                    <img src="mango_sticky_rice.jpg" alt="Mango Sticky Rice">
-                    <h4>Mango Sticky Rice</h4>
-                </div>
+                {% if recipes %}
+                    {% for recipe in recipes %}
+                        <div class="card-item" data-title="{{ recipe['recipeTitle'] | e }}" onclick="viewRecipeDetails('{{ recipe.recipeID }}')">
+                            <img src="{{ recipe['recipePic'] | e }}" alt="{{ recipe['recipeTitle'] | e }}" class="recipe-image">
+                            <div class="card-header">
+                                <span class="card-id">#{{ recipe['recipeID'] | e }}</span>
+                                <h4 class="card-subtitle">{{ recipe['recipeTitle'] | e }}</h4>
+                                <span class="card-tag {{ recipe['recipeStatus'] | e }}">{{ recipe['recipeStatus'] | e }}</span>
+                            </div>
+                            <div class="card-details">{{ recipe['recipeDescription'] | e }}</div>
+                            <div class="card-footer">
+                                <span class="card-time">{{ recipe['recipeTime'] | e }} mins</span>
+                                <span class="card-calories">{{ recipe['recipeCalories'] | e }} cal</span>
+                                <span class="card-cuisine">{{ recipe['recipeCuisine'] | e }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No recipes available</p>
+                {% endif %}
             </div>
         </main>
     </div>
