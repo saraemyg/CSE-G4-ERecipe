@@ -24,10 +24,13 @@
         <!-- Main Content -->
         <main class="main-content">
             <header class="content-header">
-                <input type="text" placeholder="Any cravings today?" class="search-bar">
+                <div class="search-container">
+                    <input type="text" placeholder="Any cravings today?" class="search-bar">
+                    <span class="search-icon">🔍</button>
+                </div>
                 <button class="filter-btn">Filters</button>
                 <button class="sort-btn">Sort By</button>
-                <button class="notification-btn">🔔</button> <!-- Bell icon moved here -->
+                <button class="notification-btn">🔔</button>
                 <button class="profile-btn">👤</button>
             </header>
 
@@ -56,5 +59,13 @@
             </div>
         </main>
     </div>
+
+    <script>
+        document.getElementById('search-button').addEventListener('click', function() {
+            const query = document.getElementById('search-input').value;
+            // Implement your search functionality here
+            alert('Search for: ' + query);
+        });
+    </script>
 </body>
 </html>
