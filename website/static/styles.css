@@ -1010,7 +1010,7 @@ header h1 {
 
 .search-container {
     position: relative;
-    flex: 12 18 0%; /* Take up 12/18 of the space */
+    flex: 1; /* Allow the search bar to take up remaining space */
 }
 
 .search-bar {
@@ -1020,6 +1020,7 @@ header h1 {
     border: 1px solid #ccc;
     border-radius: 4px;
     padding-right: 40px; /* Add space for the search icon */
+    background-color: lightblue;
 }
 
 .search-icon {
@@ -1034,42 +1035,44 @@ header h1 {
     cursor: pointer;
 }
 
-.filter-btn {
-    flex: 2 18 0%; /* Take up 2/18 of the space */
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-left: 10px; /* Add some space between the search bar and the filter button */
+.filter-btn, .sort-btn, .notification-btn, .profile-btn {
+    margin-left: 5px; /* Reduce space between buttons */
+    height: 40px;
 }
 
-.sort-btn {
-    flex: 2 18 0%; /* Take up 2/18 of the space */
+.filter-btn, .sort-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     padding: 10px;
     font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 4px;
     cursor: pointer;
-    margin-left: 10px; /* Add some space between the filter button and the sort button */
+    flex: 0 0 150px; /* Set a fixed width for the buttons */
+    background-color: lightblue;
+}
+
+.filter-icon, .sort-icon {
+    margin-left: auto; /* Push the icon to the right */
 }
 
 .notification-btn {
-    flex: 1 18 0%; /* Take up 1/18 of the space */
     padding: 10px;
     font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    border: none; /* Remove border */
+    background: none; /* Remove background */
     cursor: pointer;
-    margin-left: 10px; /* Add some space between the sort button and the notification button */
 }
 
 .profile-btn {
-    flex: 1 18 0%; /* Take up 1/18 of the space */
-    padding: 10px;
+    width: 40px; /* Set a fixed width */
+    height: 40px; /* Set a fixed height */
     font-size: 16px;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 50%; /* Make the button circular */
     cursor: pointer;
-    margin-left: 10px; /* Add some space between the notification button and the profile button */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
