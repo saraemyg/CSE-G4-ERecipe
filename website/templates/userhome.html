@@ -62,7 +62,21 @@
                         </div>
                     </div>
                 </div>
-                <button class="sort-btn">Sort By <span class="sort-icon">⬇️</span></button>
+                <div class="sort-container" style="position: relative; display: inline-block;">
+                        <button class="sort-btn" id="sort-btn">Sort By <span class="sort-icon">⬇️</span></button>
+                        <div class="sort-box" id="sort-box" style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #ddd; padding: 10px; z-index: 1000; width: 200px;">
+                            <div class="sort-content">
+                                <h4>Sort By:</h4>
+                                <ul>
+                                    <li><input type="checkbox" id="popularity" name="sort" value="popularity"> <label for="popularity">Popularity</label></li>
+                                    <li><input type="checkbox" id="newest" name="sort" value="newest"> <label for="newest">Newest</label></li>
+                                    <li><input type="checkbox" id="least-time" name="sort" value="least-time"> <label for="least-time">Least Time</label></li>
+                                    <li><input type="checkbox" id="least-calories" name="sort" value="least-calories"> <label for="least-calories">Least Calories</label></li>
+                                    <li><input type="checkbox" id="least-ingredients" name="sort" value="least-ingredients"> <label for="least-ingredients">Least Ingredients</label></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 <button class="notification-btn">🔔</button>
                 <button class="profile-btn">👤</button>
             </header>
@@ -106,6 +120,19 @@
             const filterButton = document.querySelector('.filter-btn');
             if (filterBox.style.display === 'block' && !filterBox.contains(event.target) && event.target !== filterButton) {
                 filterBox.style.display = 'none';
+            }
+        });
+
+        document.getElementById('sort-btn').addEventListener('click', function () {
+            const sortBox = document.getElementById('sort-box');
+            sortBox.style.display = sortBox.style.display === 'none' || !sortBox.style.display ? 'block' : 'none';
+        });
+
+        document.addEventListener('click', function (event) {
+            const sortBox = document.getElementById('sort-box');
+            const sortButton = document.getElementById('sort-btn');
+            if (sortBox.style.display === 'block' && !sortBox.contains(event.target) && event.target !== sortButton) {
+                sortBox.style.display = 'none';
             }
         });
     </script>
