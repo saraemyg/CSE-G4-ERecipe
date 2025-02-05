@@ -28,7 +28,40 @@
                     <input type="text" placeholder="Any cravings today?" class="search-bar" id="search-input">
                     <button class="search-icon" id="search-button">🔍</button>
                 </div>
-                <button class="filter-btn">Filters <span class="filter-icon">🔧</span></button>
+                <div class="filter-container" style="position: relative; display: inline-block;">
+                    <button class="filter-btn">Filters <span class="filter-icon">🔧</span></button>
+                    <!-- Filter Box Positioned Below the Filter Button -->
+                    <div class="filter-box" id="filter-box">
+                        <div class="filter-content">
+                            <!-- Cuisines Section -->
+                            <div class="filter-section cuisines">
+                                <h4>Cuisines:</h4>
+                                <ul>
+                                    <li><input type="checkbox" id="meal" name="cuisine" value="meal"> <label for="meal">Meal</label></li>
+                                    <li><input type="checkbox" id="snack" name="cuisine" value="snack"> <label for="snack">Snack</label></li>
+                                    <li><input type="checkbox" id="dessert" name="cuisine" value="dessert"> <label for="dessert">Dessert</label></li>
+                                    <li><input type="checkbox" id="beverages" name="cuisine" value="beverages"> <label for="beverages">Beverages</label></li>
+                                    <li><input type="checkbox" id="local" name="cuisine" value="local"> <label for="local">Local</label></li>
+                                    <li><input type="checkbox" id="asian" name="cuisine" value="asian"> <label for="asian">Asian</label></li>
+                                    <li><input type="checkbox" id="western" name="cuisine" value="western"> <label for="western">Western</label></li>
+                                </ul>
+                            </div>
+                            <!-- Labels Section -->
+                            <div class="filter-section labels">
+                                <h4>Label:</h4>
+                                <ul>
+                                    <li><input type="checkbox" id="sugar-free" name="label" value="sugar-free"> <label for="sugar-free">Sugar Free</label></li>
+                                    <li><input type="checkbox" id="soy-free" name="label" value="soy-free"> <label for="soy-free">Soy Free</label></li>
+                                    <li><input type="checkbox" id="gluten-free" name="label" value="gluten-free"> <label for="gluten-free">Gluten Free</label></li>
+                                    <li><input type="checkbox" id="peanut-free" name="label" value="peanut-free"> <label for="peanut-free">Peanut Free</label></li>
+                                    <li><input type="checkbox" id="egg-free" name="label" value="egg-free"> <label for="egg-free">Egg Free</label></li>
+                                    <li><input type="checkbox" id="vegan" name="label" value="vegan"> <label for="vegan">Vegan</label></li>
+                                    <li><input type="checkbox" id="lactose-free" name="label" value="lactose-free"> <label for="lactose-free">Lactose Free</label></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <button class="sort-btn">Sort By <span class="sort-icon">⬇️</span></button>
                 <button class="notification-btn">🔔</button>
                 <button class="profile-btn">👤</button>
@@ -61,10 +94,19 @@
     </div>
 
     <script>
-        document.getElementById('search-button').addEventListener('click', function() {
-            const query = document.getElementById('search-input').value;
-            // Implement your search functionality here
-            alert('Search for: ' + query);
+        // Toggle the filter box
+        document.querySelector('.filter-btn').addEventListener('click', function () {
+            const filterBox = document.getElementById('filter-box');
+            filterBox.style.display = filterBox.style.display === 'none' || !filterBox.style.display ? 'block' : 'none';
+        });
+
+        // Close filter box when clicking outside
+        document.addEventListener('click', function (event) {
+            const filterBox = document.getElementById('filter-box');
+            const filterButton = document.querySelector('.filter-btn');
+            if (filterBox.style.display === 'block' && !filterBox.contains(event.target) && event.target !== filterButton) {
+                filterBox.style.display = 'none';
+            }
         });
     </script>
 </body>

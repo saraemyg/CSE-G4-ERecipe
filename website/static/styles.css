@@ -1076,3 +1076,49 @@ header h1 {
     align-items: center;
     justify-content: center;
 }
+
+.filter-box {
+            display: none;
+            position: absolute;
+            top: 50px; /* Adjusted position to be below the filter button */
+            left: 0;
+            background-color: white;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            z-index: 100;
+            width: 400px; /* Set a fixed width for the box */
+        }
+
+        .filter-content {
+            display: flex;
+            justify-content: space-between; /* Cuisines on the left, Labels on the right */
+            gap: 20px;
+        }
+
+        .filter-section {
+            flex: 1; /* Each section takes up equal space */
+        }
+
+        .filter-section h4 {
+            margin-bottom: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333333;
+        }
+
+        .filter-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .filter-section ul li {
+            margin-bottom: 8px;
+        }
+
+        .filter-section ul li label {
+            margin-left: 5px;
+            font-size: 14px;
+            color: #555555;
+        }
