@@ -1,7 +1,7 @@
 purpose of this file is to communicate between group members ^^
 
 app.py -> run app with this
-__init__.py -> app route
+__init__.py -> app route, please separate which and which because its confusing TT
 models.py -> database stuffs, 
           -> table creation please don't kacau, sample data can add if want to debug
 
@@ -13,6 +13,3 @@ instance -> database.db
 
 
 please share your thoughts here and also for to do list
-
-
-testing
