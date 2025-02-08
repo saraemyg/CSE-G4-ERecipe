@@ -7,22 +7,34 @@ def get_db():
     return conn
 
 class Notification:
+    
     @staticmethod
-    def get_all_notifications():
+    def get_all_notifications(user_package=None):
         try:
             conn = get_db()
             cursor = conn.cursor()
-            cursor.execute("""
-                SELECT notiID, notiTime, notiTitle, notiDetails, notiReceiver 
-                FROM notification 
-                ORDER BY notiTime DESC
-            """)
+            # Handle filtering logic for notifications
+            if user_package:
+                cursor.execute("""
+                    SELECT notiID, notiTime, notiTitle, notiDetails, notiReceiver 
+                    FROM notification 
+                    WHERE notiReceiver = ? OR notiReceiver = 'all'
+                    ORDER BY notiTime DESC
+                """, (user_package,))
+            else:
+                cursor.execute("""
+                    SELECT notiID, notiTime, notiTitle, notiDetails, notiReceiver 
+                    FROM notification 
+                    ORDER BY notiTime DESC
+                """)
             notifications = cursor.fetchall()
             conn.close()
             return notifications
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return []
+
+
 
     @staticmethod
     def get_notification_by_id(noti_id):
@@ -82,4 +94,20 @@ class Notification:
             print(f"Database error: {e}")
             return False
         
-        
+    @staticmethod
+    def get_notifications_by_package(package):
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT notiID, notiTime, notiTitle, notiDetails, notiReceiver 
+                FROM notification 
+                WHERE notiReceiver = ? 
+                ORDER BY notiTime DESC
+            """, (package,))
+            notifications = cursor.fetchall()
+            conn.close()
+            return notifications
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return []

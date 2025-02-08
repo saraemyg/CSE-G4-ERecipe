@@ -1,9 +1,10 @@
 from flask import Flask, render_template, redirect, url_for, request, flash, session
 from .models import DatabaseManager
-from .admin import Report, Notification
+from .admin import Report
 from .user import RegisteredUser
 from .recipe import Recipe
 from .comment import Comment
+from .notifications import Notification
 
 def create_app():
     
@@ -147,6 +148,8 @@ def create_app():
             Notification.add_notification(title, details, receiver)
             return redirect(url_for('notifications'))
         
+
+        
     @app.route('/report/update_status/<int:id>', methods=['POST'])
     def update_report_status(id):
         new_status = request.form.get('status')
@@ -204,11 +207,30 @@ def create_app():
         user = RegisteredUser.get_user_by_username(username)
         recipes = RegisteredUser.get_recipes_by_user_id(user['userID']) if user else []
         if user:
-            return render_template('profile.html', user=user, recipes=recipes)
+            user_package = user.get('userPackage', 'free')
+            notifications = Notification.get_notifications_by_package(user_package)
+            return render_template('profile.html', user=user, recipes=recipes, notifications=notifications)
         else:
             flash('User not found', 'error')
             return redirect(url_for('userhome'))
     
+    # @app.route('/notificationsUser')
+    # def notifications_panel():
+    #     if 'user' not in session:
+    #         return redirect(url_for('login'))
+        
+    #     username = session['user']
+    #     user = RegisteredUser.get_user_by_username(username)
+        
+    #     if user:
+    #         user_package = user.get('userPackage', 'free')
+    #         notifications = Notification.get_notifications_by_package(user_package)
+    #         return render_template('notifications.html', notifications=notifications, user=user)
+    #     else:
+    #         flash('User not found', 'error')
+    #         return redirect(url_for('userhome'))
+
+
     @app.route('/collection')
     def collection():
         return render_template('collection.html')
