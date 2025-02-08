@@ -32,7 +32,7 @@ def create_app():
                 flash('Invalid username or password', 'error')
     
         return render_template('login.html')
-
+    
     @app.route('/logout')
     def logout():
         return redirect(url_for('home'))
