@@ -1131,3 +1131,78 @@ header h1 {
     font-size: 14px;
     color: #555555;
 }
+
+/* Collection Page Styles */
+.collection-page .main-content {
+    flex-grow: 1;
+    padding: 20px;
+}
+
+.collection-page .content-header h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.collection-page .collection-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.collection-page .collection {
+    width: 200px; /* Adjust the width to make it square */
+    height: 200px; /* Adjust the height to make it square */
+    border-radius: 10px;
+    overflow: hidden;
+    text-align: center;
+    cursor: pointer;
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.collection-page .collection:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.collection-page .collection img {
+    width: 100%;
+    height: 100px; /* Adjust the height to fit within the square card */
+    object-fit: cover;
+    border-radius: 8px 8px 0 0;
+}
+
+.collection-page .collection p {
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.collection-page .collection span {
+    font-size: 14px;
+    color: #666;
+}
+
+.collection-page .create-new {
+    width: 200px; /* Adjust the width to make it square */
+    height: 200px; /* Adjust the height to make it square */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: gray;
+    border: 2px dashed gray;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.collection-page .create-new:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}

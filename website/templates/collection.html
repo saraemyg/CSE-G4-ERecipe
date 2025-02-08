@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Homepage</title>
+    <title>Saved Collections</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <div class="container userhome">
+    <div class="container collections-page">
         <!-- Sidebar -->
-        <aside class="sidebar" style="background-color: white;">
+        <aside class="sidebar">
             <nav>
                 <ul>
-                    <li><a href="{{ url_for('userhome') }}">🏠</a></li>
-                    <li><a href="{{ url_for('createrecipe') }}">➕</a></li>
-                    <li><a href="{{ url_for('collection')}}">❤️</a></li>
+                    <li><a href="#">🏠</a></li>
+                    <li><a href="#">➕</a></li>
+                    <li><a href="{{ url_for('collection') }}">❤️</a></li>
                     <li><a href="#">💬</a></li>
                     <li><a href="#">⚙️</a></li>
                 </ul>
@@ -24,117 +24,36 @@
         <!-- Main Content -->
         <main class="main-content">
             <header class="content-header">
-                <div class="search-container">
-                    <input type="text" placeholder="Any cravings today?" class="search-bar" id="search-input">
-                    <button class="search-icon" id="search-button">🔍</button>
-                </div>
-                <div class="filter-container" style="position: relative; display: inline-block;">
-                    <button class="filter-btn">Filters <span class="filter-icon">🔧</span></button>
-                    <!-- Filter Box Positioned Below the Filter Button -->
-                    <div class="filter-box" id="filter-box">
-                        <div class="filter-content">
-                            <!-- Cuisines Section -->
-                            <div class="filter-section cuisines">
-                                <h4>Cuisines:</h4>
-                                <ul>
-                                    <li><input type="checkbox" id="meal" name="cuisine" value="meal"> <label for="meal">Meal</label></li>
-                                    <li><input type="checkbox" id="snack" name="cuisine" value="snack"> <label for="snack">Snack</label></li>
-                                    <li><input type="checkbox" id="dessert" name="cuisine" value="dessert"> <label for="dessert">Dessert</label></li>
-                                    <li><input type="checkbox" id="beverages" name="cuisine" value="beverages"> <label for="beverages">Beverages</label></li>
-                                    <li><input type="checkbox" id="local" name="cuisine" value="local"> <label for="local">Local</label></li>
-                                    <li><input type="checkbox" id="asian" name="cuisine" value="asian"> <label for="asian">Asian</label></li>
-                                    <li><input type="checkbox" id="western" name="cuisine" value="western"> <label for="western">Western</label></li>
-                                </ul>
-                            </div>
-                            <!-- Labels Section -->
-                            <div class="filter-section labels">
-                                <h4>Label:</h4>
-                                <ul>
-                                    <li><input type="checkbox" id="sugar-free" name="label" value="sugar-free"> <label for="sugar-free">Sugar Free</label></li>
-                                    <li><input type="checkbox" id="soy-free" name="label" value="soy-free"> <label for="soy-free">Soy Free</label></li>
-                                    <li><input type="checkbox" id="gluten-free" name="label" value="gluten-free"> <label for="gluten-free">Gluten Free</label></li>
-                                    <li><input type="checkbox" id="peanut-free" name="label" value="peanut-free"> <label for="peanut-free">Peanut Free</label></li>
-                                    <li><input type="checkbox" id="egg-free" name="label" value="egg-free"> <label for="egg-free">Egg Free</label></li>
-                                    <li><input type="checkbox" id="vegan" name="label" value="vegan"> <label for="vegan">Vegan</label></li>
-                                    <li><input type="checkbox" id="lactose-free" name="label" value="lactose-free"> <label for="lactose-free">Lactose Free</label></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="sort-container" style="position: relative; display: inline-block;">
-                        <button class="sort-btn" id="sort-btn">Sort By <span class="sort-icon">⬇️</span></button>
-                        <div class="sort-box" id="sort-box" style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #ddd; padding: 10px; z-index: 1000; width: 200px;">
-                            <div class="sort-content">
-                                <h4>Sort By:</h4>
-                                <ul>
-                                    <li><input type="checkbox" id="popularity" name="sort" value="popularity"> <label for="popularity">Popularity</label></li>
-                                    <li><input type="checkbox" id="newest" name="sort" value="newest"> <label for="newest">Newest</label></li>
-                                    <li><input type="checkbox" id="least-time" name="sort" value="least-time"> <label for="least-time">Least Time</label></li>
-                                    <li><input type="checkbox" id="least-calories" name="sort" value="least-calories"> <label for="least-calories">Least Calories</label></li>
-                                    <li><input type="checkbox" id="least-ingredients" name="sort" value="least-ingredients"> <label for="least-ingredients">Least Ingredients</label></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                <button class="notification-btn">🔔</button>
-                <a href="{{ url_for('profile')}}"> <button class="profile-btn">👤</button> </a>
+                <h2>Saved Recipe</h2>
             </header>
 
-            <h2>Recommended For You</h2>
-            <div class="card-container">
-                {% if recipes %}
-                    {% for recipe in recipes %}
-                        <div class="card-item" data-title="{{ recipe['recipeTitle'] | e }}" onclick="viewRecipeDetails('{{ recipe.recipeID }}')">
-                            <img src="{{ recipe['recipePic'] | e }}" alt="{{ recipe['recipeTitle'] | e }}" class="recipe-image">
-                            <div class="card-header">
-                                <span class="card-id">#{{ recipe['recipeID'] | e }}</span>
-                                <h4 class="card-subtitle">{{ recipe['recipeTitle'] | e }}</h4>
-                                <span class="card-tag {{ recipe['recipeStatus'] | e }}">{{ recipe['recipeStatus'] | e }}</span>
-                            </div>
-                            <div class="card-details">{{ recipe['recipeDescription'] | e }}</div>
-                            <div class="card-footer">
-                                <span class="card-time">{{ recipe['recipeTime'] | e }} mins</span>
-                                <span class="card-calories">{{ recipe['recipeCalories'] | e }} cal</span>
-                                <span class="card-cuisine">{{ recipe['recipeCuisine'] | e }}</span>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <p>No recipes available</p>
-                {% endif %}
-            </div>
+            <section class="collections-container">
+                <div class="collection" onclick="viewCollection('all')">
+                    <img src="/static/images/all.jpg" alt="All Recipes">
+                    <p>All <span>20 recipes</span></p>
+                </div>
+                <div class="collection" onclick="viewCollection('made_it')">
+                    <img src="/static/images/made_it.jpg" alt="Made It!">
+                    <p>Made It! <span>2 recipes</span></p>
+                </div>
+                <div class="collection" onclick="viewCollection('affordable_meal')">
+                    <img src="/static/images/affordable_meal.jpg" alt="Affordable Uni Meal">
+                    <p>Affordable Uni Meal <span>5 recipes</span></p>
+                </div>
+                <div class="collection create-new" onclick="createNewCollection()">
+                    <p>+ Create New Collection</p>
+                </div>
+            </section>
         </main>
     </div>
 
     <script>
-        // Toggle the filter box
-        document.querySelector('.filter-btn').addEventListener('click', function () {
-            const filterBox = document.getElementById('filter-box');
-            filterBox.style.display = filterBox.style.display === 'none' || !filterBox.style.display ? 'block' : 'none';
-        });
-
-        // Close filter box when clicking outside
-        document.addEventListener('click', function (event) {
-            const filterBox = document.getElementById('filter-box');
-            const filterButton = document.querySelector('.filter-btn');
-            if (filterBox.style.display === 'block' && !filterBox.contains(event.target) && event.target !== filterButton) {
-                filterBox.style.display = 'none';
-            }
-        });
-
-        document.getElementById('sort-btn').addEventListener('click', function () {
-            const sortBox = document.getElementById('sort-box');
-            sortBox.style.display = sortBox.style.display === 'none' || !sortBox.style.display ? 'block' : 'none';
-        });
-
-        document.addEventListener('click', function (event) {
-            const sortBox = document.getElementById('sort-box');
-            const sortButton = document.getElementById('sort-btn');
-            if (sortBox.style.display === 'block' && !sortBox.contains(event.target) && event.target !== sortButton) {
-                sortBox.style.display = 'none';
-            }
-        });
+        function viewCollection(collectionName) {
+            alert('Viewing collection: ' + collectionName);
+        }
+        function createNewCollection() {
+            alert('Creating a new collection...');
+        }
     </script>
 </body>
 </html>
