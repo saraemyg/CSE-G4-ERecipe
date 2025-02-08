@@ -17,6 +17,11 @@
                     <li><a href="{{ url_for('collection')}}">❤️</a></li>
                     <li><a href="#">💬</a></li>
                     <li><a href="#">⚙️</a></li>
+                    {% if 'user' in session %}
+                        <li><a href="{{ url_for('logout') }}">🚪</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('login') }}">🔑</a></li>
+                    {% endif %}
                 </ul>
             </nav>
         </aside>
@@ -102,7 +107,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                 <a href="{{ url_for('profile') }}"> <button class="profile-btn">👤</button> </a>
             </header>
 
@@ -161,6 +166,7 @@
             }
         });
 
+
         const notificationBtn = document.getElementById('notification-btn');
         const notificationBox = document.getElementById('notification-box');
 
@@ -178,9 +184,6 @@
             // Example action, could redirect to a notification details page
             alert(`Notification ID: ${id}`);
         }  
-
-
-
     </script>
 </body>
 </html>
