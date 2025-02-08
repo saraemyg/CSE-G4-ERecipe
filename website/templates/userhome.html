@@ -77,7 +77,32 @@
                             </div>
                         </div>
                     </div>
-                <button class="notification-btn">🔔</button>
+                    <div style="position: relative; display: inline-block;">
+                        <button class="notification-btn" id="notification-btn">🔔</button>
+                        <div class="notification-box" id="notification-box" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #ddd; padding: 10px; z-index: 1000; width: 500px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
+                            <h4>Notifications</h4>
+                            <div class="card">
+                                {% if notifications %}
+                                    {% for notification in notifications %}
+                                        <div class="card-item" data-title="{{ notification['title'] | e }}" >
+                                            <div class="card-header">
+                                                <span class="card-id">#{{ notification['notiID'] }}</span>
+                                                <h4 class="card-subtitle">{{ notification['notiTitle'] }}</h4>
+                                                <span class="card-tag">{{ notification['notiReceiver'] }}</span>
+                                            </div>
+                                            <p class="card-details">{{ notification['notiDetails'] }}</p>
+                                            <div class="card-footer">
+                                                <span class="card-time">{{ notification['notiTime'] }}</span>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p>No new notifications</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
                 <a href="{{ url_for('profile') }}"> <button class="profile-btn">👤</button> </a>
             </header>
 
@@ -135,6 +160,27 @@
                 sortBox.style.display = 'none';
             }
         });
+
+        const notificationBtn = document.getElementById('notification-btn');
+        const notificationBox = document.getElementById('notification-box');
+
+        notificationBtn.addEventListener('click', () => {
+            notificationBox.style.display = notificationBox.style.display === 'none' ? 'block' : 'none';
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!notificationBox.contains(event.target) && event.target !== notificationBtn) {
+                notificationBox.style.display = 'none';
+            }
+        });
+
+        function viewNotificationDetails(id) {
+            // Example action, could redirect to a notification details page
+            alert(`Notification ID: ${id}`);
+        }  
+
+
+
     </script>
 </body>
 </html>

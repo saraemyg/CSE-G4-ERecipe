@@ -188,7 +188,8 @@ def create_app():
     @app.route('/userhome')
     def userhome():
         recipes = Recipe.get_all_recipes()
-        return render_template('userhome.html', recipes=recipes)
+        notifications = Notification.get_all_notifications()
+        return render_template('userhome.html', recipes=recipes,  notifications=notifications)
     
     @app.route('/createrecipe')
     def createrecipe():

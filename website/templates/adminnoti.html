@@ -31,34 +31,65 @@
         <button onclick="openCreatePanel()" class="btn btn-create">Create Notification or Newsletter</button>
     </div>
     
-    <div class="card">
-        <h3 class="card-title">All Notifications</h3>
-        <div class="card-list">
-            {% if notifications %}
-                {% for notification in notifications %}
-                <div class="card-item">
-                    <div class="card-header">
-                        <span class="card-id">#{{ notification['notiID'] }}</span>
-                        <h4 class="card-subtitle">{{ notification['notiTitle'] }}</h4>
-                        <span class="card-tag">{{ notification['notiReceiver'] }}</span>
-                    </div>
-                    <p class="card-details">{{ notification['notiDetails'] }}</p>
-                    <div class="card-footer">
-                        <span class="card-time">{{ notification['notiTime'] }}</span>
-                        <div class="card-actions">
-                            <button onclick="openEditPanel('{{ notification.notiID }}')" class="btn btn-edit">Edit</button>
-                            <form action="{{ url_for('delete_notification', id=notification.notiID) }}" method="POST" style="display: inline;">
-                                <button type="submit" class="btn btn-delete">Delete</button>
-                            </form>
+        <div class="card">
+            <h3 class="card-title">All Notifications</h3>
+            <div class="card-list">
+                {% if notifications %}
+                    {% for notification in notifications %}
+                    <div class="card-item">
+                        <div class="card-header">
+                            <span class="card-id">#{{ notification['notiID'] }}</span>
+                            <h4 class="card-subtitle">{{ notification['notiTitle'] }}</h4>
+                            <span class="card-tag">{{ notification['notiReceiver'] }}</span>
+                        </div>
+                        <p class="card-details">{{ notification['notiDetails'] }}</p>
+                        <div class="card-footer">
+                            <span class="card-time">{{ notification['notiTime'] }}</span>
+                            <div class="card-actions">
+                                <button onclick="openEditPanel('{{ notification.notiID }}')" class="btn btn-edit">Edit</button>
+                                <form action="{{ url_for('delete_notification', id=notification.notiID) }}" method="POST" style="display: inline;">
+                                    <button type="submit" class="btn btn-delete">Delete</button>
+                                </form>
+                            </div>
                         </div>
                     </div>
-                </div>
-                {% endfor %}
-            {% else %}
-                <p>No notifications available</p>
-            {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <p>No notifications available</p>
+                {% endif %}
+            </div>
         </div>
-    </div>
+
+                <!-- Create Panel -->
+                <div id="createPanel" class="side-panel">
+                    <div class="panel-content">
+                        <h2>Create New Notification</h2>
+                        <form id="createForm" action="{{ url_for('create_notification') }}" method="POST">
+                            <div class="form-group">
+                                <label>Title</label>
+                                <input type="text" name="title" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Details</label>
+                                <textarea name="details" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Receiver</label>
+                                <select name="receiver" required>
+                                    <option value="" disabled selected>Select Receiver Type</option>
+                                    <option value="free">Free</option>
+                                    <option value="premium">Premium</option>
+                                </select>
+                            </div>
+                            <div class="button-group">
+                                <button type="submit" class="btn btn-create">Create</button>
+                                <button type="button" class="btn btn-cancel" onclick="closeCreatePanel()">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
 
             <!-- Edit Panel -->
             <div id="editPanel" class="edit-panel">
@@ -73,10 +104,11 @@
                             <label>Details</label>
                             <textarea name="details" id="editDetails" required></textarea>
                         </div>
-                        <div class="form-group">
-                            <label>Receiver</label>
-                            <input type="text" name="receiver" id="editReceiver" required>
-                        </div>
+                        <select name="receiver" required>
+                            <option value="" disabled selected>Select Receiver Type</option>
+                            <option value="free">Free</option>
+                            <option value="premium">Premium</option>
+                        </select>
                         <div class="button-group">
                             <button type="submit" class="btn btn-edit">Update</button>
                             <button type="button" class="btn btn-cancel" onclick="closeEditPanel()">Cancel</button>
@@ -87,37 +119,6 @@
         </div>
     </div>
 
-    <script>
-
-
-    </script>
-
-            <!-- Create Panel -->
-            <div id="createPanel" class="side-panel">
-                <div class="panel-content">
-                    <h2>Create New Notification</h2>
-                    <form id="createForm" action="{{ url_for('create_notification') }}" method="POST">
-                        <div class="form-group">
-                            <label>Title</label>
-                            <input type="text" name="title" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Details</label>
-                            <textarea name="details" required></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>Receiver</label>
-                            <input type="text" name="receiver" required>
-                        </div>
-                        <div class="button-group">
-                            <button type="submit" class="btn btn-create">Create</button>
-                            <button type="button" class="btn btn-cancel" onclick="closeCreatePanel()">Cancel</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script>
 
