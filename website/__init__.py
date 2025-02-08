@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, flash
+from flask import Flask, render_template, redirect, url_for, request, flash, session
 from .models import DatabaseManager
 from .admin import Report, Notification
 from .user import RegisteredUser
@@ -21,12 +21,18 @@ def create_app():
     @app.route('/login', methods=['GET', 'POST'])
     def login():
         if request.method == 'POST':
-            username = request.form['username']
-            password = request.form['password']
-            # Add your authentication logic here
-            return redirect(url_for('userhome'))
-        return render_template('login.html')
+            username = request.form.get('username')
+            password = request.form.get('password')
+        
+            user = RegisteredUser.get_user_by_credentials(username, password)
+            if user:
+                session['user'] = user['userName']
+                return redirect(url_for('userhome'))
+            else:
+                flash('Invalid username or password', 'error')
     
+        return render_template('login.html')
+
     @app.route('/logout')
     def logout():
         return redirect(url_for('home'))

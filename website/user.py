@@ -83,3 +83,12 @@ class RegisteredUser:
             conn.close()
         except sqlite3.Error as e:
             print(f"Database error: {e}")
+
+    @staticmethod
+    def get_user_by_credentials(username, password):
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM user WHERE userName = ? AND userPassword = ?", (username, password))
+        user = cursor.fetchone()
+        conn.close()
+        return user
