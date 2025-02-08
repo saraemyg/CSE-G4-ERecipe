@@ -11,7 +11,6 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f0f0f0;
         }
         .login-container {
             background-color: #fff;
@@ -61,7 +60,7 @@
         }
     </style>
 </head>
-<body>
+<body id = "background">
     <div class="login-container">
         <h2>Login</h2>
         {% if error %}
@@ -81,6 +80,34 @@
         </form>
     </div>
     <script>
+        const backgrounds = [
+            "{{ url_for('static', filename='./images/bg1.gif') }}",
+            "{{ url_for('static', filename='./images/bg2.gif') }}",
+            "{{ url_for('static', filename='./images/bg3.gif') }}",
+            "{{ url_for('static', filename='./images/bg4.gif') }}",
+            "{{ url_for('static', filename='./images/bg5.gif') }}",
+            "{{ url_for('static', filename='./images/bg6.gif') }}",
+            "{{ url_for('static', filename='./images/bg7.gif') }}",
+        ];
+
+        let index = 0;
+        function changeBackground() {
+            const randomIndex = Math.floor(Math.random() * backgrounds.length);
+            const backgroundElement = document.getElementById('background');
+            const newBackground = `url(${backgrounds[randomIndex]})`;
+
+            backgroundElement.style.opacity = 0;
+            setTimeout(() => {
+                backgroundElement.style.background = `${newBackground} no-repeat center center fixed`;
+                backgroundElement.style.backgroundSize = "cover";
+                backgroundElement.style.opacity = 1;
+            });
+        }
+
+        setInterval(changeBackground, 8000);
+
+        window.onload = changeBackground;
+
         function togglePassword() {
             const passwordField = document.getElementById('password');
             const togglePasswordText = document.querySelector('.toggle-password');
