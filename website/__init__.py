@@ -1,9 +1,10 @@
 from flask import Flask, render_template, redirect, url_for, request, flash, session
 from .models import DatabaseManager
-from .admin import Report, Notification
-from .user import RegisteredUser
+from .admin import Report
+from .notifications import Notification
 from .recipe import Recipe
 from .comment import Comment
+from .user import RegisteredUser
 
 def create_app():
     
@@ -23,13 +24,18 @@ def create_app():
         if request.method == 'POST':
             username = request.form.get('username')
             password = request.form.get('password')
-        
-            user = RegisteredUser.get_user_by_credentials(username, password)
+
+            user = RegisteredUser.get_user_by_username(username)
             if user:
-                session['user'] = user['userName']
-                return redirect(url_for('userhome'))
+                if user and user['userPassword'] == password:
+                    session['user'] = user['userName']
+                    return redirect(url_for('userhome'))
+                else:
+                    error = 'Invalid username or password'
+                    return render_template('login.html', error=error)
             else:
-                flash('Invalid username or password', 'error')
+                error = 'Invalid username or password'
+                return render_template('login.html', error=error)
         return render_template('login.html')
     
     @app.route('/logout')
