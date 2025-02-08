@@ -26,10 +26,6 @@ def create_app():
             return redirect(url_for('userhome'))
         return render_template('login.html')
     
-    @app.route('/logout')
-    def logout():
-        return redirect(url_for('home'))
-    
     @app.route('/user/<int:id>')
     def get_user(id):
         user = RegisteredUser.get_user_by_id(id)

@@ -170,7 +170,6 @@ header h1 {
     width: 100%;
     position: sticky;
     top: 0;
-    z-index: 10;   
 }
 
 /* ---- button ---- */
@@ -225,21 +224,36 @@ header h1 {
     color: white;
 }
 
+
+
 /* ------panel------ */
-.side-panel {
+.view-panel {
     position: fixed;
-    right: -600px;
     top: 0;
-    width: 600px;
+    left: 150px;
+    width: calc(100% - 150px);
     height: 100vh;
     background: white;
     box-shadow: -2px 0 5px rgba(0,0,0,0.1);
-    transition: right 0.3s ease;
-    z-index: 1000;
+    z-index: 9999; /* Ensure it's higher than other elements */
+    display: block;
+}
+
+.side-panel {
+    position: fixed;
+    top: 0;
+    left: 150px;
+    width: calc(100vw - 150px);
+    height: 100vh;
+    background: white;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+    z-index: 150;
+    display: none;
 }
 
 .side-panel.active {
-    right: 0;
+    display: block; /* Show when active */
+    opacity: 1;
 }
 
 .panel-content {
@@ -250,18 +264,18 @@ header h1 {
 
 .edit-panel {
     position: fixed;
-    right: -400px;
     top: 0;
-    width: 400px;
+    left: 150px;
+    width: calc(100vw - 150px);
     height: 100vh;
     background: white;
     box-shadow: -2px 0 5px rgba(0,0,0,0.1);
-    transition: right 0.3s ease;
-    z-index: 1000;
+    display: none;
 }
 
 .edit-panel.active {
-    right: 0;
+    display: block; /* Show when active */
+    opacity: 1;
 }
 
 .edit-panel-content {
@@ -557,12 +571,7 @@ header h1 {
     cursor: pointer;
 }
 
-.content-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-}
+
 
 .content-selector:hover {
     border-color: #aaa;
@@ -1001,12 +1010,12 @@ header h1 {
 }
 
 /* Add this CSS to style the header */
-.content-header {
+/* .content-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 10px;
-}
+} */
 
 .search-container {
     position: relative;
