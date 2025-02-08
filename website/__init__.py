@@ -33,10 +33,6 @@ def create_app():
     
         return render_template('login.html')
     
-    @app.route('/logout')
-    def logout():
-        return redirect(url_for('home'))
-    
     @app.route('/user/<int:id>')
     def get_user(id):
         user = RegisteredUser.get_user_by_id(id)
@@ -72,7 +68,6 @@ def create_app():
                 'recipeStatus': recipe['recipeStatus'],
                 'userID': recipe['userID'],
                 'likeCount': like_count,  # Include the like count in the response
-
             }
         return {'error': 'Recipe not found'}, 404
 
@@ -200,7 +195,17 @@ def create_app():
     
     @app.route('/profile')
     def profile():
-        return render_template('profile.html')
+        if 'user' not in session:
+            return redirect(url_for('login'))
+        
+        username = session['user']
+        user = RegisteredUser.get_user_by_username(username)
+        recipes = RegisteredUser.get_recipes_by_user_id(user['userID']) if user else []
+        if user:
+            return render_template('profile.html', user=user, recipes=recipes)
+        else:
+            flash('User not found', 'error')
+            return redirect(url_for('userhome'))
     
     @app.route('/collection')
     def collection():

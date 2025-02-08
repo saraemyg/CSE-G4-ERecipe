@@ -92,3 +92,16 @@ class RegisteredUser:
         user = cursor.fetchone()
         conn.close()
         return user
+
+    @staticmethod
+    def get_user_by_username(username):
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM user WHERE userName = ?", (username,))
+            user = cursor.fetchone()
+            conn.close()
+            return user
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return None
