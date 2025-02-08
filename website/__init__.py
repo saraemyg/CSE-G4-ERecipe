@@ -30,8 +30,12 @@ def create_app():
                 return redirect(url_for('userhome'))
             else:
                 flash('Invalid username or password', 'error')
-    
         return render_template('login.html')
+    
+    @app.route('/logout')
+    def logout():
+        session.pop('user', None)
+        return redirect(url_for('main'))
     
     @app.route('/user/<int:id>')
     def get_user(id):
