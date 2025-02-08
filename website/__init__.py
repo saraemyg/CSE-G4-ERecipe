@@ -6,6 +6,7 @@ from .recipe import Recipe
 from .comment import Comment
 
 def create_app():
+    
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'saranadianisafiza'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database2.db'
@@ -179,11 +180,9 @@ def create_app():
     
     # ----------------- USER ROUTES -----------------
 
-
     @app.route('/userhome')
     def userhome():
-        recipes = Recipe.get_all_recipes()
-        return render_template('userhome.html', recipes=recipes)
+        return render_template('userhome.html')
     
     @app.route('/createrecipe')
     def createrecipe():
@@ -192,6 +191,10 @@ def create_app():
     @app.route('/profile')
     def profile():
         return render_template('profile.html')
+    
+    @app.route('/collection')
+    def collection():
+        return render_template('collection.html')
     
     # ----------------- -----------------
 

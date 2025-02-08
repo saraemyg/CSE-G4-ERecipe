@@ -12,9 +12,9 @@
         <aside class="sidebar" style="background-color: white;">
             <nav>
                 <ul>
-                    <li><a href="#">🏠</a></li>
-                    <li><a href="#">➕</a></li>
-                    <li><a href="#">❤️</a></li>
+                    <li><a href="{{ url_for('userhome') }}">🏠</a></li>
+                    <li><a href="{{ url_for('createrecipe') }}">➕</a></li>
+                    <li><a href="{{ url_for('collection')}}">❤️</a></li>
                     <li><a href="#">💬</a></li>
                     <li><a href="#">⚙️</a></li>
                 </ul>
@@ -78,7 +78,7 @@
                         </div>
                     </div>
                 <button class="notification-btn">🔔</button>
-                <button class="profile-btn">👤</button>
+                <a href="{{ url_for('profile')}}"> <button class="profile-btn">👤</button> </a>
             </header>
 
             <h2>Recommended For You</h2>
