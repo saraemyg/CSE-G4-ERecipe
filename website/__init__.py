@@ -197,30 +197,22 @@ def create_app():
     def manage():
         users = RegisteredUser.get_all_users()
         recipes = Recipe.get_all_recipes()
-        userDetails = RegisteredUser.get_user_by_id(id)     # check what is this for
+        userDetails = RegisteredUser.get_user_by_id(id)     
         return render_template('adminmanage.html', users=users, recipes=recipes)
     
-    @app.route('/recipe/<int:id>/suspend', methods=['POST'])
-    def suspend_recipe(id):
-        try:
-            # Suspend the recipe by updating its status to 'suspended'
-            Recipe.suspend_recipe(id)
-            flash('Recipe has been suspended successfully.', 'success')
-            return redirect(url_for('view_recipe', id=id))  # Redirect to the recipe view page or a manage page
-        except Exception as e:
-            flash(f'Error suspending recipe: {e}', 'error')
-            return redirect(url_for('view_recipe', id=id))  # Handle error and redirect back
+    @app.route('/update_status/<int:user_id>', methods=['POST'])
+    def update_user_status(user_id):
+        status = request.form.get('status')
+        if status in ['active', 'suspended']:
+            # Update the user status in the database
+            user = get_user_by_id(user_id)
+            if user:
+                user.status = status
+                db.session.commit()
+                return jsonify({'success': True, 'message': 'Status updated'})
+        return jsonify({'success': False, 'message': 'Invalid status or user not found'})
 
-    @app.route('/recipe/<int:id>/delete', methods=['POST'])
-    def delete_recipe(id):
-        try:
-            # Delete the recipe from the database
-            Recipe.delete_recipe(id)
-            flash('Recipe has been deleted successfully.', 'success')
-            return redirect(url_for('manage'))  # Redirect to the manage recipes page
-        except Exception as e:
-            flash(f'Error deleting recipe: {e}', 'error')
-            return redirect(url_for('view_recipe', id=id))  # Handle error and redirect back
+
 
 
     # ----------------- REPORT ROUTES -----------------
@@ -245,6 +237,7 @@ def create_app():
         if report:
             return {
                 'reportID': report['reportID'],
+                'reportTitle': report['reportTitle'],
                 'reportDetails': report['reportDetails'],
                 'reportTime': report['reportTime'],
                 'reportStatus': report['reportStatus'],

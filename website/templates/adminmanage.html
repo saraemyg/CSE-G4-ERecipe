@@ -129,7 +129,12 @@
                                 <div id="recipeComments" class="comment-list"></div>
                             </div>                            
                             <div class="card-footer card-action-footer">
-                                <button class="btn-suspend" id="suspendButton">Suspend</button>
+                                <form id="statusUpdateForm" action="" method="POST">
+                                    <select id="statusSelect" name="status" class="content-selector" onchange="updateUserStatus()">
+                                        <option value="active">Unsuspend</option>
+                                        <option value="suspended">Suspend</option>
+                                    </select>
+                                </form>
                                 <button class="btn-delete" id="deleteButton">Delete</button>
                             </div>
                         </div>
@@ -157,7 +162,12 @@
                     <div class="card-grid" id="viewProfileRecipesGrid">
                     </div>
                     <div class="card-footer card-action-footer">
-                        <button class="btn-suspend" id="suspendButton">Suspend</button>
+                        <form id="statusUpdateForm" action="" method="POST">
+                            <select id="statusSelect" name="status" class="content-selector" onchange="updateUserStatus()">
+                                <option value="active">Unsuspend</option>
+                                <option value="suspended">Suspend</option>
+                            </select>
+                        </form>
                         <button class="btn-delete" id="deleteButton">Delete</button>
                     </div>
                 </div>                               
@@ -340,24 +350,38 @@
             toggleContent(true);
         }
 
-        function suspendUser(userId) {     // check this later
-            if (confirm("Are you sure you want to suspend this user?")) {
-                fetch(`/user/suspend/${userId}`, { method: 'POST' })
-                    .then(response => {
-                        if (response.ok) {
-                            alert("User suspended successfully.");
-                            location.reload();
-                        } else {
-                            alert("Failed to suspend user.");
-                        }
-                    })
-                    .catch(() => {
-                        alert("An error occurred while suspending the user.");
-                    });
-            }
+
+
+
+        function updateUserStatus() {
+            const userId = document.getElementById('profileId').innerText.replace('#', '');
+            
+            // Update form action dynamically
+            const formAction = `/user/suspend/${userID}`;
+            document.getElementById('statusUpdateForm').action = formAction;
+
+            fetch(formAction, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `status=${encodeURIComponent(selectedStatus)}`
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to suspend user");
+                }
+
+                alert("User suspended successfully");
+                window.location.reload();  // Optionally refresh the page
+            })
+            .catch(error => {
+                alert(`Error: ${error.message}`);
+            });
         }
 
-        // add function delete
+
+
         
         // Add this at the bottom of the script section to initialize the content view
         document.addEventListener('DOMContentLoaded', function() {

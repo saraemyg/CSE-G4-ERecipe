@@ -297,6 +297,7 @@ header h1 {
     padding: 15px;
     border-bottom: 1px solid #eee;
     gap: 10px;
+    position: relative;
 }
 
 .card-id {
@@ -348,6 +349,7 @@ header h1 {
     overflow: hidden; /* Ensure content doesn't overflow */
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 
@@ -464,23 +466,23 @@ header h1 {
 
 .card-tag {
     background: #e8f0fe;
-    color: #1a73e8;
+    color: #1a73e8 !important;
 }
 /* user status, recipe status */
 
 .card-status.pending {
     background: #ffeeba;
-    color: #856404;
+    color: #856404 !important;
 }
 
 .card-status.resolved {
     background: #d4edda;
-    color: #155724;
+    color: #155724 !important;
 }
 
 .card-status.dismissed {
     background: #b4eae9;
-    color: #045346;
+    color: #045346 !important;
 }
 
 .card-subtitle {
@@ -668,7 +670,7 @@ header h1 {
     top: 10px;
     right: 25px;
     background: none;
-    color: rgb(39, 39, 39);
+    color: rgb(39, 39, 39) !important;
     border: none;
     font-size: 30px;  /* Adjust the size of the X */
     cursor: pointer;
@@ -677,18 +679,6 @@ header h1 {
 
 .close-button:hover {
     color: #d33;
-}
-
-.x-button {
-    position: absolute;
-    top: 10px;
-    right: 25px;
-    background: none;
-    color: rgb(39, 39, 39);
-    border: none;
-    font-size: 30px;  /* Adjust the size of the X */
-    cursor: pointer;
-    font-weight: bold;
 }
 
 /* ---------- */

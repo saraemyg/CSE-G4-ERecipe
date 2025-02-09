@@ -39,9 +39,10 @@
                     <div class="card-list" id = "reportList">
                         {% if reports %}
                             {% for report in reports %}
-                            <div class="card-item" data-title="Report #{{ report['reportDetails'] }}" onclick="viewReportDetails('{{ report.reportID}}')">
+                            <div class="card-item" data-title="Report #{{ report['reportTitle'] }}" onclick="viewReportDetails('{{ report.reportID}}')">
                                 <div class="card-header">
                                     <span class="card-id">#{{ report['reportID'] }}</span>
+                                    <h4 class="card-subtitle">{{ report['reportTitle'] }}</h4>
                                     <span id="status-{{ report['reportID'] }}" class="card-status {{ report['reportStatus'] }}">
                                         {{ report['reportStatus'] }}
                                     </span>
@@ -61,9 +62,10 @@
    
                 <div class="card-view hidden" id="viewReportCard">
                     <h3 class="card-title">View Report Details </h3>
-                    <button class="close-button" onclick="closeReportDetails()">x</button>
+                    <button class="close-button" onclick="closeReportDetails()"> x </button>
                     <div class="card-header">
                         <span id="reportId" class="card-id"></span>
+                        <h4 id="reportTitle" class="card-subtitle"></h4>
                         <span id="reportStatus" class="card-status"></span>
                     </div>
                     <p id="reportDetails" class="card-details"></p>
@@ -74,7 +76,7 @@
                         <p id="reportedUser" class="card-reference"></p>
 
                         <form id="statusUpdateForm" action="" method="POST">
-                            <select id="statusSelect" name="status" onchange="updateReportStatus()">
+                            <select id="statusSelect" name="status" class="content-selector" onchange="updateReportStatus()">
                                 <option value="pending">Pending</option>
                                 <option value="resolved">Resolved</option>
                                 <option value="dismissed">Dismissed</option>
@@ -172,6 +174,7 @@
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById('reportId').innerText = `#${data.reportID}`;
+                    document.getElementById('reportTitle').innerText = `${data.reportTitle}`;
                     document.getElementById('reportDetails').innerText = `${data.reportDetails}`;
                     document.getElementById('reportStatus').innerText = `${data.reportStatus}`;
                     document.getElementById('reportTime').innerText = `${data.reportTime}`;
