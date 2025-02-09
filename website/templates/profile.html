@@ -120,17 +120,17 @@
                     <span id="profileId" class="card-id">#{{ user['userID'] }}</span>
                     <h4 id="profileName" class="card-subtitle">{{ user['userName'] }}</h4>
                     <span id="profileStatus" class="card-tag">{{ user['userStatus'] }}</span>
+                    <!-- Add Edit Profile Button -->
+                    <button class="edit-profile-btn" onclick="openEditProfile()">Edit Profile</button>
                 </div>
                 <p id="profileBio" class="card-bio">{{ user['userBio'] }}</p>
                 <p id="profileEmail" class="card-details">{{ user['userEmail'] }}</p>
                 <div class="card-footer">
                     <span id="profilePackage" class="card-package">{{ user['userPackage'] }}</span>
                 </div>
-                <!-- Add Edit Profile Button -->
-                <button class="edit-profile-btn" onclick="openEditProfile()">Edit Profile</button>
                 <!-- Edit Profile Form -->
                 <div id="editProfileForm" class="edit-profile-form hidden">
-                    <form action="{{ url_for('edit_profile') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ url_for('profile') }}" method="POST" enctype="multipart/form-data">
                         <label for="userName">Name:</label>
                         <input type="text" id="userName" name="userName" value="{{ user['userName'] }}">
                         

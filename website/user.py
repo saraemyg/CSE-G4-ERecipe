@@ -105,3 +105,26 @@ class RegisteredUser:
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return None
+        
+    @staticmethod
+    def update_user(user_id, updated_user):
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE user
+                SET userName = ?, userBio = ?, userEmail = ?, userProfilePic = ?, userHeaderPic = ?
+                WHERE userID = ?""", (
+                    updated_user.get('userName'),
+                    updated_user.get('userBio'),
+                    updated_user.get('userEmail'),
+                    updated_user.get('userProfilePic'),
+                    updated_user.get('userHeaderPic'),
+                    user_id
+                ))
+            conn.commit()
+            conn.close()
+            return True
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return False

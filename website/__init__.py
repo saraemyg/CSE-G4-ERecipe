@@ -4,14 +4,23 @@ from .admin import Report, Notification
 from .user import RegisteredUser
 from .recipe import Recipe
 from .comment import Comment
+import os
+from werkzeug.utils import secure_filename
 
 def create_app():
     
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'saranadianisafiza'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database2.db'
-    
+
     DatabaseManager.init_db()
+
+    # ----------------- UPLOAD FOLDER -----------------
+    UPLOAD_FOLDER = os.path.join(os.getcwd(), 'website/static/uploads')
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.makedirs(UPLOAD_FOLDER)
 
     # ----------------- MAIN ROUTES -----------------
     @app.route("/")
@@ -243,7 +252,7 @@ def create_app():
     def createrecipe():
         return render_template('createrecipe.html')
     
-    @app.route('/profile')
+    @app.route('/profile', methods=['GET', 'POST'])
     def profile():
         if 'user' not in session:
             return redirect(url_for('login'))
@@ -251,30 +260,45 @@ def create_app():
         username = session['user']
         user = RegisteredUser.get_user_by_username(username)
         recipes = RegisteredUser.get_recipes_by_user_id(user['userID']) if user else []
+        
+        if request.method == 'POST':
+            updated_user = {
+                'userName': request.form.get('userName'),
+                'userEmail': request.form.get('userEmail'),
+                'userBio': request.form.get('userBio'),
+            }
+
+            if 'userProfilePic' in request.files:
+                file = request.files['userProfilePic']
+                if file.filename:
+                    filename = secure_filename(file.filename)
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                    updated_user['userProfilePic'] = url_for('static', filename='uploads/' + filename)
+                else:
+                    updated_user['userProfilePic'] = user['userProfilePic']
+                
+            if 'userHeaderPic' in request.files:
+                file = request.files['userHeaderPic']
+                if file.filename:
+                    filename = secure_filename(file.filename)
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                    updated_user['userHeaderPic'] = url_for('static', filename='uploads/' + filename)
+                else:
+                    updated_user['userHeaderPic'] = user['userHeaderPic']
+            
+            if RegisteredUser.update_user(user['userID'], updated_user):
+                flash('Profile updated successfully', 'success')
+            else:
+                flash('Error updating profile', 'error')
+            return redirect(url_for('profile'))
+
         if user:
-            user_package = user.get('userPackage', 'free')
+            user_package = user['userPackage'] if 'userPackage' in user else 'free'
             notifications = Notification.get_notifications_by_package(user_package)
             return render_template('profile.html', user=user, recipes=recipes, notifications=notifications)
         else:
             flash('User not found', 'error')
             return redirect(url_for('userhome'))
-        
-    @app.route('/profile/edit', methods=['GET', 'POST'])
-    def edit_profile():
-        if 'user' not in session:
-            return redirect(url_for('login'))
-        
-        username = session['user']
-        user = RegisteredUser.get_user_by_username(username)
-        if request.method == 'POST':
-            email = request.form.get('email')
-            bio = request.form.get('bio')
-            package = request.form.get('package')
-            header_pic = request.form.get('header_pic')
-            profile_pic = request.form.get('profile_pic')
-            RegisteredUser.update_user(user['userID'], email, bio, package, header_pic, profile_pic)
-            return redirect(url_for('profile'))
-        return render_template('edit_profile.html', user=user)
     
     @app.route('/collection')
     def collection():
