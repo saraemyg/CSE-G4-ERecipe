@@ -1,0 +1,99 @@
+import sqlite3
+
+def get_db():
+    """Returns a database connection."""
+    conn = sqlite3.connect('instance/database2.db')
+    conn.row_factory = sqlite3.Row
+    return conn
+
+class Collection:
+    @staticmethod
+    def get_all_collections():
+        """Fetches all collections from the database."""
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("SELECT collectionID, collectionName, collectionPic FROM collections")
+            collections = cursor.fetchall()
+            conn.close()
+            return collections
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return []
+    
+    @staticmethod
+    def get_collection_by_id(collection_id):
+        """Fetches a single collection by its ID."""
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM collections WHERE collectionID = ?", (collection_id,))
+            collection = cursor.fetchone()
+            conn.close()
+            return collection
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return None
+
+    @staticmethod
+    def create_collection(name, description, user_id):
+        """Inserts a new collection into the database."""
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO collections (name, description, user_id) 
+                VALUES (?, ?, ?)
+            """, (name, description, user_id))
+            conn.commit()
+            conn.close()
+            return True
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return False
+    
+    @staticmethod
+    def update_collection(collection_id, name, description):
+        """Updates an existing collection."""
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE collections 
+                SET name = ?, description = ?
+                WHERE collectionID = ?
+            """, (name, description, collection_id))
+            conn.commit()
+            conn.close()
+            return True
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return False
+
+    @staticmethod
+    def delete_collection(collection_id):
+        """Deletes a collection from the database."""
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM collections WHERE collectionID = ?", (collection_id,))
+            conn.commit()
+            conn.close()
+            return True
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return False
+
+    @staticmethod
+    def get_collections_by_user_id(user_id):
+        """Fetches collections by a specific user."""
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM collections WHERE user_id = ?", (user_id,))
+            collections = cursor.fetchall()
+            conn.close()
+            return collections
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return []

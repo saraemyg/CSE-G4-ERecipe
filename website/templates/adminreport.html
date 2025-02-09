@@ -26,78 +26,128 @@
 
         <!-- Main Content -->
         <div class="main-content">
+
             <div class="content-header">
                 <h1>Reports</h1>
-            </div>
-            
-            <div class="card">
-                <h3 class="card-title">All Reports</h3>
-                <div class="card-list">
-                    {% if reports %}
-                        {% for report in reports %}
-                        <div class="card-item" data-report-id="{{ report['reportID'] }}">
-                            <div class="card-header">
-                                <span class="card-id">#{{ report['reportID'] }}</span>
-                                <span class="card-status {{ report['reportStatus'] }}">{{ report['reportStatus'] }}</span>
-                            </div>
-                            <p class="card-details">{{ report['reportDetails'] }}</p>
-                            <div class="card-footer">
-                                <span class="card-time">{{ report['reportTime'] }}</span>
-                                <span class="card-reference">Recipe #{{ report['reportedRecipeID'] }}</span>
-                                <form action="{{ url_for('update_report_status', id=report['reportID']) }}" method="POST" class="status-form">
-                                    <select name="status" onchange="this.form.submit()">
-                                        <option value="pending" {% if report['reportStatus'] == 'pending' %}selected{% endif %}>Pending</option>
-                                        <option value="resolved" {% if report['reportStatus'] == 'resolved' %}selected{% endif %}>Resolved</option>
-                                        <option value="dismissed" {% if report['reportStatus'] == 'dismissed' %}selected{% endif %}>Dismissed</option>
-                                    </select>
-                                </form>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        <p>No reports available</p>
-                    {% endif %}
+                <div class="search-section">
+                    <input type="text" id="searchBar" placeholder="Search..." onkeyup="filterContent()">
+                    <img id="searchButton" src="https://i.pinimg.com/736x/36/16/e3/3616e36e83edc6b2404204491ceb1c77.jpg" alt="Search" onclick="filterContent()">
+                    <select id="contentSelector" class="content-selector" onchange="toggleContent()">
+                        <option value="all">Show All</option>
+                        <option value="users">Show Users</option>
+                        <option value="recipes">Show Recipes</option>
+                    </select>
                 </div>
             </div>
+            
+            <section class="dashboard-content">
+
+                <div class="card" id="ReportListCard">
+                    <h3 class="card-title">All Reports</h3>
+                    <div class="card-list" id = "reportList">
+                        {% if reports %}
+                            {% for report in reports %}
+                            <div class="card-item" data-title="Report #{{ report['reportDetails'] }}" onclick="viewReportDetails('{{ report.reportID}}')">
+                                <div class="card-header">
+                                    <span class="card-id">#{{ report['reportID'] }}</span>
+                                    <span class="card-status {{ report['reportStatus'] }}">{{ report['reportStatus'] }}</span>
+                                </div>
+                                <p class="card-details">{{ report['reportDetails'] }}</p>
+                                <div class="card-footer">
+                                    <span class="card-time">{{ report['reportTime'] }}</span>
+                                    <span class="card-reference">Recipe #{{ report['reportedRecipeID'] }}</span>
+                                    <form action="{{ url_for('update_report_status', id=report['reportID']) }}" method="POST" class="status-form">
+                                        <select name="status" onchange="this.form.submit()">
+                                            <option value="pending" {% if report['reportStatus'] == 'pending' %}selected{% endif %}>Pending</option>
+                                            <option value="resolved" {% if report['reportStatus'] == 'resolved' %}selected{% endif %}>Resolved</option>
+                                            <option value="dismissed" {% if report['reportStatus'] == 'dismissed' %}selected{% endif %}>Dismissed</option>
+                                        </select>
+                                    </form>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>No reports available</p>
+                        {% endif %}
+                    </div>
+                </div>
+   
+                <div class="card-view hidden" id="viewReportCard">
+                    <button class="close-button" onclick="closeReportDetails()">x</button>
+                    <div class="card-header">
+                        <span id="reportId" class="card-id"></span>
+                        <span id="reportStatus" class="card-status"></span>
+                    </div>
+                    <p id="reportDetails" class="card-details"></p>
+                    <div class="card-footer">
+                        <span id="reportTime" class="card-time"></span>
+                        <span id="reportedRecipeId" class="card-reference"></span>
+                        <p id="reportSenderUser" class="card-reference"></p>
+                        <p id="reportedUser" class="card-reference"></p>
+                        <form id="statusForm" class="status-form">
+                            <select name="status" id="statusSelect">
+                                <option value="pending">Pending</option>
+                                <option value="resolved">Resolved</option>
+                                <option value="dismissed">Dismissed</option>
+                            </select>
+                        </form>
+                    </div>
+                </div>
+
+            </section>
         </div>
     </div>
+    <script>
 
-    <script> 
-    // still problem here
-        document.addEventListener("DOMContentLoaded", function() {
-            // Attach a click event listener to the parent container
-            document.querySelector('.card-list').addEventListener('click', function(event) {
-                // Check if the clicked element is a .card-item
-                if (event.target.closest('.card-item')) {
-                    var cardItem = event.target.closest('.card-item');
-                    var reportID = cardItem.getAttribute('data-report-id');
-                    
-                    // Check if the details card already exists
-                    if (!document.querySelector(`#details-card-${reportID}`)) {
-                        var newCard = document.createElement('div');
-                        newCard.classList.add('card-item');
-                        newCard.id = `details-card-${reportID}`;
-    
-                        // You can dynamically generate content for the new card here
-                        var newCardContent = `
-                            <div class="card-header">
-                                <span class="card-id">#${reportID}</span>
-                                <span class="card-status">Details</span>
-                            </div>
-                            <p class="card-details">Details about report #${reportID}</p>
-                            <div class="card-footer">
-                                <span class="card-time">Time: 2025-02-03</span>
-                                <span class="card-reference">Related Recipe #123</span>
-                            </div>
-                        `;
-                        newCard.innerHTML = newCardContent;
-    
-                        // Insert the new card beside the clicked card-item
-                        cardItem.insertAdjacentElement('afterend', newCard);
-                    }
-                }
+        function filterContent() {
+            const searchInput = document.getElementById('searchBar').value.toLowerCase();
+            const reportItems = document.getElementById('reportList').getElementsByClassName('card-item');
+
+            Array.from(reportItems).forEach(item => {
+                item.style.display = item.getAttribute('data-title').toLowerCase().includes(searchInput) ? '' : 'none';
             });
-        });
+        }
+
+
+        function viewReportDetails(reportID) {
+            document.getElementById('ReportListCard').classList.add('hidden');
+            const viewReportCard = document.getElementById('viewReportCard');
+            viewReportCard.classList.remove('hidden');
+
+            fetch(`/report/${reportID}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('reportId').innerText = `#${data.reportID}`;
+                    document.getElementById('reportDetails').innerText = `${data.reportDetails}`;
+                    document.getElementById('reportStatus').innerText = `${data.reportStatus}`;
+                    document.getElementById('reportTime').innerText = `${data.reportTime}`;
+                    document.getElementById('reportedRecipeId').innerText = `Recipe: ${data.relatedRecipe}`;
+                    document.getElementById('reportSenderUser').innerText = `Reported By: ${data.reportSenderUser}`;
+                    document.getElementById('reportedUser').innerText = `Against: ${data.reportedUser}`;
+                    document.getElementById('statusSelect').value = data.reportStatus;
+
+                    document.getElementById('statusForm').onsubmit = function (e) {
+                        e.preventDefault();
+                        fetch(`/update_report_status/${data.reportID}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ status: document.getElementById('statusSelect').value })
+                        }).then(() => closeReportDetails());
+                    };
+                })
+                .catch(() => {
+                    viewReportCard.innerHTML = '<p>Error fetching report details.</p>';
+                });
+        }
+
+        function closeReportDetails() {
+            document.getElementById('viewReportCard').classList.add('hidden');
+            document.getElementById('ReportListCard').classList.remove('hidden');
+            toggleContent(true);
+        }
+
+
+
     </script>
 
 </body>
