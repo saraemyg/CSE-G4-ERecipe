@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Recipe</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container userhome">
+        <!-- Sidebar -->
+        <aside class="sidebar" style="background-color: white;">
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('userhome') }}">🏠</a></li>
+                    <li><a href="{{ url_for('createrecipe') }}">➕</a></li>
+                    <li><a href="{{ url_for('collection')}}">❤️</a></li>
+                    <li><a href="#">💬</a></li>
+                    <li><a href="#">⚙️</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <h1>Edit Recipe</h1>
+            </header>
+
+            <form class="recipe-form">
+                <input type="text" id="title" placeholder="Title" required>
+                <textarea id="description" placeholder="Description (max 100 words)" maxlength="100" required></textarea>
+                <input type="text" id="time" placeholder="Time" required>
+                <input type="text" id="calories" placeholder="Calories" required>
+                <input type="text" id="cuisines" placeholder="Cuisines" required>
+                <textarea id="ingredients" placeholder="Ingredients" required></textarea>
+                <input type="text" id="servings" placeholder="Servings" required>
+                <input type="text" id="label" placeholder="Label" required>
+                <textarea id="steps" placeholder="Steps" required></textarea>
+                <div class="form-buttons">
+                    <button type="button" class="save-draft">Save Draft</button>
+                    <button type="submit" class="publish">Publish</button>
+                </div>
+            </form>
+        </main>
+    </div>
+</body>
+</html>
