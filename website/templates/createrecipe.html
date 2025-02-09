@@ -132,20 +132,22 @@
                     <!-- Recipe Details Section -->
                     <div class="recipe-details">
                         <input type="text" id="title" placeholder="Title" required>
-                        <textarea id="description" placeholder="Description (max 100 words)" maxlength="100" required></textarea>
                         
-                        <div style="display: flex; justify-content: space-between;">
-                            <input type="text" id="time" placeholder="Time" required>
-                            <input type="text" id="calories" placeholder="Calories" required>
-                        </div>
+                        <div class="recipe-form-container" style="display: flex; gap: 10px;">
+                            <!-- Description & Ingredients in a Column -->
+                            <div style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
+                                <textarea id="description" placeholder="Description (max 100 words)" maxlength="100" required style="flex-grow: 1; min-height: 125px;"></textarea>
+                                <textarea id="ingredients" placeholder="Ingredients" required style="flex-grow: 1; min-height: 125px;"></textarea>
+                            </div>
 
-                        <div style="display: flex; justify-content: space-between;">
+                        <div style="flex: 1; display: flex; flex-wrap: wrap; gap: 5px;">
+                            <input type="text" id="time" placeholder="Preparation Time" required>
+                            <input type="text" id="calories" placeholder="Calories" required>
                             <input type="text" id="cuisines" placeholder="Cuisines" required>
                             <input type="text" id="servings" placeholder="Servings" required>
+                            <input type="text" id="labels" placeholder="Labels" required>
                         </div>
-
-                        <input type="text" id="label" placeholder="Label" required>
-                        <textarea id="ingredients" placeholder="Ingredients" required></textarea>
+                        
                         <textarea id="steps" placeholder="Steps" required></textarea>
                     </div>
                 </div>
