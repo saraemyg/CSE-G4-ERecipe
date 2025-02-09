@@ -72,7 +72,7 @@
                             </div>
                             <div class="form-group">
                                 <label>Receiver</label>
-                                <select name="receiver" required>
+                                <select class="content-selector" name="receiver" required>
                                     <option value="" disabled selected>Select Receiver Type</option>
                                     <option value="free">Free</option>
                                     <option value="premium">Premium</option>
@@ -101,11 +101,14 @@
                             <label>Details</label>
                             <textarea name="details" id="editDetails" required></textarea>
                         </div>
-                        <select name="receiver" required>
-                            <option value="" disabled selected>Select Receiver Type</option>
-                            <option value="free">Free</option>
-                            <option value="premium">Premium</option>
+                        <div class="form-group">
+                            <label>Receiver</label>
+                            <select class="content-selector" name="receiver" required>
+                                <option value="" disabled selected>Select Receiver Type</option>
+                                <option value="free">Free</option>
+                                <option value="premium">Premium</option>
                         </select>
+                        </div>
                         <div class="button-group">
                             <button type="submit" class="btn btn-edit">Update</button>
                             <button type="button" class="btn btn-cancel" onclick="closeEditPanel()">Cancel</button>

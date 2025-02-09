@@ -124,3 +124,16 @@ class RegisteredUser:
             if conn:
                 conn.close()
                 print("Datavase connection closed.")
+    
+    @staticmethod
+    def update_user_status(user_id, new_status):
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("UPDATE user SET userStatus = ? WHERE userID = ?", (new_status, user_id))
+            conn.commit()
+            conn.close()
+            return True
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return False
