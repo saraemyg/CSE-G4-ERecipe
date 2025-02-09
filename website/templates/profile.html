@@ -129,25 +129,37 @@
                     <span id="profilePackage" class="card-package">{{ user['userPackage'] }}</span>
                 </div>
                 <!-- Edit Profile Form -->
-                <div id="editProfileForm" class="edit-profile-form hidden">
+                <div id="editProfileForm" class="edit-profile-form hidden form-spacing">
                     <form action="{{ url_for('profile') }}" method="POST" enctype="multipart/form-data">
-                        <label for="userName">Name:</label>
-                        <input type="text" id="userName" name="userName" value="{{ user['userName'] }}">
-                        
-                        <label for="userBio">Bio:</label>
-                        <textarea id="userBio" name="userBio">{{ user['userBio'] }}</textarea>
-                        
-                        <label for="userEmail">Email:</label>
-                        <input type="email" id="userEmail" name="userEmail" value="{{ user['userEmail'] }}">
-                        
-                        <label for="userProfilePic">Profile Picture:</label>
-                        <input type="file" id="userProfilePic" name="userProfilePic">
-                        
-                        <label for="userHeaderPic">Header Picture:</label>
-                        <input type="file" id="userHeaderPic" name="userHeaderPic">
-                        
-                        <button type="submit">Save Changes</button>
-                        <button type="button" onclick="closeEditProfile()">Cancel</button>
+                        <div class="form-group">
+                            <label for="userName">Name:</label>
+                            <input type="text" id="userName" name="userName" value="{{ user['userName'] }}">
+                        </div>
+                
+                        <div class="form-group">
+                            <label for="userBio">Bio:</label>
+                            <textarea id="userBio" name="userBio">{{ user['userBio'] }}</textarea>
+                        </div>
+                
+                        <div class="form-group">
+                            <label for="userEmail">Email:</label>
+                            <input type="email" id="userEmail" name="userEmail" value="{{ user['userEmail'] }}">
+                        </div>
+                
+                        <div class="form-group file-input">
+                            <label for="userProfilePic">Profile Picture:</label>
+                            <input type="file" id="userProfilePic" name="userProfilePic">
+                        </div>
+                
+                        <div class="form-group file-input">
+                            <label for="userHeaderPic">Header Picture:</label>
+                            <input type="file" id="userHeaderPic" name="userHeaderPic">
+                        </div>
+                
+                        <div class="form-buttons">
+                            <button type="submit" class="save-btn">Save Changes</button>
+                            <button type="button" class="cancel-btn" onclick="closeEditProfile()">Cancel</button>
+                        </div>
                     </form>
                 </div>
 

@@ -345,6 +345,7 @@ def create_app():
                     updated_user['userHeaderPic'] = user['userHeaderPic']
             
             if RegisteredUser.update_user(user['userID'], updated_user):
+                session['user'] = updated_user['userName']  # Update session with new username
                 flash('Profile updated successfully', 'success')
             else:
                 flash('Error updating profile', 'error')

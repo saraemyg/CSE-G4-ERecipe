@@ -168,7 +168,7 @@ header h1 {
     margin-bottom: 20px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     width: 100%;
-    position: sticky;
+    position: relative;
     top: 0;
 }
 
@@ -1476,4 +1476,8 @@ header h1 {
 .card-title a.card-link:hover {
     text-decoration: underline; /* Optional: Add underline only on hover */
     color: #007bff; /* Optional: Change color on hover */
+}
+
+.form-spacing {
+    margin-bottom: 20px; /* Adjust the value as needed */
 }
