@@ -1256,7 +1256,7 @@ header h1 {
     box-sizing: border-box;
 }
 
-button-login {
+.button-login {
     width: 100%;
     padding: 10px;
     background-color: #007bff;
@@ -1266,7 +1266,7 @@ button-login {
     cursor: pointer;
 }
 
-button-login:hover {
+.button-login:hover {
     background-color: #0056b3;
 }
 
@@ -1283,7 +1283,7 @@ button-login:hover {
     margin-bottom: 15px;
 }
 
-.login-container .close-button {
+.login-container .closes-button {
     position: absolute;
     top: 6px;
     left: 126px;
@@ -1296,7 +1296,7 @@ button-login:hover {
     font-weight: bold;
 }
 
-.login-container .close-button:hover {
+.login-container .closes-button:hover {
     color: #d33;
     transform: scale(1.1);
 }

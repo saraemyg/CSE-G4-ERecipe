@@ -316,7 +316,7 @@
                             const commentElement = document.createElement('div');
                             commentElement.classList.add('comment-item');
                             commentElement.innerHTML = `
-                                <p><strong>User ID:</strong> ${comment.userID}</p>
+                                <p><strong>User:</strong> ${comment.userName || 'Anonymous'}</p>
                                 <p><strong>Comment:</strong> ${comment.commentText}</p>
                                 <p><em>Posted on: ${new Date(comment.commentTime).toLocaleString()}</em></p>
                             `;
@@ -328,7 +328,8 @@
                     console.error('Error fetching comments:', error);
                     commentsContainer.innerHTML = '<p>Error loading comments.</p>';
                 });
-        } // if can try change from userID to userName 
+        }
+
 
         function closeUserProfile() {
             document.getElementById('viewProfileCard').classList.add('hidden');

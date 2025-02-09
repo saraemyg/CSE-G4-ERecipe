@@ -50,17 +50,24 @@ class Comment:
 
     @staticmethod
     def get_comments_by_recipe_id(recipe_id):
-        """Fetch all comments for a specific recipe."""
+        """Fetch all comments for a specific recipe, including user names."""
         try:
             conn = get_db()
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM comment WHERE recipeID = ?", (recipe_id,))
+            query = """
+                SELECT comment.commentText, comment.commentTime, user.userName
+                FROM comment
+                JOIN user ON comment.userID = user.userID
+                WHERE comment.recipeID = ?
+            """
+            cursor.execute(query, (recipe_id,))
             comments = cursor.fetchall()
             conn.close()
-            return comments
+            return [{'commentText': row[0], 'commentTime': row[1], 'userName': row[2]} for row in comments]
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return []
+
 
     @staticmethod
     def create_comment(comment_text, user_id, recipe_id):

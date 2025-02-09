@@ -32,11 +32,6 @@
                 <div class="search-section">
                     <input type="text" id="searchBar" placeholder="Search..." onkeyup="filterContent()">
                     <img id="searchButton" src="https://i.pinimg.com/736x/36/16/e3/3616e36e83edc6b2404204491ceb1c77.jpg" alt="Search" onclick="filterContent()">
-                    <select id="contentSelector" class="content-selector" onchange="toggleContent()">
-                        <option value="all">Show All</option>
-                        <option value="users">Show Users</option>
-                        <option value="recipes">Show Recipes</option>
-                    </select>
                 </div>
             </div>
             
@@ -50,19 +45,14 @@
                             <div class="card-item" data-title="Report #{{ report['reportDetails'] }}" onclick="viewReportDetails('{{ report.reportID}}')">
                                 <div class="card-header">
                                     <span class="card-id">#{{ report['reportID'] }}</span>
-                                    <span class="card-status {{ report['reportStatus'] }}">{{ report['reportStatus'] }}</span>
+                                    <span id="status-{{ report['reportID'] }}" class="card-status {{ report['reportStatus'] }}">
+                                        {{ report['reportStatus'] }}
+                                    </span>
                                 </div>
                                 <p class="card-details">{{ report['reportDetails'] }}</p>
                                 <div class="card-footer">
                                     <span class="card-time">{{ report['reportTime'] }}</span>
                                     <span class="card-reference">Recipe #{{ report['reportedRecipeID'] }}</span>
-                                    <form action="{{ url_for('update_report_status', id=report['reportID']) }}" method="POST" class="status-form">
-                                        <select name="status" onchange="this.form.submit()">
-                                            <option value="pending" {% if report['reportStatus'] == 'pending' %}selected{% endif %}>Pending</option>
-                                            <option value="resolved" {% if report['reportStatus'] == 'resolved' %}selected{% endif %}>Resolved</option>
-                                            <option value="dismissed" {% if report['reportStatus'] == 'dismissed' %}selected{% endif %}>Dismissed</option>
-                                        </select>
-                                    </form>
                                 </div>
                             </div>
                             {% endfor %}
@@ -73,6 +63,7 @@
                 </div>
    
                 <div class="card-view hidden" id="viewReportCard">
+                    <h3 class="card-title">View Report Details </h3>
                     <button class="close-button" onclick="closeReportDetails()">x</button>
                     <div class="card-header">
                         <span id="reportId" class="card-id"></span>
@@ -84,14 +75,81 @@
                         <span id="reportedRecipeId" class="card-reference"></span>
                         <p id="reportSenderUser" class="card-reference"></p>
                         <p id="reportedUser" class="card-reference"></p>
-                        <form id="statusForm" class="status-form">
-                            <select name="status" id="statusSelect">
+
+                        <form id="statusUpdateForm" action="" method="POST">
+                            <select id="statusSelect" name="status" onchange="updateReportStatus()">
                                 <option value="pending">Pending</option>
                                 <option value="resolved">Resolved</option>
                                 <option value="dismissed">Dismissed</option>
                             </select>
                         </form>
+                        
+
                     </div>
+
+                    <!-- Recipe View Card -->
+                    <div class="card-view hidden" id="viewRecipeCard">
+                        <h3 class="card-title">View Reported Recipe</h3>
+                        <div class="card-content">
+                            <div class="recipeImageContainer">
+                                <img id="recipeHeaderPic" class="recipe-view-image" alt="Recipe Image">
+                                <div class="like-container">
+                                    <span class="heart-icon">&hearts;</span>
+                                    <span id="likeCount">0</span>
+                                </div>
+                            </div>
+                            <div class="card-info">
+                                <div class="card-header">
+                                    <span id="recipeId" class="card-id"></span>
+                                    <h4 id="recipeTitle" class="card-subtitle"></h4>
+                                    <span id="userId" class="card-tag"></span>
+                                    <span id="recipeStatus" class="card-tag"></span>
+                                </div>
+                                <div id="recipeDescription" class="card-details"></div>
+                                <div class="card-footer">
+                                    <span id="recipeTime" class="card-time"></span>
+                                    <span id="recipeCalories" class="card-calories"></span>
+                                    <span id="recipeCuisine" class="card-cuisine"></span>
+                                    <span id="recipeLabel" class="card-label"></span>
+                                </div>
+                                <div id="recipeIngredients" class="card-details"></div>
+                                <div id="recipeSteps" class="card-details"></div>
+                                <div id="recipeCommentsContainer" class="card-details comment-section">
+                                    <h4 class="comment-title">Comments</h4>
+                                    <div id="recipeComments" class="comment-list"></div>
+                                </div>                            
+                                <div class="card-footer card-action-footer">
+                                    <button class="btn-suspend" id="suspendButton">Suspend Recipe</button>
+                                    <button class="btn-delete" id="deleteButton">Delete Recipe</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- View Profile Card -->
+                    <div class="card-view hidden" id="viewProfileCard">
+                        <h3 class="card-title">View Reported User Profile</h3> 
+                        <img id="profileHeaderPic" class="user-header-pic" alt="Header Picture">
+                        <div class="user-profile-container">
+                            <img id="profileProfilePic" class="user-profile-pic" alt="Profile Picture">
+                        </div>
+                        <div class="card-header">
+                            <span id="profileId" class="card-id"></span>
+                            <h4 id="profileName" class="card-subtitle"></h4>
+                            <span id="profileStatus" class="card-tag"></span>
+                        </div>
+                        <p id="profileBio" class="card-bio"></p>
+                        <p id="profileEmail" class="card-details"></p>
+                        <div class="card-footer">
+                            <span id="profilePackage" class="card-package"></span>
+                        </div>
+                        <div class="card-grid" id="viewProfileRecipesGrid"></div>
+                        <div class="card-footer card-action-footer">
+                            <button class="btn-suspend" id="suspendButton">Suspend User </button>
+                            <button class="btn-delete" id="deleteButton">Delete User</button>
+                        </div>
+                    </div>
+                    
                 </div>
 
             </section>
@@ -107,7 +165,6 @@
                 item.style.display = item.getAttribute('data-title').toLowerCase().includes(searchInput) ? '' : 'none';
             });
         }
-
 
         function viewReportDetails(reportID) {
             document.getElementById('ReportListCard').classList.add('hidden');
@@ -126,17 +183,121 @@
                     document.getElementById('reportedUser').innerText = `Against: ${data.reportedUser}`;
                     document.getElementById('statusSelect').value = data.reportStatus;
 
+                    viewRecipeDetails(data.relatedRecipe);
+                    viewReportedUserProfile(data.reportedUser);
+
                     document.getElementById('statusForm').onsubmit = function (e) {
                         e.preventDefault();
-                        fetch(`/update_report_status/${data.reportID}`, {
+                        
+                        const formData = new FormData();
+                        formData.append('status', document.getElementById('statusSelect').value);
+
+                        fetch(`/report/update_status/${data.reportID}`, {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ status: document.getElementById('statusSelect').value })
-                        }).then(() => closeReportDetails());
+                            body: formData
+                        })
+                        .then(() => closeReportDetails())
+                        .catch(error => console.error("Error updating report status:", error));
                     };
                 })
                 .catch(() => {
+                    console.error("Error fetching report details:", error);
                     viewReportCard.innerHTML = '<p>Error fetching report details.</p>';
+                });
+        }
+
+        function viewRecipeDetails(recipeID) {
+            fetchAndDisplayComments(recipeID);
+            const recipeCard = document.getElementById('viewRecipeCard');
+            recipeCard.classList.remove('hidden');
+
+            fetch(`/recipe/${recipeID}`)
+                .then(response => {
+                    if (!response.ok) throw new Error("Failed to fetch recipe details");
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        recipeCard.innerHTML = '<p>Recipe not found.</p>';
+                        return;
+                    }
+
+                    document.getElementById('recipeId').innerText = `#${data.recipeID}`;
+                    document.getElementById('recipeTitle').innerText = data.recipeTitle;
+                    document.getElementById('recipeDescription').innerText = data.recipeDescription;
+                    document.getElementById('recipeTime').innerText = `Time: ${data.recipeTime} mins`;
+                    document.getElementById('recipeCalories').innerText = `${data.recipeCalories} kcal`;
+                    document.getElementById('recipeCuisine').innerText = `Cuisine: ${data.recipeCuisine}`;
+                    document.getElementById('recipeLabel').innerText = `Label: ${data.recipeLabel}`;
+                    document.getElementById('recipeIngredients').innerText = `Ingredients: ${data.recipeIngredients}`;
+                    document.getElementById('recipeSteps').innerText = `Steps: ${data.recipeSteps}`;
+                    document.getElementById('likeCount').innerText = `${data.likeCount}`;
+                    document.getElementById('recipeHeaderPic').src = data.recipePic || 'default-image-path.jpg';
+                })
+                .catch(error => {
+                    console.error("Error fetching recipe details:", error);
+                    recipeCard.innerHTML = '<p>Error loading recipe details.</p>';
+                });
+        }
+
+        function viewReportedUserProfile(userName) {
+            const viewProfileCard = document.getElementById('viewProfileCard');
+            viewProfileCard.classList.remove('hidden');
+
+            // Fetch user details
+            fetch(`/user/username/${userName}`)
+                .then(response => {
+                    if (!response.ok) throw new Error("Failed to fetch reported user details");
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        viewProfileCard.innerHTML = `<p>${data.error}</p>`;
+                        return;
+                    }
+
+                    // Display user details
+                    document.getElementById('profileId').innerText = `#${data.userID}`;
+                    document.getElementById('profileName').innerText = data.userName || "No name provided";
+                    document.getElementById('profileEmail').innerText = data.userEmail || "Email not available";
+                    document.getElementById('profileBio').innerText = data.userBio || "No bio available";
+                    document.getElementById('profileStatus').innerText = data.userStatus || "No status available";
+                    document.getElementById('profilePackage').innerText = data.userPackage || "No package information";
+                    document.getElementById('profileHeaderPic').src = data.userHeaderPic || "default-header-pic.jpg";
+                    document.getElementById('profileProfilePic').src = data.userProfilePic || "default-profile-pic.jpg";
+                })
+                .catch(error => {
+                    console.error("Error fetching reported user details:", error);
+                    viewProfileCard.innerHTML = '<p>Error fetching reported user details.</p>';
+                });
+        }
+
+        function fetchAndDisplayComments(recipeID) {
+            const commentsContainer = document.getElementById('recipeComments');
+            commentsContainer.innerHTML = ''; // Clear previous comments
+            
+            fetch(`/recipe/${recipeID}/comments`)
+                .then(response => response.json())
+                .then(data => {
+                    const comments = data.comments;
+                    if (comments.length === 0) {
+                        commentsContainer.innerHTML = '<p>No comments available.</p>';
+                    } else {
+                        comments.forEach(comment => {
+                            const commentElement = document.createElement('div');
+                            commentElement.classList.add('comment-item');
+                            commentElement.innerHTML = `
+                                <p><strong>User:</strong> ${comment.userName || 'Anonymous'}</p>
+                                <p><strong>Comment:</strong> ${comment.commentText}</p>
+                                <p><em>Posted on: ${new Date(comment.commentTime).toLocaleString()}</em></p>
+                            `;
+                            commentsContainer.appendChild(commentElement);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching comments:', error);
+                    commentsContainer.innerHTML = '<p>Error loading comments.</p>';
                 });
         }
 
@@ -146,6 +307,42 @@
             toggleContent(true);
         }
 
+        function updateReportStatus() {
+            const statusSelect = document.getElementById('statusSelect');
+            const selectedStatus = statusSelect.value;
+            const reportId = document.getElementById('reportId').innerText.replace('#', '');
+
+            // Update form action dynamically
+            const formAction = `/report/update_status/${reportId}`;
+            document.getElementById('statusUpdateForm').action = formAction;
+
+            fetch(formAction, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `status=${encodeURIComponent(selectedStatus)}`
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to update report status");
+                }
+
+                // Update report status in the view card and list item
+                document.getElementById('reportStatus').innerText = selectedStatus;
+
+                const listStatusElement = document.getElementById(`status-${reportId}`);
+                if (listStatusElement) {
+                    listStatusElement.innerText = selectedStatus;
+                    listStatusElement.className = `card-status ${selectedStatus}`;
+                }
+
+                alert("Report status updated successfully");
+            })
+            .catch(error => {
+                alert(`Error: ${error.message}`);
+            });
+        }
 
 
     </script>

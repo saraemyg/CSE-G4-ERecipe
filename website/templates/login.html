@@ -8,7 +8,7 @@
 </head>
 <body id="background">
     <div class="login-container">
-        <button class="close-button" onclick="closeLoginPage()">&times;</button>
+        <button class="closes-button" onclick="closeLoginPage()">&times;</button>
         <h2>Login</h2>
         {% if error %}
             <p class="error-message">{{ error }}</p>
@@ -23,7 +23,7 @@
                 <input type="password" id="password" name="password" required>
                 <span class="toggle-password" onclick="togglePassword()">😳</span>
             </div>
-            <button class="login-button" type="submit">Login</button>
+            <button class="button-login" type="submit">Login</button>
         </form>
     </div>
     <script>

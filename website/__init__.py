@@ -57,8 +57,24 @@ def create_app():
                 'userStatus': user['userStatus']  
             }
         return {'error': 'User  not found'}, 404
+    
+    @app.route('/user/username/<string:username>')
+    def get_user_by_username(username):
+        user = RegisteredUser.get_user_by_username(username)
+        if user:
+            return {
+                'userID': user['userID'],
+                'userName': user['userName'],
+                'userEmail': user['userEmail'],
+                'userBio': user['userBio'],
+                'userPackage': user['userPackage'],
+                'userHeaderPic': user['userHeaderPic'],
+                'userProfilePic': user['userProfilePic'],
+                'userStatus': user['userStatus']
+            }
+        return {'error': 'User not found'}, 404
 
-    # ----------------- RECIPE ROUTES -----------------
+
     @app.route('/recipe/<int:id>')
     def get_recipe(id):
         recipe = Recipe.get_recipe_by_id(id)
@@ -151,9 +167,13 @@ def create_app():
     @app.route('/report/update_status/<int:id>', methods=['POST'])
     def update_report_status(id):
         new_status = request.form.get('status')
+        if not new_status:
+            return "Invalid status", 400
+        
         Report.update_report_status(id, new_status)
         return redirect(url_for('reports'))
-    
+
+        
     @app.route('/report/<int:report_id>')
     def get_report_details(report_id):
         report = Report.get_report_details(report_id)

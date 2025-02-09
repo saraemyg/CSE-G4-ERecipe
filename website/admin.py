@@ -15,7 +15,6 @@ class Report:
             cursor.execute("""
                 SELECT * FROM report 
                 ORDER BY reportTime DESC 
-                LIMIT 5
             """)
             reports = cursor.fetchall()
             conn.close()
@@ -54,7 +53,7 @@ class Report:
                     report.reportStatus,
                     sender.userName AS reportSenderUser,
                     reported.userName AS reportedUser,
-                    recipe.recipeTitle AS relatedRecipe
+                    recipe.recipeID AS relatedRecipe
                 FROM report
                 JOIN user AS sender ON report.reportSenderUserID = sender.userID
                 JOIN user AS reported ON report.reportedUserID = reported.userID
