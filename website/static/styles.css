@@ -1302,3 +1302,15 @@ header h1 {
     color: #d33;
     transform: scale(1.1);
 }
+
+.card-title a.card-link {
+    color: inherit; /* Use the same color as surrounding text */
+    text-decoration: none; /* Remove underline */
+    font-weight: bold; /* Make it visually distinct */
+    cursor: pointer; /* Indicate it's clickable */
+}
+
+.card-title a.card-link:hover {
+    text-decoration: underline; /* Optional: Add underline only on hover */
+    color: #007bff; /* Optional: Change color on hover */
+}

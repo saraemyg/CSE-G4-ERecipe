@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request, flash, session
 from .models import DatabaseManager
-from .admin import Report, Notification
+from .admin import Admin, Report, Notification
 from .user import RegisteredUser
 from .recipe import Recipe
 from .comment import Comment
@@ -45,23 +45,34 @@ def create_app():
             username = request.form.get('username')
             password = request.form.get('password')
 
+            # Check if the user exists in the user table
             user = RegisteredUser.get_user_by_username(username)
-            if user:
-                if user and user['userPassword'] == password:
-                    session['user'] = user['userName']
-                    return redirect(url_for('userhome'))
-                else:
-                    error = 'Invalid username or password'
-                    return render_template('login.html', error=error)
-            else:
-                error = 'Invalid username or password'
-                return render_template('login.html', error=error)
+            if user and user['userPassword'] == password:
+                session['user'] = user['userName']
+                session['role'] = 'user'
+                return redirect(url_for('userhome'))
+
+            # If not a user, check if it's an admin
+            admin = Admin.get_admin_by_username(username)
+            if admin and admin['adminPassword'] == password:
+                session['user'] = admin['adminName']
+                session['role'] = 'admin'
+                return redirect(url_for('adminhome'))
+
+            # Invalid login
+            error = 'Invalid username or password'
+            return render_template('login.html', error=error)
+
         return render_template('login.html')
+
     
     @app.route('/logout')
     def logout():
         session.pop('user', None)
+        session.pop('role', None)
         return redirect(url_for('main'))
+    
+
     
     @app.route('/user/<int:id>')
     def get_user(id):
@@ -141,13 +152,47 @@ def create_app():
             'comments': [dict(comment) for comment in comments]
         }
 
-    # ----------------- ADMIN ROUTES -----------------
+    # ----------------- ADMIN MANAGE ROUTES -----------------#
+    
     @app.route('/adminhome')
     def adminhome():
+        if session.get('role') != 'admin':
+            return redirect(url_for('login'))
+        
+        username = session.get('user')  # Assuming the admin username is stored in the session
+        admin = Admin.get_admin_by_username(username)
+        
+        if not admin:
+            flash("Admin not found", "error")
+            return redirect(url_for('login'))
+
         reports = Report.get_all_reports()
         notifications = Notification.get_all_notifications()
-        return render_template('adminhome.html', reports=reports, notifications=notifications)
-    
+
+        return render_template(
+            'adminhome.html',
+            admin_info={
+                'adminID': admin['adminID'],
+                'adminName': admin['adminName'],
+                'adminEmail': admin['adminEmail'],
+                'adminProfilePic': admin['adminProfilePic']
+            },
+            reports=reports,
+            notifications=notifications
+        )
+
+    @app.route('/admin/<username>')
+    def get_admin(username):
+        admin = Admin.get_admin_by_username(username)
+        if admin:
+            return {
+                'adminID': admin['adminID'],
+                'adminName': admin['adminName'],
+                'adminEmail': admin['adminEmail'],
+                'adminProfilePic': admin['adminProfilePic']
+            }
+        return {"error": "Admin not found"}, 404
+
     @app.route('/manage')
     def manage():
         users = RegisteredUser.get_all_users()
@@ -177,7 +222,6 @@ def create_app():
             flash(f'Error deleting recipe: {e}', 'error')
             return redirect(url_for('view_recipe', id=id))  # Handle error and redirect back
 
-    
 
     # ----------------- REPORT ROUTES -----------------
     @app.route('/reports')
@@ -273,9 +317,7 @@ def create_app():
         user = RegisteredUser.get_user_by_username(username)
         recipes = RegisteredUser.get_recipes_by_user_id(user['userID']) if user else []
         if user:
-            user_package = user.get('userPackage', 'free')
-            notifications = Notification.get_notifications_by_package(user_package)
-            return render_template('profile.html', user=user, recipes=recipes, notifications=notifications)
+            return render_template('profile.html', user=user, recipes=recipes)
         else:
             flash('User not found', 'error')
             return redirect(url_for('userhome'))
@@ -328,26 +370,6 @@ def create_app():
         flash('User not found. Please log in again.', 'error')
         return redirect(url_for('login'))
 
-
-    
-    # @app.route('/collection')
-    # def collection():
-
-    #     username = session.get('user')
-    #     if not username:
-    #         return redirect(url_for('login'))
-
-    #     user = RegisteredUser.get_user_by_username(username)
-    #     if user:
-    #         user_id = user['userID']
-    #         collections = Collection.get_collections_by_user_id(user_id)
-    #         return render_template('collection.html', collections=collections)
-    #     else:
-    #         return redirect(url_for('login'))
-        
-
-
-    
     # ----------------- -----------------
 
     return app

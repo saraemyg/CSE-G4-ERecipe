@@ -6,6 +6,27 @@ def get_db():
     conn.row_factory = sqlite3.Row
     return conn
 
+class Admin:
+    @staticmethod
+    def get_admin_by_username(username):
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM admin WHERE adminName = ?", (username,))
+        user = cursor.fetchone()
+        conn.close()
+        return user
+    
+    @staticmethod
+    def get_admin_by_id(id):
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM admin WHERE adminID = ?", (id,))
+        user = cursor.fetchone()
+        conn.close()
+        return user
+
+
+
 class Report:
     @staticmethod
     def get_all_reports():
