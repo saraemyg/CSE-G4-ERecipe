@@ -276,9 +276,26 @@ def create_app():
             return redirect(url_for('profile'))
         return render_template('edit_profile.html', user=user)
     
+
+    
+    # ----------------- COLLECTION ROUTES -----------------
+
+
     @app.route('/collection')
     def collection():
-        return render_template('collection.html')
+
+        username = session.get('user')
+        if not username:
+            return redirect(url_for('login'))
+
+        user = RegisteredUser.get_user_by_username(username)
+        if user:
+            user_id = user['userID']
+            collections = Collection.get_collections_by_user_id(user_id)
+            return render_template('collection.html', collections=collections)
+        else:
+            return redirect(url_for('login'))
+
     
     # ----------------- -----------------
 

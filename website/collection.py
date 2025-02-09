@@ -90,7 +90,7 @@ class Collection:
         try:
             conn = get_db()
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM collections WHERE user_id = ?", (user_id,))
+            cursor.execute("SELECT collectionID, collectionName, recipeID FROM collections WHERE user_id = ?", (user_id,))
             collections = cursor.fetchall()
             conn.close()
             return collections
