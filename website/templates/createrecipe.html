@@ -36,7 +36,7 @@
                 <div class="filter-container" style="position: relative; display: inline-block;">
                     <button class="filter-btn">Filters <span class="filter-icon">🔧</span></button>
                     <!-- Filter Box Positioned Below the Filter Button -->
-                    <div class="filter-box" id="filter-box">
+                    <div class="filter-box" id="filter-box" style="display: none;">
                         <div class="filter-content">
                             <!-- Cuisines Section -->
                             <div class="filter-section cuisines">
@@ -67,9 +67,10 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="sort-container" style="position: relative; display: inline-block;">
                     <button class="sort-btn" id="sort-btn">Sort By <span class="sort-icon">⬇️</span></button>
-                    <div class="sort-box" id="sort-box" style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #ddd; padding: 10px; z-index: 1000; width: 200px;">
+                    <div class="sort-box" id="sort-box" style="display: none;">
                         <div class="sort-content">
                             <h4>Sort By:</h4>
                             <ul>
@@ -82,14 +83,15 @@
                         </div>
                     </div>
                 </div>
+
                 <div style="position: relative; display: inline-block;">
                     <button class="notification-btn" id="notification-btn">🔔</button>
-                    <div class="notification-box" id="notification-box" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #ddd; padding: 10px; z-index: 1000; width: 500px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
+                    <div class="notification-box" id="notification-box" style="display: none;">
                         <h4>Notifications</h4>
                         <div class="card">
                             {% if notifications %}
                                 {% for notification in notifications %}
-                                    <div class="card-item" data-title="{{ notification['title'] | e }}" >
+                                    <div class="card-item">
                                         <div class="card-header">
                                             <span class="card-id">#{{ notification['notiID'] }}</span>
                                             <h4 class="card-subtitle">{{ notification['notiTitle'] }}</h4>
@@ -107,55 +109,57 @@
                         </div>
                     </div>
                 </div>
-            <a href="{{ url_for('profile') }}"> <button class="profile-btn">👤</button> </a>
-        </header>
 
-                            
+                <a href="{{ url_for('profile') }}">
+                    <button class="profile-btn">👤</button>
+                </a>
+            </header>
+
             <h1>Create New Recipe</h1>
             <form class="recipe-form">
-                <input type="text" id="title" placeholder="Title" required>
-                <textarea id="description" placeholder="Description (max 100 words)" maxlength="100" required></textarea>
-                <input type="text" id="time" placeholder="Time" required>
-                <input type="text" id="calories" placeholder="Calories" required>
-                <input type="text" id="cuisines" placeholder="Cuisines" required>
-                <textarea id="ingredients" placeholder="Ingredients" required></textarea>
-                <input type="text" id="servings" placeholder="Servings" required>
-                <input type="text" id="label" placeholder="Label" required>
-                <textarea id="steps" placeholder="Steps" required></textarea>
-                <div class="form-buttons">
-                    <button type="button" class="save-draft">Save Draft</button>
-                    <button type="submit" class="publish">Publish</button>
+                <div class="recipe-form-container">
+                    <!-- Image Upload Section -->
+                    <div class="image-container">
+                        <label for="recipe-image">Recipe Image:</label>
+                        <input type="file" id="recipe-image" name="recipe-image">
+                        <!-- Save Draft & Publish Buttons Below the Image -->
+                        <div class="form-buttons">
+                            <button type="button" class="save-draft">Save Draft</button>
+                            <button type="submit" class="publish">Publish</button>
+                        </div>
+                    </div>
+
+                    <!-- Recipe Details Section -->
+                    <div class="recipe-details">
+                        <input type="text" id="title" placeholder="Title" required>
+                        <textarea id="description" placeholder="Description (max 100 words)" maxlength="100" required></textarea>
+                        
+                        <div style="display: flex; justify-content: space-between;">
+                            <input type="text" id="time" placeholder="Time" required>
+                            <input type="text" id="calories" placeholder="Calories" required>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between;">
+                            <input type="text" id="cuisines" placeholder="Cuisines" required>
+                            <input type="text" id="servings" placeholder="Servings" required>
+                        </div>
+
+                        <input type="text" id="label" placeholder="Label" required>
+                        <textarea id="ingredients" placeholder="Ingredients" required></textarea>
+                        <textarea id="steps" placeholder="Steps" required></textarea>
+                    </div>
                 </div>
             </form>
         </main>
     </div>
 
     <script>
-        // Toggle the filter box
         document.querySelector('.filter-btn').addEventListener('click', function () {
-            const filterBox = document.getElementById('filter-box');
-            filterBox.style.display = filterBox.style.display === 'none' || !filterBox.style.display ? 'block' : 'none';
-        });
-
-        // Close filter box when clicking outside
-        document.addEventListener('click', function (event) {
-            const filterBox = document.getElementById('filter-box');
-            const filterButton = document.querySelector('.filter-btn');
-            if (filterBox.style.display === 'block' && !filterBox.contains(event.target) && event.target !== filterButton) {
-                filterBox.style.display = 'none';
-            }
+            alert('Filter options will go here.');
         });
 
         document.getElementById('sort-btn').addEventListener('click', function () {
-            const sortBox = document.getElementById('sort-box');
-            sortBox.style.display = sortBox.style.display === 'none' || !sortBox.style.display ? 'block' : 'none';
-        });
-
-        document.addEventListener('click', function (event) {
-            const sortBox = document.getElementById('sort-box');
-            if (!sortBox.contains(event.target) && event.target !== document.getElementById('sort-btn')) {
-                sortBox.style.display = 'none';
-            }
+            alert('Sort options will go here.');
         });
 
         document.getElementById('notification-btn').addEventListener('click', function () {
