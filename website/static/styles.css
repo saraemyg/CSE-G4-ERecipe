@@ -1295,23 +1295,9 @@ header h1 {
 
 .recipe-form-container {
     display: flex;
-    justify-content: space-between;
+    gap: 20px;
     align-items: flex-start;
     flex-wrap: wrap;
-}
-
-.image-container {
-    width: 25%;
-    border-radius: 10px;
-    overflow: hidden;
-    background-color: white;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    transition: transform 0.2s;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 15px;
 }
 
 .image-container:hover {
@@ -1328,23 +1314,61 @@ header h1 {
     text-align: center;
 }
 
-.form-buttons {
+.recipe-form-container {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.image-container {
+    flex: 1.5; /* Allows it to scale dynamically */
+    min-width: 250px; /* Ensures it doesn't get too small */
+    max-width: 30%; /* Prevents it from taking too much space */
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
+    padding: 15px;
+}
+
+
+.image-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.image-container input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.form-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns */
+    gap: 10px; /* Adds spacing between buttons */
     width: 100%;
     margin-top: 15px;
 }
 
 .form-buttons button {
-    width: 100%;
+    width: 100%; /* Ensures buttons take full width of grid cell */
     padding: 10px;
     cursor: pointer;
     border: none;
     background-color: #2b8f8f;
     color: white;
     font-weight: bold;
-    margin-bottom: 10px;
     border-radius: 5px;
     transition: background 0.3s;
 }
@@ -1354,13 +1378,63 @@ header h1 {
 }
 
 .recipe-details {
-    width: 70%;
+    flex: 2.5; /* Increased weight for more balance */
     display: flex;
     flex-direction: column;
     background-color: white;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    gap: 10px;
+}
+
+.recipe-details input,
+.recipe-details textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.recipe-details textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-buttons-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+
+.form-buttons button {
+    width: 100%; /* Ensures buttons take full width of grid cell */
+    padding: 10px;
+    cursor: pointer;
+    border: none;
+    background-color: #2b8f8f;
+    color: white;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+.form-buttons button:hover {
+    background-color: #217f7f;
+}
+
+.recipe-details {
+    flex: 2; /* Takes more space than image-container */
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    gap: 10px;
 }
 
 .recipe-details input,
@@ -1371,6 +1445,7 @@ header h1 {
     border: 1px solid #ddd;
     border-radius: 5px;
     font-size: 14px;
+    margin-bottom: 10px;
 }
 
 .recipe-details textarea {
