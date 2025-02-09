@@ -1160,12 +1160,14 @@ header h1 {
 }
 
 .collection-page .collection {
-    width: 200px; /* Adjust the width to make it square */
-    height: 200px; /* Adjust the height to make it square */
-    border-radius: 10px;
+    flex: 1 1 calc(25% - 10px); /* Four items per row with some spacing */
+    box-sizing: border-box;
+    margin: 5px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
     overflow: hidden;
     text-align: center;
-    cursor: pointer;
     background-color: white;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     transition: transform 0.2s;
@@ -1201,8 +1203,7 @@ header h1 {
 }
 
 .collection-page .create-new {
-    width: 200px; /* Adjust the width to make it square */
-    height: 200px; /* Adjust the height to make it square */
+    flex: 1 1 calc(25% - 10px); /* Match collection items layout */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1212,12 +1213,17 @@ header h1 {
     border-radius: 10px;
     cursor: pointer;
     transition: transform 0.2s;
+    box-sizing: border-box;
+    margin: 5px;
+    padding: 10px;
 }
 
 .collection-page .create-new:hover {
     transform: translateY(-5px);
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
+
+
 
 /* Login Page Styles */
 .login-page {
