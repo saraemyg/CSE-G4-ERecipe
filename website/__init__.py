@@ -218,6 +218,23 @@ def create_app():
         else:
             flash('User not found', 'error')
             return redirect(url_for('userhome'))
+        
+    @app.route('/profile/edit', methods=['GET', 'POST'])
+    def edit_profile():
+        if 'user' not in session:
+            return redirect(url_for('login'))
+        
+        username = session['user']
+        user = RegisteredUser.get_user_by_username(username)
+        if request.method == 'POST':
+            email = request.form.get('email')
+            bio = request.form.get('bio')
+            package = request.form.get('package')
+            header_pic = request.form.get('header_pic')
+            profile_pic = request.form.get('profile_pic')
+            RegisteredUser.update_user(user['userID'], email, bio, package, header_pic, profile_pic)
+            return redirect(url_for('profile'))
+        return render_template('edit_profile.html', user=user)
     
     @app.route('/collection')
     def collection():
