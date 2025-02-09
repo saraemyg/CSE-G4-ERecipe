@@ -679,7 +679,17 @@ header h1 {
     color: #d33;
 }
 
-
+.x-button {
+    position: absolute;
+    top: 10px;
+    right: 25px;
+    background: none;
+    color: rgb(39, 39, 39);
+    border: none;
+    font-size: 30px;  /* Adjust the size of the X */
+    cursor: pointer;
+    font-weight: bold;
+}
 
 /* ---------- */
 
@@ -1248,7 +1258,7 @@ header h1 {
     box-sizing: border-box;
 }
 
-button {
+button-login {
     width: 100%;
     padding: 10px;
     background-color: #007bff;
@@ -1258,7 +1268,7 @@ button {
     cursor: pointer;
 }
 
-button:hover {
+button-login:hover {
     background-color: #0056b3;
 }
 

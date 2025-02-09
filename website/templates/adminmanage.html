@@ -25,9 +25,9 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="main-content" id ="mmmm">
+        <main class="main-content">
             
-            <header class="content-header" id ="hhhh">
+            <header class="content-header">
                 <h1>Manage Users & Recipes</h1>
                 <div class="search-section">
                     <input type="text" id="searchBar" placeholder="Search..." onkeyup="filterContent()">
@@ -41,6 +41,7 @@
             </header>
 
             <section class="dashboard-content">
+                
                 <!-- Users Card -->
                 <div class="card" id="usersCard">
                     <h3 class="card-title">Registered Users</h3>
@@ -97,75 +98,78 @@
                         {% endif %}
                     </div>
                 </div>
+
+                 <!-- View Recipes Card -->
+                 <div class="card-view hidden" id="viewRecipeCard">
+                    <h3 class="card-title">View Recipe</h3>
+                    <button class="close-button" onclick="closeRecipeDetails()"> x </button>
+                    <div class="card-content">
+                        <div class="recipeImageContainer">
+                            <img id="recipeHeaderPic" class="recipe-view-image" alt="Recipe Image">
+                            <div class="like-container">
+                                <span class="heart-icon" >&hearts;</span>
+                                <span id="likeCount">0</span>
+                            </div>
+                        </div>
+                        <div class="card-info">
+                            <div class="card-header">
+                                <span id="recipeId" class="card-id"></span>
+                                <h4 id="recipeTitle" class="card-subtitle"></h4>
+                                <span id="userId" class="card-tag"></span>
+                                <span id="recipeStatus" class="card-tag"></span>
+                            </div>
+                            <div id="recipeDescription" class="card-details"></div>
+                            <div class="card-footer">
+                                <span id="recipeTime" class="card-time"></span>
+                                <span id="recipeCalories" class="card-calories"></span>
+                                <span id="recipeCuisine" class="card-cuisine"></span>
+                                <span id="recipeLabel" class="card-label"></span>
+                            </div>
+                            <div id="recipeIngredients" class="card-details"></div>
+                            <div id="recipeSteps" class="card-details"></div>
+                            <div id="recipeCommentsContainer" class="card-details comment-section">
+                                <h4 class="comment-title">Comments</h4>
+                                <div id="recipeComments" class="comment-list"></div>
+                            </div>                            
+                            <div class="card-footer card-action-footer">
+                                <button class="btn-suspend" id="suspendButton">Suspend</button>
+                                <button class="btn-delete" id="deleteButton">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                                
+                <!-- View Profile Card -->
+                <div class="card-view hidden" id="viewProfileCard">
+                    <h3 class="card-title">View User Profile : "User Name" </h3>
+                    <button class="close-button" onclick="closeUserProfile()"> x </button>
+                    <img id="profileHeaderPic" class="user-header-pic" alt="Header Picture">
+                    <div class="user-profile-container">
+                        <img id="profileProfilePic" class="user-profile-pic" alt="Profile Picture">
+                    </div>
+                    <div class="card-header">
+                        <span id="profileId" class="card-id"></span>
+                        <h4 id="profileName" class="card-subtitle"></h4>
+                        <span id="profileStatus" class="card-tag"></span>
+                    </div>
+                    <p id="profileBio" class="card-bio"></p>
+                    <p id="profileEmail" class="card-details"></p>
+                    <div class="card-footer">
+                        <span id="profilePackage" class="card-package"></span>
+                    </div>
+                    <div class="card-grid" id="viewProfileRecipesGrid">
+                    </div>
+                    <div class="card-footer card-action-footer">
+                        <button class="btn-suspend" id="suspendButton">Suspend</button>
+                        <button class="btn-delete" id="deleteButton">Delete</button>
+                    </div>
+                </div>                               
+
             </section>
         </main>
     </div>
 
-                                <!-- View Recipes Card -->
-                                <div class="view-panel hidden" id="viewRecipeCard">
-                                    <h3 class="card-title">View Recipe</h3>
-                                    <button class="close-button" onclick="closeRecipeDetails()"> x </button>
-                                    <div class="card-content">
-                                        <div class="recipeImageContainer">
-                                            <img id="recipeHeaderPic" class="recipe-view-image" alt="Recipe Image">
-                                            <div class="like-container">
-                                                <span class="heart-icon" >&hearts;</span>
-                                                <span id="likeCount">0</span>
-                                            </div>
-                                        </div>
-                                        <div class="card-info">
-                                            <div class="card-header">
-                                                <span id="recipeId" class="card-id"></span>
-                                                <h4 id="recipeTitle" class="card-subtitle"></h4>
-                                                <span id="userId" class="card-tag"></span>
-                                                <span id="recipeStatus" class="card-tag"></span>
-                                            </div>
-                                            <div id="recipeDescription" class="card-details"></div>
-                                            <div class="card-footer">
-                                                <span id="recipeTime" class="card-time"></span>
-                                                <span id="recipeCalories" class="card-calories"></span>
-                                                <span id="recipeCuisine" class="card-cuisine"></span>
-                                                <span id="recipeLabel" class="card-label"></span>
-                                            </div>
-                                            <div id="recipeIngredients" class="card-details"></div>
-                                            <div id="recipeSteps" class="card-details"></div>
-                                            <div id="recipeCommentsContainer" class="card-details comment-section">
-                                                <h4 class="comment-title">Comments</h4>
-                                                <div id="recipeComments" class="comment-list"></div>
-                                            </div>                            
-                                            <div class="card-footer card-action-footer">
-                                                <button class="btn-suspend" id="suspendButton">Suspend</button>
-                                                <button class="btn-delete" id="deleteButton">Delete</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                                
-                                <!-- View Profile Card -->
-                                <div class="view-panel hidden" id="viewProfileCard">
-                                    <h3 class="card-title">View User Profile : "User Name" </h3>
-                                    <button class="close-button" onclick="closeUserProfile()"> x </button>
-                                    <img id="profileHeaderPic" class="user-header-pic" alt="Header Picture">
-                                    <div class="user-profile-container">
-                                        <img id="profileProfilePic" class="user-profile-pic" alt="Profile Picture">
-                                    </div>
-                                    <div class="card-header">
-                                        <span id="profileId" class="card-id"></span>
-                                        <h4 id="profileName" class="card-subtitle"></h4>
-                                        <span id="profileStatus" class="card-tag"></span>
-                                    </div>
-                                    <p id="profileBio" class="card-bio"></p>
-                                    <p id="profileEmail" class="card-details"></p>
-                                    <div class="card-footer">
-                                        <span id="profilePackage" class="card-package"></span>
-                                    </div>
-                                    <div class="card-grid" id="viewProfileRecipesGrid">
-                                    </div>
-                                    <div class="card-footer card-action-footer">
-                                        <button class="btn-suspend" id="suspendButton">Suspend</button>
-                                        <button class="btn-delete" id="deleteButton">Delete</button>
-                                    </div>
-                                </div>
+
 
     <script>
         function toggleContent(forceShow) {
@@ -193,6 +197,8 @@
 
         function viewUserProfile(userId) {
             // Hide all main cards first
+            document.getElementById('usersCard').classList.add('hidden');
+            document.getElementById('recipesCard').classList.add('hidden');
             const viewProfileCard = document.getElementById('viewProfileCard');
             viewProfileCard.classList.remove('hidden');
 
@@ -253,12 +259,18 @@
                     const recipesGrid = document.getElementById('viewProfileRecipesGrid');
                     recipesGrid.innerHTML = '<p>Error fetching user recipes.</p>';
                 });
+            
+            document.getElementById('usersCard').classList.add('hidden');
+            document.getElementById('recipesCard').classList.add('hidden');
+
         }
 
         function viewRecipeDetails(recipeId) {
             fetchAndDisplayComments(recipeId);
+            // Hide all other cards
+            document.getElementById('usersCard').classList.add('hidden');
+            document.getElementById('recipesCard').classList.add('hidden');
             document.getElementById('viewProfileCard').classList.add('hidden');
-            document.getElementById('mmmm').classList.add('hidden');
             
             const viewRecipeCard = document.getElementById('viewRecipeCard');
             viewRecipeCard.classList.remove('hidden');
@@ -285,8 +297,8 @@
                 .catch(() => {
                     viewRecipeCard.innerHTML = '<p>Error fetching recipe details.</p>';
                 });
-
-                document.getElementById('mmmm').classList.add('hidden');
+                document.getElementById('usersCard').classList.add('hidden');
+                document.getElementById('recipesCard').classList.add('hidden');
         }
 
         function fetchAndDisplayComments(recipeId) {
@@ -326,7 +338,6 @@
 
         function closeRecipeDetails() {
             document.getElementById('viewRecipeCard').classList.add('hidden');
-            document.getElementById('mmmm').classList.remove('hidden');
             // Restore original view based on selector
             toggleContent(true);
         }
