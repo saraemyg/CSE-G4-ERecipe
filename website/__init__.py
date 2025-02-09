@@ -4,6 +4,7 @@ from .admin import Report, Notification
 from .user import RegisteredUser
 from .recipe import Recipe
 from .comment import Comment
+from .collection import Collection
 
 def create_app():
     
@@ -280,21 +281,51 @@ def create_app():
     
     # ----------------- COLLECTION ROUTES -----------------
 
-
     @app.route('/collection')
     def collection():
-
         username = session.get('user')
         if not username:
+            flash('Please log in to access your collections.', 'warning')
             return redirect(url_for('login'))
 
         user = RegisteredUser.get_user_by_username(username)
         if user:
             user_id = user['userID']
             collections = Collection.get_collections_by_user_id(user_id)
-            return render_template('collection.html', collections=collections)
-        else:
-            return redirect(url_for('login'))
+            
+            # Fetch collection data with the first recipe image
+            formatted_collections = [
+                {
+                    'collectionID': collection['collectionID'],
+                    'collectionName': collection['collectionName'],
+                    'collectionPic': Collection.get_collection_pic(collection['collectionID'])
+                }
+                for collection in collections
+            ]
+
+            return render_template('collection.html', collections=formatted_collections)
+
+        flash('User not found. Please log in again.', 'error')
+        return redirect(url_for('login'))
+
+
+    
+    # @app.route('/collection')
+    # def collection():
+
+    #     username = session.get('user')
+    #     if not username:
+    #         return redirect(url_for('login'))
+
+    #     user = RegisteredUser.get_user_by_username(username)
+    #     if user:
+    #         user_id = user['userID']
+    #         collections = Collection.get_collections_by_user_id(user_id)
+    #         return render_template('collection.html', collections=collections)
+    #     else:
+    #         return redirect(url_for('login'))
+        
+
 
     
     # ----------------- -----------------
