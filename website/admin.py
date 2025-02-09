@@ -6,6 +6,27 @@ def get_db():
     conn.row_factory = sqlite3.Row
     return conn
 
+class Admin:
+    @staticmethod
+    def get_admin_by_username(username):
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM admin WHERE adminName = ?", (username,))
+        user = cursor.fetchone()
+        conn.close()
+        return user
+    
+    @staticmethod
+    def get_admin_by_id(id):
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM admin WHERE adminID = ?", (id,))
+        user = cursor.fetchone()
+        conn.close()
+        return user
+
+
+
 class Report:
     @staticmethod
     def get_all_reports():
@@ -13,8 +34,16 @@ class Report:
             conn = get_db()
             cursor = conn.cursor()
             cursor.execute("""
-                SELECT * FROM report 
-                ORDER BY reportTime DESC 
+                SELECT * 
+                FROM report 
+                ORDER BY 
+                    CASE 
+                        WHEN reportStatus = 'pending' THEN 1 
+                        WHEN reportStatus = 'resolved' THEN 2 
+                        WHEN reportStatus = 'dismissed' THEN 3 
+                        ELSE 4 
+                    END,
+                    reportTime DESC
             """)
             reports = cursor.fetchall()
             conn.close()
@@ -22,6 +51,7 @@ class Report:
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return []
+
 
     @staticmethod
     def update_report_status(report_id, new_status):
@@ -48,6 +78,7 @@ class Report:
             cursor.execute("""
                 SELECT 
                     report.reportID, 
+                    report.reportTitle,
                     report.reportDetails, 
                     report.reportTime, 
                     report.reportStatus,
@@ -66,7 +97,7 @@ class Report:
 
             if row:
                 # Convert row data to a dictionary for easier access
-                keys = ['reportID', 'reportDetails', 'reportTime', 'reportStatus', 'reportSenderUser', 'reportedUser', 'relatedRecipe']
+                keys = ['reportID','reportTitle','reportDetails', 'reportTime', 'reportStatus', 'reportSenderUser', 'reportedUser', 'relatedRecipe']
                 return dict(zip(keys, row))
             return None
 

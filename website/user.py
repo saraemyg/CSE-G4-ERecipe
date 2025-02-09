@@ -92,16 +92,48 @@ class RegisteredUser:
         user = cursor.fetchone()
         conn.close()
         return user
-
+        
     @staticmethod
     def get_user_by_username(username):
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM user WHERE userName = ?", (username,))
+        user = cursor.fetchone()
+        conn.close()
+        return user
+
+    @staticmethod
+    def add_user(username, password, email):
         try:
             conn = get_db()
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM user WHERE userName = ?", (username,))
-            user = cursor.fetchone()
+            print("Database connection established.")
+            cursor.execute("""
+                INSERT INTO user (userName, userPassword, userEmail, userPackage, userStatus, userBio, userProfilePic, userHeaderPic)
+                VALUES (?, ?, ?, 'free', 'active', '', '', '')
+            """, (username, password, email))
+            conn.commit()
+            print("User added successfully.")
+            return True
+        
+        except sqlite3.Error as e:
+            print(f"Error adding user: {e}")
+            conn.rollback()
+            return False
+        finally:
+            if conn:
+                conn.close()
+                print("Datavase connection closed.")
+    
+    @staticmethod
+    def update_user_status(user_id, new_status):
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("UPDATE user SET userStatus = ? WHERE userID = ?", (new_status, user_id))
+            conn.commit()
             conn.close()
-            return user
+            return True
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return None

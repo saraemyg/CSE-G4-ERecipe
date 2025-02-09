@@ -122,8 +122,8 @@
                 <div class="card-container">
                     {% if collections %}
                         {% for collection in collections %}
-                            <div class="card-item" onclick="viewCollection('{{ collection.collectionName }}')">
-                                <img src="{{ collection['collectionImage'] }}" alt="{{ collection['collectionName'] }}">
+                            <div class="card-item" onclick="viewCollection('{{ collection[collectionName] }}')">
+                                <img src="{{ collection['collectionPic'] }}" alt="{{ collection['collectionName'] }}">
                                 <p>{{ collection['collectionName'] }} <span>{{ collection['collectionSize'] }} recipes</span></p>
                             </div>
                         {% endfor %}
@@ -173,6 +173,7 @@
         function createNewCollection() {
             alert('Creating a new collection...');
         }
+        
     </script>
 </body>
 </html>

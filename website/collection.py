@@ -86,14 +86,38 @@ class Collection:
 
     @staticmethod
     def get_collections_by_user_id(user_id):
-        """Fetches collections by a specific user."""
+        """Fetch collections for a specific user."""
         try:
             conn = get_db()
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM collections WHERE user_id = ?", (user_id,))
+            cursor.execute("""
+                SELECT *
+                FROM collection
+                WHERE userID = ?
+            """, (user_id,))
             collections = cursor.fetchall()
             conn.close()
             return collections
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return []
+
+    @staticmethod
+    def get_collection_pic(collection_id):
+        """Fetch the first recipe image for a given collection."""
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT r.recipePic 
+                FROM recipe r
+                INNER JOIN collection c ON r.recipeID = c.recipeID
+                WHERE c.collectionID = ?
+                ORDER BY r.recipeID ASC LIMIT 1
+            """, (collection_id,))
+            result = cursor.fetchone()
+            conn.close()
+            return result['recipePic'] if result else 'https://i.pinimg.com/736x/cf/80/06/cf8006f5593281fe559838256b8fb161.jpg/'
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return 'https://i.pinimg.com/736x/cf/80/06/cf8006f5593281fe559838256b8fb161.jpg'

@@ -81,10 +81,8 @@ class Recipe:
             cursor = conn.cursor()
             cursor.execute("UPDATE recipe SET recipeStatus = 'suspended' WHERE recipeID = ?", (recipe_id,))
             conn.commit()
+        finally:
             conn.close()
-        except sqlite3.Error as e:
-            print(f"Database error: {e}")
-            raise Exception("Error suspending the recipe.")
 
     @staticmethod
     def delete_recipe(recipe_id):
@@ -93,7 +91,7 @@ class Recipe:
             cursor = conn.cursor()
             cursor.execute("DELETE FROM recipe WHERE recipeID = ?", (recipe_id,))
             conn.commit()
+        finally:
             conn.close()
-        except sqlite3.Error as e:
-            print(f"Database error: {e}")
-            raise Exception("Error deleting the recipe.")
+
+

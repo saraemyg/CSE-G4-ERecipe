@@ -5,16 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/x-icon">
 </head>
 <body>
     <div class="container">
         <!-- Sidebar -->
         <div class="sidebar">
             <!-- Brand/Logo -->
-            <div class="user-profile-sidebar">
-                <img src="https://i.pinimg.com/736x/66/d1/9b/66d19b58cb787b236acfc999b422c40a.jpg" alt="Profile" class="user-profile-pic">
-            </div>
-
+    
             <!-- Navigation -->
             <nav>
                 <ul>
@@ -22,7 +20,7 @@
                     <li><a href="{{ url_for('notifications') }}">Notifications</a></li>
                     <li><a href="{{ url_for('reports') }}">Reports</a></li>
                     <li><a href="{{ url_for('manage') }}">Manage</a></li>
-                    <li><a href="{{ url_for('main') }}">Logout</a></li>
+                    <li><a href="{{ url_for('logout') }}">Logout</a></li>
                 </ul>
             </nav>
         </div>
@@ -30,13 +28,23 @@
         <!-- Main Content -->
         <div class="main-content">
             <div class="content-header">
-                <h1>Welcome, Admin</h1>
+                <h1>Welcome, Admin! ✨ </h1>
+                <div class="user-profile-sidebar">
+                    <img src="{{ admin_info.adminProfilePic }}" alt="Profile" class="user-profile-pic">
+                </div>
+                <div class="card">
+                    <h4 class="card-subtitle">ID: {{ admin_info.adminID }}</h4>
+                    <h4 class="card-subtitle">Admin Name: {{ admin_info.adminName }}</h4>
+                    <h4 class="card-subtitle">Admin Email: {{ admin_info.adminEmail }}</h4>
+                </div>    
             </div>
             
             <div class="dashboard-content">
                 
                 <div class="card">
-                    <h3 class="card-title">Recent Notifications</h3>
+                    <h3 class="card-title">
+                        <a href="{{ url_for('notifications') }}" class="card-link">Recent Notifications</a>
+                    </h3>
                     <div class="card-list">
                         {% if notifications %}
                             {% for notification in notifications %}
@@ -59,7 +67,9 @@
                 </div>
                 
                 <div class="card">
-                    <h3 class="card-title">Reports Overview</h3>
+                    <h3 class="card-title">
+                        <a href="{{ url_for('reports') }}" class="card-link">Reports Overview</a>
+                    </h3>
                     <div class="card-list">
                         {% if reports %}
                             {% for report in reports %}
