@@ -18,6 +18,26 @@ def create_app():
     def main():
         return render_template('main.html')
     
+    @app.route('/signup', methods=['GET', 'POST'])
+    def signup():
+        if request.method == 'POST':
+            username = request.form.get('username')
+            password = request.form.get('password')
+            email = request.form.get('email')
+
+            if RegisteredUser.get_user_by_username(username):
+                flash('Username already exists', 'error')
+                return render_template('login.html')
+            
+            success = RegisteredUser.add_user(username, password, email)
+            if success:
+                flash('Signup successful! Please log in.', 'success')
+                return redirect(url_for('login'))
+            else:
+                flash('Signup failed. Try again.', 'error')
+
+        return render_template('login.html')
+    
     @app.route('/login', methods=['GET', 'POST'])
     def login():
         if request.method == 'POST':
