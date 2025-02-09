@@ -1477,3 +1477,7 @@ header h1 {
     text-decoration: underline; /* Optional: Add underline only on hover */
     color: #007bff; /* Optional: Change color on hover */
 }
+
+.form-spacing {
+    margin-bottom: 20px; /* Adjust the value as needed */
+}
