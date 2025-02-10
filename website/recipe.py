@@ -1,4 +1,5 @@
 import sqlite3
+from .models import DatabaseManager
 
 def get_db():
     conn = sqlite3.connect('instance/database2.db')
@@ -93,5 +94,33 @@ class Recipe:
             conn.commit()
         finally:
             conn.close()
+
+    @staticmethod
+    def search_recipe(query):
+        db = DatabaseManager.get_db()
+        cursor = db.cursor()
+
+        cursor.execute("""
+            SELECT recipeID, recipeTitle, recipePic, recipeDescription, recipeTime, recipeCalories, recipeCuisine
+            FROM recipe
+            WHERE recipeTitle LIKE ? OR recipeDescription LIKE ?
+        """, (f"%{query}%", f"%{query}%"))
+
+        results = cursor.fetchall()
+
+        recipe = [
+            {
+                "recipeID": row[0],
+                "recipeTitle": row[1],
+                "recipePic": row[2],
+                "recipeDescription": row[3],
+                "recipeTime": row[4],
+                "recipeCalories": row[5],
+                "recipeCuisine": row[6]
+            }
+            for row in results
+        ]
+
+        return recipe
 
 

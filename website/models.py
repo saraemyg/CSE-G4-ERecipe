@@ -4,19 +4,19 @@ import os
 
 DB_NAME = "database2.db"
 DB_PATH = path.join('instance', DB_NAME)
-
-def get_db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
-
 class DatabaseManager:
+    @staticmethod
+    def get_db():
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        return conn
+
     @staticmethod
     def init_db():
         os.makedirs('instance', exist_ok=True)
 
         try:
-            conn = get_db()
+            conn = DatabaseManager.get_db()
             cursor = conn.cursor()
 
             # cursor.executescript("""

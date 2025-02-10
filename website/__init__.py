@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, flash, session
+from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify
 from .models import DatabaseManager
 from .admin import Admin, Report, Notification
 from .user import RegisteredUser
@@ -393,6 +393,19 @@ def create_app():
 
         flash('User not found. Please log in again.', 'error')
         return redirect(url_for('login'))
+    
+    # ----------------- SEARCH ROUTES -----------------
+
+    @app.route('/search', methods=['GET'])
+    def search():
+        query = request.args.get('q', '').strip()
+
+        if not query:
+            return jsonify([])  # Return an empty list if no query
+
+        recipe = Recipe.search_recipe(query)  # Call a method from Recipe to handle search
+        return jsonify(recipe)
+
 
     # ----------------- -----------------
 
