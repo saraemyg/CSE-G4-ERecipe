@@ -121,7 +121,7 @@
                     <h4 id="profileName" class="card-subtitle">{{ user['userName'] }}</h4>
                     <span id="profileStatus" class="card-tag">{{ user['userStatus'] }}</span>
                     <!-- Add Edit Profile Button -->
-                    <button class="edit-profile-btn" onclick="openEditProfile()">Edit Profile</button>
+                    <button class="edit-button" onclick="openEditProfile()">Edit Profile</button>
                 </div>
                 <p id="profileBio" class="card-bio">{{ user['userBio'] }}</p>
                 <p id="profileEmail" class="card-details">{{ user['userEmail'] }}</p>
@@ -173,7 +173,7 @@
                                     <span class="card-id">#{{ recipe['recipeID'] | e }}</span>
                                     <h4 class="card-subtitle">{{ recipe['recipeTitle'] | e }}</h4>
                                     <!-- <span class="card-tag {{ recipe['recipeStatus'] | e }}">{{ recipe['recipeStatus'] | e }}</span> -->
-                                    <button class="edit-recipe-btn" onclick="editRecipe('{{ recipe.recipeID }}')">✏️ Edit</button>
+                                    <!-- <button class="edit-recipe-btn" onclick="editRecipe('{{ recipe.recipeID }}')">✏️ Edit</button> -->
                                 </div>
                                 <div class="card-details">{{ recipe['recipeDescription'] | e }}</div>
                             </div>
@@ -197,10 +197,6 @@
 
         function viewRecipeDetails(recipeID) {
             window.location.href = "{{ url_for('get_recipe', id=0) }}".replace('0', recipeID);
-        }
-
-        function editRecipe(recipeID) {
-            window.location.href = "{{ url_for('edit_recipe', recipe_id=0) }}".replace('0', recipeID);
         }
 
     </script>

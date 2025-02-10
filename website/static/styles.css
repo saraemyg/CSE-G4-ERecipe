@@ -450,6 +450,12 @@ header h1 {
     flex-direction: column;
 }
  
+.recipe-details-title {
+    font-size: 18px;
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
 .card-title {
     font-size: 18px;
     color: #2c3e50;
@@ -1672,4 +1678,23 @@ header h1 {
 
 .toggle-container button:hover {
     background-color: #ddd;
+}
+
+.edit-button {
+    background-color: lightblue;
+    border: none; /* Remove borders */
+    color: black; /* White text */
+    padding: 6px 8px; /* Some padding */
+    text-align: center; /* Center the text */
+    text-decoration: none; /* Remove underline */
+    display: inline-block; /* Make the button inline-block */
+    font-size: 12px; /* Increase font size */
+    margin: 4px 2px; /* Some margin */
+    cursor: pointer; /* Pointer/hand icon */
+    border-radius: 12px; /* Rounded corners */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.edit-button:hover {
+    background-color: darkcyan
 }

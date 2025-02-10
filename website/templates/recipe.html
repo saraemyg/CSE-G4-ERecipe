@@ -112,13 +112,8 @@
             </header>
 
             <div class="card-view" id="viewRecipeCard">
-                <h3 class="card-title">#{{ recipe.recipeID }} {{ recipe.recipeTitle }}</h3>
+                <h3 class="recipe-details-title">#{{ recipe.recipeID }} {{ recipe.recipeTitle }}</h3>
                 <button class="close-button" onclick="window.history.back()"> x </button>
-                    <a href="{{ url_for('edit_recipe', recipe_id=recipe.recipeID) }}">
-                        <button class="edit-button">Edit Recipe ✏️</button>
-                    </a>
-                
-
 
                 <div class="card-content">
                     <div class="recipeImageContainer">
@@ -134,6 +129,7 @@
                         <div class="card-header">
                             <span class="card-id">#{{ recipe.recipeID }}</span>
                             <h4 class="card-subtitle">{{ recipe.recipeTitle }}</h4>
+                            <button class="edit-button" onclick="editRecipe('{{ recipe.recipeID }}')">Edit Recipe ✏️</button>
                             <!--<span class="card-tag">{{ recipe.recipeStatus }}</span>
                             <span class="card-tag">User ID: {{ recipe.userID }}</span>-->
                         </div>
@@ -199,6 +195,10 @@
                         console.error('Error:', error);
                     });
                 }
+
+                function editRecipe(recipeID) {
+                        window.location.href = "{{ url_for('edit_recipe', recipe_id=0) }}".replace('0', recipeID);
+                    }
 
                 function addComment(event, recipeID) {
                     event.preventDefault();
