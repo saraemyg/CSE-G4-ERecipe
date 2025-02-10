@@ -345,7 +345,7 @@ header h1 {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     overflow-y: auto;
     transition: transform 0.3s ease;
-    overflow: auto !important; /* Ensure content doesn't overflow */
+    overflow: hidden; 
     display: flex;
     flex-direction: column;
     position: relative;
@@ -453,6 +453,7 @@ header h1 {
 .card-title {
     font-size: 18px;
     color: #2c3e50;
+    margin-top: 15px;
     margin-bottom: 15px;
 }
 
@@ -784,9 +785,9 @@ header h1 {
     flex: 1; /* Takes remaining space */
 }
 
-.card-title, .card-header, .card-footer {
+/* .card-title, .card-header, .card-footer {
     margin-bottom: 15px;
-}
+} */
 
 .card-details, .card-subtitle, .card-id, .card-tag {
     font-size: 14px;
@@ -822,8 +823,11 @@ header h1 {
 }
 
 .card-content {
-    position: relative; /* Make sure card-content is positioned relatively */
-    padding-bottom: 60px; /* Ensure space for the action footer */
+    /* position: relative; Make sure card-content is positioned relatively 
+    padding-bottom: 60px; Ensure space for the action footer */
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
 }
 
 .card-footer {
@@ -882,44 +886,101 @@ header h1 {
 
 .comment-section {
     border-top: 1px solid #ddd;
-    padding-top: 8px;
-    margin-top: 12px;
+    padding-top: 16px;
+    margin-top: 20px;
     background-color: #f9f9f9;
-    max-height: 200px;
-    overflow-y: auto;
     border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    height: 400px; /* Adjust height as needed */
 }
 
 .comment-title {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: bold;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
+    color: #333;
 }
 
 .comment-list {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 10px;
 }
 
 .comment-item {
     background-color: #ffffff;
-    border-radius: 6px;
-    padding: 8px;
-    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
 }
 
-.comment-item p {
-    margin: 2px 0;
+.comment-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.comment-user {
     font-size: 14px;
+    color: #007bff;
 }
 
-.comment-item hr {
-    border: none;
-    border-top: 1px solid #eee;
-    margin-top: 6px;
-    margin-bottom: 4px;
+.comment-time {
+    font-size: 12px;
+    color: #999;
 }
+
+.comment-text {
+    font-size: 14px;
+    color: #333;
+}
+
+#comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+#comment-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    resize: vertical;
+    font-size: 14px;
+    min-height: 80px;
+}
+
+.btn-submit-comment {
+    align-self: flex-end;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-bottom: 10px;
+}
+
+.btn-submit-comment:hover {
+    background-color: #0056b3;
+}
+
 .section-container {
     background-color: #f9f9f9;
     border-radius: 8px;
@@ -931,7 +992,8 @@ header h1 {
 .section-title {
     font-size: 16px;
     font-weight: bold;
-    margin-bottom: 8px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     color: #333;
 }
 
@@ -1297,6 +1359,8 @@ header h1 {
 }
 
 .button-login {
+    font-size: 16px;
+    font-weight: bold;
     width: 100%;
     padding: 10px;
     background-color: #007bff;
@@ -1314,7 +1378,7 @@ header h1 {
     cursor: pointer;
     position: absolute;
     right: 10px;
-    top: 24px;
+    top: 30px;
 }
 
 .error-message {
@@ -1522,4 +1586,90 @@ header h1 {
 
 .form-spacing {
     margin-bottom: 20px; /* Adjust the value as needed */
+}
+
+.card-details:empty {
+    display: none; /* Hide empty details */
+}
+
+.comment-list:empty {
+    display: none; /* Hide empty comment list */
+}
+
+.delete-comment-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 12px;
+    margin-left: 10px;
+}
+
+.delete-comment-btn:hover {
+    background-color: #c0392b;
+}
+
+.flashes {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+}
+
+.flashes li {
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    transition: opacity 0.3s ease;
+}
+
+.flashes li.success {
+    background-color: #28a745;
+}
+
+.flashes li.error {
+    background-color: #dc3545;
+}
+
+.flashes li.warning {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.flashes li.info {
+    background-color: #17a2b8;
+}
+
+.toggle-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    gap: 10px;
+}
+
+.toggle-container button {
+    flex: 1;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    background-color: #f0f0f0;
+    transition: background-color 0.3s, color 0.3s;
+    border-radius: 20px;
+}
+
+.toggle-container button.active {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+    border-bottom: 3px solid #0056b3;
+}
+
+.toggle-container button:hover {
+    background-color: #ddd;
 }

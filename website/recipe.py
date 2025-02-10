@@ -63,6 +63,37 @@ class Recipe:
             return False
         
     @staticmethod
+    def like_recipe(recipe_id, user_id):
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO `like` (recipeID, userID) VALUES (?, ?)", (recipe_id, user_id))
+            conn.commit()
+            conn.close()
+            return True
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return False
+    
+    @staticmethod
+    def unlike_recipe(recipe_id, user_id):
+        conn = DatabaseManager.get_db()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM like WHERE recipeID = ? AND userID = ?", (recipe_id, user_id))
+        conn.commit()
+        conn.close()
+        return True
+        
+    @staticmethod
+    def has_user_liked(recipe_id, user_id):
+        conn = DatabaseManager.get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM like WHERE recipeID = ? AND userID = ?", (recipe_id, user_id))
+        like = cursor.fetchone()
+        conn.close()
+        return like is not None
+        
+    @staticmethod
     def get_recipe_like_count(recipe_id):
         try:
             conn = get_db()

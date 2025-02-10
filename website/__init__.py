@@ -75,8 +75,10 @@ def create_app():
                 return redirect(url_for('adminhome'))
 
             # Invalid login
-            error = 'Invalid username or password'
-            return render_template('login.html', error=error)
+            # error = 'Invalid username or password'
+            # return render_template('login.html', error=error)
+            flash('Invalid username or password', 'error')
+            return redirect(url_for('login'))
 
         return render_template('login.html')
 
@@ -131,7 +133,34 @@ def create_app():
         if recipe:
             like_count = Recipe.get_recipe_like_count(id)
             comments = Comment.get_comments_by_recipe_id(id)
-            return render_template('recipe.html', recipe=recipe, like_count=like_count, comments=comments)
+            user_liked = False
+            if 'user' in session:
+                user = RegisteredUser.get_user_by_username(session['user'])
+                if user:
+                    user_liked = Recipe.has_user_liked(id, user['userID'])
+            return render_template('recipe.html', recipe=recipe, like_count=like_count, comments=comments, user_liked=user_liked)
+        return {'error': 'Recipe not found'}, 404
+    
+    @app.route('/admin/recipe/<int:id>')
+    def get_recipe_admin(id):
+        recipe = Recipe.get_recipe_by_id(id)
+        if recipe:
+            like_count = Recipe.get_recipe_like_count(id)  # Fetch the like count
+            return {
+                'recipeID': recipe['recipeID'],
+                'recipeTitle': recipe['recipeTitle'],
+                'recipeDescription': recipe['recipeDescription'],
+                'recipeIngredients': recipe['recipeIngredients'],
+                'recipeSteps': recipe['recipeSteps'],
+                'recipePic': recipe['recipePic'],
+                'recipeTime': recipe['recipeTime'],
+                'recipeCalories': recipe['recipeCalories'],
+                'recipeLabel': recipe['recipeLabel'],
+                'recipeCuisine': recipe['recipeCuisine'],
+                'recipeStatus': recipe['recipeStatus'],
+                'userID': recipe['userID'],
+                'likeCount': like_count,  # Include the like count in the response
+            }
         return {'error': 'Recipe not found'}, 404
     
     @app.route('/admin/recipe/<int:id>')
@@ -156,6 +185,7 @@ def create_app():
             }
         return {'error': 'Recipe not found'}, 404
 
+
     @app.route('/user/<int:id>/recipes')
     def get_user_recipes(id):
         # Fetch user recipes
@@ -178,6 +208,62 @@ def create_app():
         return {
             'comments': [dict(comment) for comment in comments]
         }
+
+    @app.route('/recipe/<int:id>/like', methods=['POST'])
+    def like_recipe(id):
+        if 'user' not in session:
+            return jsonify({'error': 'User not logged in'}), 401
+
+        user = RegisteredUser.get_user_by_username(session['user'])
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        if Recipe.has_user_liked(id, user['userID']):
+            success = Recipe.unlike_recipe(id, user['userID'])
+        else:
+            success = Recipe.like_recipe(id, user['userID'])
+
+        if success:
+            like_count = Recipe.get_recipe_like_count(id)
+            return jsonify({'success': True, 'likeCount': like_count})
+        return jsonify({'error': 'Failed to like/unlike recipe'}), 500
+
+    @app.route('/recipe/<int:id>/comment', methods=['POST'])
+    def add_comment(id):
+        if 'user' not in session:
+            return jsonify({'error': 'User not logged in'}), 401
+
+        user = RegisteredUser.get_user_by_username(session['user'])
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        comment_text = request.form.get('comment')
+        if not comment_text:
+            return jsonify({'error': 'Comment text is required'}), 400
+
+        success = Comment.add_comment(id, user['userID'], comment_text)
+        if success:
+            comments = Comment.get_comments_by_recipe_id(id)
+            return jsonify({'success': True, 'comments': [dict(comment) for comment in comments]})
+        return jsonify({'error': 'Failed to add comment'}), 500
+
+    @app.route('/recipe/<int:recipe_id>/comment/<int:comment_id>', methods=['DELETE'])
+    def delete_comment(recipe_id, comment_id):
+        if 'user' not in session:
+            return jsonify({'error': 'User not logged in'}), 401
+
+        user = RegisteredUser.get_user_by_username(session['user'])
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        comment = Comment.get_comment_by_id(comment_id)
+        if not comment or comment['userID'] != user['userID']:
+            return jsonify({'error': 'Comment not found or unauthorized'}), 404
+
+        success = Comment.delete_comment(comment_id)
+        if success:
+            return jsonify({'success': True})
+        return jsonify({'error': 'Failed to delete comment'}), 500
 
     # ----------------- ADMIN MANAGE ROUTES -----------------#
     
