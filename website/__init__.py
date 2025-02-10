@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, flash, session, redirect, jsonify
+from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify, redirect, jsonify
 from .models import DatabaseManager
 from .admin import Admin, Report, Notification
 from .user import RegisteredUser
@@ -124,6 +124,29 @@ def create_app():
             comments = Comment.get_comments_by_recipe_id(id)
             return render_template('recipe.html', recipe=recipe, like_count=like_count, comments=comments)
         return {'error': 'Recipe not found'}, 404
+    
+    @app.route('/admin/recipe/<int:id>')
+    def get_recipe_admin(id):
+        recipe = Recipe.get_recipe_by_id(id)
+        if recipe:
+            like_count = Recipe.get_recipe_like_count(id)  # Fetch the like count
+            return {
+                'recipeID': recipe['recipeID'],
+                'recipeTitle': recipe['recipeTitle'],
+                'recipeDescription': recipe['recipeDescription'],
+                'recipeIngredients': recipe['recipeIngredients'],
+                'recipeSteps': recipe['recipeSteps'],
+                'recipePic': recipe['recipePic'],
+                'recipeTime': recipe['recipeTime'],
+                'recipeCalories': recipe['recipeCalories'],
+                'recipeLabel': recipe['recipeLabel'],
+                'recipeCuisine': recipe['recipeCuisine'],
+                'recipeStatus': recipe['recipeStatus'],
+                'userID': recipe['userID'],
+                'likeCount': like_count,  # Include the like count in the response
+            }
+        return {'error': 'Recipe not found'}, 404
+
 
     @app.route('/user/<int:id>/recipes')
     def get_user_recipes(id):
@@ -460,6 +483,19 @@ def create_app():
 
         flash('User not found. Please log in again.', 'error')
         return redirect(url_for('login'))
+    
+    # ----------------- SEARCH ROUTES -----------------
+
+    @app.route('/search', methods=['GET'])
+    def search():
+        query = request.args.get('q', '').strip()
+
+        if not query:
+            return jsonify([])  # Return an empty list if no query
+
+        recipe = Recipe.search_recipe(query)  # Call a method from Recipe to handle search
+        return jsonify(recipe)
+
     
     @app.route('/add_to_collection', methods=['POST'])
     def add_to_collection():

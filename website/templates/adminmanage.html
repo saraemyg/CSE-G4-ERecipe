@@ -112,8 +112,8 @@
                             <div class="card-header">
                                 <span id="recipeId" class="card-id"></span>
                                 <h4 id="recipeTitle" class="card-subtitle"></h4>
-                                <span id="userId" class="card-tag"></span>
                                 <span id="recipeStatus" class="card-tag"></span>
+                                <span id="userId" class="card-tag"></span>
                             </div>
                             <div id="recipeDescription" class="card-details"></div>
                             <div class="card-footer">
@@ -281,7 +281,7 @@
             
             const viewRecipeCard = document.getElementById('viewRecipeCard');
             viewRecipeCard.classList.remove('hidden');
-            fetch(`/recipe/${recipeId}`)
+            fetch(`admin/recipe/${recipeId}`)
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById('recipeId').innerText = `#${data.recipeID}`;
