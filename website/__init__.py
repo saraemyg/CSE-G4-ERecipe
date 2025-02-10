@@ -24,10 +24,18 @@ def create_app():
         os.makedirs(UPLOAD_FOLDER)
 
     # ----------------- MAIN ROUTES -----------------
-    @app.route("/")
+    @app.route('/')
     def main():
-        return render_template('main.html')
+        recipes = Recipe.get_published_recipes()
+        # Handle logged-in vs. guest access
+        if 'user' in session:
+            user_package = session.get('userPackage')
+            notifications = Notification.get_all_notifications(user_package)
+        else:
+            notifications = []  # No notifications for guests
+        return render_template('userhome.html', recipes=recipes,  notifications=notifications)
     
+    # ----------------- AUTHENTICATION ROUTES -----------------
     @app.route('/signup', methods=['GET', 'POST'])
     def signup():
         if request.method == 'POST':
@@ -65,7 +73,7 @@ def create_app():
                     session['user'] = user['userName']
                     session['role'] = 'user'
                     session['userPackage'] = user['userPackage'] 
-                    return redirect(url_for('userhome'))
+                    return redirect(url_for('main'))
 
             # If not a user, check if it's an admin
             admin = Admin.get_admin_by_username(username)
@@ -82,18 +90,13 @@ def create_app():
 
         return render_template('login.html')
 
-    
     @app.route('/logout')
     def logout():
         session.pop('user', None)
         session.pop('role', None)
         return redirect(url_for('main'))
-    
-    @app.route('/suspended_user_page')
-    def suspended_user_page():
-        return render_template('suspended.html')
 
-    
+    # ----------------- USER ROUTES -----------------
     @app.route('/user/<int:id>')
     def get_user(id):
         user = RegisteredUser.get_user_by_id(id)
@@ -126,9 +129,85 @@ def create_app():
                 'userStatus': user['userStatus']
             }
         return {'error': 'User not found'}, 404
+    
+    @app.route('/profile', methods=['GET', 'POST'])
+    def profile():
+        if 'user' not in session:
+            flash('Please log in to access your profile.', 'warning')
+            return redirect(url_for('login'))
+        
+        username = session['user']
+        user = RegisteredUser.get_user_by_username(username)
+        recipes = RegisteredUser.get_recipes_by_user_id(user['userID']) if user else []
+        
+        if request.method == 'POST':
+            updated_user = {
+                'userName': request.form.get('userName'),
+                'userEmail': request.form.get('userEmail'),
+                'userBio': request.form.get('userBio'),
+            }
 
+            if 'userProfilePic' in request.files:
+                file = request.files['userProfilePic']
+                if file.filename:
+                    filename = secure_filename(file.filename)
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                    updated_user['userProfilePic'] = url_for('static', filename='uploads/' + filename)
+                else:
+                    updated_user['userProfilePic'] = user['userProfilePic']
+                
+            if 'userHeaderPic' in request.files:
+                file = request.files['userHeaderPic']
+                if file.filename:
+                    filename = secure_filename(file.filename)
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                    updated_user['userHeaderPic'] = url_for('static', filename='uploads/' + filename)
+                else:
+                    updated_user['userHeaderPic'] = user['userHeaderPic']
+            
+            if RegisteredUser.update_user(user['userID'], updated_user):
+                session['user'] = updated_user['userName']  # Update session with new username
+                flash('Profile updated successfully', 'success')
+            else:
+                flash('Error updating profile', 'error')
+            return redirect(url_for('profile'))
+
+        if user:
+            user_package = user['userPackage'] if 'userPackage' in user else 'free'
+            notifications = Notification.get_notifications_by_package(user_package)
+            return render_template('profile.html', user=user, recipes=recipes, notifications=notifications)
+        else:
+            flash('User not found', 'error')
+            return redirect(url_for('userhome'))
+        
+    @app.route('/profile/edit', methods=['GET', 'POST'])
+    def edit_profile():
+        if 'user' not in session:
+            return redirect(url_for('login'))
+        
+        username = session['user']
+        user = RegisteredUser.get_user_by_username(username)
+        if request.method == 'POST':
+            email = request.form.get('email')
+            bio = request.form.get('bio')
+            package = request.form.get('package')
+            header_pic = request.form.get('header_pic')
+            profile_pic = request.form.get('profile_pic')
+            RegisteredUser.update_user(user['userID'], email, bio, package, header_pic, profile_pic)
+            return redirect(url_for('profile'))
+        return render_template('edit_profile.html', user=user)
+        
+    @app.route('/suspended_user_page')
+    def suspended_user_page():
+        return render_template('suspended.html')
+    
+    # ----------------- RECIPE ROUTES -----------------
     @app.route('/recipe/<int:id>')
     def get_recipe(id):
+        if 'user' not in session:
+            flash('Please log in to view the recipe details.', 'warning')
+            return redirect(url_for('login'))
+
         recipe = Recipe.get_recipe_by_id(id)
         if recipe:
             like_count = Recipe.get_recipe_like_count(id)
@@ -140,28 +219,6 @@ def create_app():
                     user_liked = Recipe.has_user_liked(id, user['userID'])
             return render_template('recipe.html', recipe=recipe, like_count=like_count, comments=comments, user_liked=user_liked)
         return {'error': 'Recipe not found'}, 404
-    
-    @app.route('/admin/recipe/<int:id>')
-    def get_recipe_admin(id):
-        recipe = Recipe.get_recipe_by_id(id)
-        if recipe:
-            like_count = Recipe.get_recipe_like_count(id)  # Fetch the like count
-            return {
-                'recipeID': recipe['recipeID'],
-                'recipeTitle': recipe['recipeTitle'],
-                'recipeDescription': recipe['recipeDescription'],
-                'recipeIngredients': recipe['recipeIngredients'],
-                'recipeSteps': recipe['recipeSteps'],
-                'recipePic': recipe['recipePic'],
-                'recipeTime': recipe['recipeTime'],
-                'recipeCalories': recipe['recipeCalories'],
-                'recipeLabel': recipe['recipeLabel'],
-                'recipeCuisine': recipe['recipeCuisine'],
-                'recipeStatus': recipe['recipeStatus'],
-                'userID': recipe['userID'],
-                'likeCount': like_count,  # Include the like count in the response
-            }
-        return {'error': 'Recipe not found'}, 404
 
     @app.route('/user/<int:id>/recipes')
     def get_user_recipes(id):
@@ -170,9 +227,123 @@ def create_app():
         if recipes:
             return {'recipes': [dict(recipe) for recipe in recipes]}  # Return a list of recipes in a JSON-friendly format
         return {'recipes': []}  # If no recipes are found, return an empty list
+    
+    @app.route('/createrecipe', methods=['GET', 'POST'])
+    def createrecipe():
+        if request.method == 'POST':
+            if 'user' not in session:
+                flash("You must be logged in to create a recipe", "error")
+                return redirect(url_for('login'))
 
+            user_id = session['user']['userID']
+            title = request.form.get('title')
+            description = request.form.get('description')
+            ingredients = request.form.get('ingredients')
+            time = request.form.get('time')
+            calories = request.form.get('calories')
+            cuisines = request.form.get('cuisines')
+            servings = request.form.get('servings')
+            labels = request.form.get('labels')
+            steps = request.form.get('steps')
+            
+            # Handle Image Upload
+            image_filename = None
+            if 'recipe_image' in request.files:
+                file = request.files['recipe_image']
+                if file.filename != '':
+                    image_filename = secure_filename(file.filename)
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], image_filename))
+
+            try:
+                conn = get_db()
+                cursor = conn.cursor()
+                cursor.execute("""
+                    INSERT INTO recipe (title, description, ingredients, time, calories, cuisines, servings, labels, steps, recipeStatus, image) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (title, description, ingredients, time, calories, cuisines, servings, labels, steps, 'draft', image_filename))
+                conn.commit()
+                conn.close()
+                flash("Recipe created successfully!", "success")
+                return redirect(url_for('userhome'))
+            except sqlite3.Error as e:
+                flash(f"Database error: {e}", "error")
+                return redirect(url_for('createrecipe'))
+        return render_template('createrecipe.html')
+    
+    @app.route('/save_draft', methods=['POST'])
+    def save_draft():
+        data = request.form
+        image = request.files.get('recipe-image')
+        
+        # If an image is uploaded, save it
+        image_filename = None
+        if image:
+            image_filename = f"static/uploads/{image.filename}"
+            image.save(image_filename)
+
+        success = Recipe.save_recipe(
+            title=data.get('title'),
+            description=data.get('description'),
+            ingredients=data.get('ingredients'),
+            preparation_time=data.get('time'),
+            calories=data.get('calories'),
+            cuisines=data.get('cuisines'),
+            servings=data.get('servings'),
+            labels=data.get('labels'),
+            steps=data.get('steps'),
+            image_path=image_filename,
+            status='draft'
+        )
+
+        if success:
+            return jsonify({"message": "Draft saved successfully!"}), 200
+        return jsonify({"message": "Error saving draft"}), 500
+    
+    @app.route('/edit_recipe/<int:recipe_id>', methods=['GET', 'POST'])
+    def edit_recipe(recipe_id):
+        username = session.get('user')
+        if not username:
+            flash("Please log in to edit recipes.", "warning")
+            return redirect(url_for('login'))
+
+        # Fetch user details
+        user = RegisteredUser.get_user_by_username(username)
+        if not user:
+            flash("User not found. Please log in again.", "error")
+            return redirect(url_for('login'))
+
+        user_id = int(user['userID'])  # Convert user ID to integer
+        
+        # Fetch the recipe from the database
+        recipe = Recipe.get_recipe_by_id(recipe_id)
+        if not recipe:
+            flash("Recipe not found.", "error")
+            return redirect(url_for('userhome'))
+
+        # Ensure only the owner can edit the recipe
+        if int(recipe['userID']) != user_id:
+            flash("You do not have permission to edit this recipe.", "error")
+            return redirect(url_for('userhome'))
+
+        if request.method == 'POST':
+            # Validate input
+            new_title = request.form.get('title', '').strip()
+            new_description = request.form.get('description', '').strip()
+            new_ingredients = request.form.get('ingredients', '').strip()
+            new_steps = request.form.get('steps', '').strip()
+
+            if not new_title or not new_description or not new_ingredients or not new_steps:
+                flash("All fields are required!", "error")
+                return render_template('editrecipe.html', recipe=recipe)
+
+            # Update recipe in database
+            Recipe.update_recipe(recipe_id, new_title, new_description, new_ingredients, new_steps)
+            flash("Recipe updated successfully!", "success")
+            return redirect(url_for('collection'))  
+
+        return render_template('editrecipe.html', recipe=recipe)
+    
     # ----------------- LIKE & COMMENT ROUTES -----------------
-
     @app.route('/recipe/<int:id>/likes')
     def get_recipe_like_count(id):
         # Fetch the total like count for the specified recipe
@@ -243,7 +414,6 @@ def create_app():
         return jsonify({'error': 'Failed to delete comment'}), 500
 
     # ----------------- ADMIN MANAGE ROUTES -----------------#
-    
     @app.route('/adminhome')
     def adminhome():
         if session.get('role') != 'admin':
@@ -314,7 +484,28 @@ def create_app():
         except Exception as e:
             print(f"Error: {e}")
             return jsonify({"error": f"Failed to delete user: {e}"}), 500
-
+        
+    @app.route('/admin/recipe/<int:id>')
+    def get_recipe_admin(id):
+        recipe = Recipe.get_recipe_by_id(id)
+        if recipe:
+            like_count = Recipe.get_recipe_like_count(id)  # Fetch the like count
+            return {
+                'recipeID': recipe['recipeID'],
+                'recipeTitle': recipe['recipeTitle'],
+                'recipeDescription': recipe['recipeDescription'],
+                'recipeIngredients': recipe['recipeIngredients'],
+                'recipeSteps': recipe['recipeSteps'],
+                'recipePic': recipe['recipePic'],
+                'recipeTime': recipe['recipeTime'],
+                'recipeCalories': recipe['recipeCalories'],
+                'recipeLabel': recipe['recipeLabel'],
+                'recipeCuisine': recipe['recipeCuisine'],
+                'recipeStatus': recipe['recipeStatus'],
+                'userID': recipe['userID'],
+                'likeCount': like_count,  # Include the like count in the response
+            }
+        return {'error': 'Recipe not found'}, 404
 
     # ----------------- REPORT ROUTES -----------------
     @app.route('/reports')
@@ -390,158 +581,7 @@ def create_app():
             Notification.add_notification(title, details, receiver)
             return redirect(url_for('notifications'))
 
-    # ----------------- USER ROUTES -----------------
-
-    @app.route('/userhome')
-    def userhome():
-        recipes = Recipe.get_published_recipes()
-        # Handle logged-in vs. guest access
-        if 'user' in session:
-            user_package = session.get('userPackage')
-            notifications = Notification.get_all_notifications(user_package)
-        else:
-            notifications = []  # No notifications for guests
-        return render_template('userhome.html', recipes=recipes,  notifications=notifications)
-    
-    @app.route('/createrecipe', methods=['GET', 'POST'])
-    def createrecipe():
-        if request.method == 'POST':
-            if 'user' not in session:
-                flash("You must be logged in to create a recipe", "error")
-                return redirect(url_for('login'))
-
-            user_id = session['user']['userID']
-            title = request.form.get('title')
-            description = request.form.get('description')
-            ingredients = request.form.get('ingredients')
-            time = request.form.get('time')
-            calories = request.form.get('calories')
-            cuisines = request.form.get('cuisines')
-            servings = request.form.get('servings')
-            labels = request.form.get('labels')
-            steps = request.form.get('steps')
-            
-            # Handle Image Upload
-            image_filename = None
-            if 'recipe_image' in request.files:
-                file = request.files['recipe_image']
-                if file.filename != '':
-                    image_filename = secure_filename(file.filename)
-                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], image_filename))
-
-            try:
-                conn = get_db()
-                cursor = conn.cursor()
-                cursor.execute("""
-                    INSERT INTO recipe (title, description, ingredients, time, calories, cuisines, servings, labels, steps, recipeStatus, image) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (title, description, ingredients, time, calories, cuisines, servings, labels, steps, 'draft', image_filename))
-                conn.commit()
-                conn.close()
-                flash("Recipe created successfully!", "success")
-                return redirect(url_for('userhome'))
-            except sqlite3.Error as e:
-                flash(f"Database error: {e}", "error")
-                return redirect(url_for('createrecipe'))
-        return render_template('createrecipe.html')
-    
-    @app.route('/save_draft', methods=['POST'])
-    def save_draft():
-        data = request.form
-        image = request.files.get('recipe-image')
-        
-        # If an image is uploaded, save it
-        image_filename = None
-        if image:
-            image_filename = f"static/uploads/{image.filename}"
-            image.save(image_filename)
-
-        success = Recipe.save_recipe(
-            title=data.get('title'),
-            description=data.get('description'),
-            ingredients=data.get('ingredients'),
-            preparation_time=data.get('time'),
-            calories=data.get('calories'),
-            cuisines=data.get('cuisines'),
-            servings=data.get('servings'),
-            labels=data.get('labels'),
-            steps=data.get('steps'),
-            image_path=image_filename,
-            status='draft'
-        )
-
-        if success:
-            return jsonify({"message": "Draft saved successfully!"}), 200
-        return jsonify({"message": "Error saving draft"}), 500
-    
-    @app.route('/profile', methods=['GET', 'POST'])
-    def profile():
-        if 'user' not in session:
-            return redirect(url_for('login'))
-        
-        username = session['user']
-        user = RegisteredUser.get_user_by_username(username)
-        recipes = RegisteredUser.get_recipes_by_user_id(user['userID']) if user else []
-        
-        if request.method == 'POST':
-            updated_user = {
-                'userName': request.form.get('userName'),
-                'userEmail': request.form.get('userEmail'),
-                'userBio': request.form.get('userBio'),
-            }
-
-            if 'userProfilePic' in request.files:
-                file = request.files['userProfilePic']
-                if file.filename:
-                    filename = secure_filename(file.filename)
-                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                    updated_user['userProfilePic'] = url_for('static', filename='uploads/' + filename)
-                else:
-                    updated_user['userProfilePic'] = user['userProfilePic']
-                
-            if 'userHeaderPic' in request.files:
-                file = request.files['userHeaderPic']
-                if file.filename:
-                    filename = secure_filename(file.filename)
-                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                    updated_user['userHeaderPic'] = url_for('static', filename='uploads/' + filename)
-                else:
-                    updated_user['userHeaderPic'] = user['userHeaderPic']
-            
-            if RegisteredUser.update_user(user['userID'], updated_user):
-                session['user'] = updated_user['userName']  # Update session with new username
-                flash('Profile updated successfully', 'success')
-            else:
-                flash('Error updating profile', 'error')
-            return redirect(url_for('profile'))
-
-        if user:
-            user_package = user['userPackage'] if 'userPackage' in user else 'free'
-            notifications = Notification.get_notifications_by_package(user_package)
-            return render_template('profile.html', user=user, recipes=recipes, notifications=notifications)
-        else:
-            flash('User not found', 'error')
-            return redirect(url_for('userhome'))
-        
-    @app.route('/profile/edit', methods=['GET', 'POST'])
-    def edit_profile():
-        if 'user' not in session:
-            return redirect(url_for('login'))
-        
-        username = session['user']
-        user = RegisteredUser.get_user_by_username(username)
-        if request.method == 'POST':
-            email = request.form.get('email')
-            bio = request.form.get('bio')
-            package = request.form.get('package')
-            header_pic = request.form.get('header_pic')
-            profile_pic = request.form.get('profile_pic')
-            RegisteredUser.update_user(user['userID'], email, bio, package, header_pic, profile_pic)
-            return redirect(url_for('profile'))
-        return render_template('edit_profile.html', user=user)
-    
     # ----------------- COLLECTION ROUTES -----------------
-
     @app.route('/collection')
     def collection():
         username = session.get('user')
@@ -568,19 +608,6 @@ def create_app():
 
         flash('User not found. Please log in again.', 'error')
         return redirect(url_for('login'))
-    
-    # ----------------- SEARCH ROUTES -----------------
-
-    @app.route('/search', methods=['GET'])
-    def search():
-        query = request.args.get('q', '').strip()
-
-        if not query:
-            return jsonify([])  # Return an empty list if no query
-
-        recipe = Recipe.search_recipe(query)  # Call a method from Recipe to handle search
-        return jsonify(recipe)
-
     
     @app.route('/add_to_collection', methods=['POST'])
     def add_to_collection():
@@ -620,56 +647,16 @@ def create_app():
 
         return jsonify({'error': 'User not found'}), 404
     
-    # ----------------- EDIT RECIPE -----------------
+    # ----------------- SEARCH ROUTES -----------------
 
-    @app.route('/edit_recipe/<int:recipe_id>', methods=['GET', 'POST'])
-    def edit_recipe(recipe_id):
-        username = session.get('user')
-        if not username:
-            flash("Please log in to edit recipes.", "warning")
-            return redirect(url_for('login'))
+    @app.route('/search', methods=['GET'])
+    def search():
+        query = request.args.get('q', '').strip()
 
-        # Fetch user details
-        user = RegisteredUser.get_user_by_username(username)
-        if not user:
-            flash("User not found. Please log in again.", "error")
-            return redirect(url_for('login'))
+        if not query:
+            return jsonify([])  # Return an empty list if no query
 
-        user_id = int(user['userID'])  # Convert user ID to integer
-        
-        # Fetch the recipe from the database
-        recipe = Recipe.get_recipe_by_id(recipe_id)
-        if not recipe:
-            flash("Recipe not found.", "error")
-            return redirect(url_for('userhome'))
-
-        # Ensure only the owner can edit the recipe
-        if int(recipe['userID']) != user_id:
-            flash("You do not have permission to edit this recipe.", "error")
-            return redirect(url_for('userhome'))
-
-        if request.method == 'POST':
-            # Validate input
-            new_title = request.form.get('title', '').strip()
-            new_description = request.form.get('description', '').strip()
-            new_ingredients = request.form.get('ingredients', '').strip()
-            new_steps = request.form.get('steps', '').strip()
-
-            if not new_title or not new_description or not new_ingredients or not new_steps:
-                flash("All fields are required!", "error")
-                return render_template('editrecipe.html', recipe=recipe)
-
-            # Update recipe in database
-            Recipe.update_recipe(recipe_id, new_title, new_description, new_ingredients, new_steps)
-            flash("Recipe updated successfully!", "success")
-            return redirect(url_for('collection'))  
-
-        return render_template('editrecipe.html', recipe=recipe)
-
-
-
-
-
-    # ----------------- -----------------
-
+        recipe = Recipe.search_recipe(query)  # Call a method from Recipe to handle search
+        return jsonify(recipe)
+    
     return app
