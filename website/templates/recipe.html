@@ -114,6 +114,12 @@
             <div class="card-view" id="viewRecipeCard">
                 <h3 class="card-title">#{{ recipe.recipeID }} {{ recipe.recipeTitle }}</h3>
                 <button class="close-button" onclick="window.history.back()"> x </button>
+                    <a href="{{ url_for('edit_recipe', recipe_id=recipe.recipeID) }}">
+                        <button class="edit-button">Edit Recipe ✏️</button>
+                    </a>
+                
+
+
                 <div class="card-content">
                     <div class="recipeImageContainer">
                         <img src="{{ recipe.recipePic }}" alt="Recipe Image" class="recipe-view-image">

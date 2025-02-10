@@ -82,6 +82,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div style="position: relative; display: inline-block;">
                         <button class="notification-btn" id="notification-btn">🔔</button>
                         <div class="notification-box" id="notification-box" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #ddd; padding: 10px; z-index: 1000; width: 500px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
@@ -89,11 +90,10 @@
                             <div class="card">
                                 {% if notifications %}
                                     {% for notification in notifications %}
-                                        <div class="card-item" data-title="{{ notification['title'] | e }}" >
+                                        <div class="card-list" data-title="{{ notification['title'] | e }}" >
                                             <div class="card-header">
                                                 <span class="card-id">#{{ notification['notiID'] }}</span>
                                                 <h4 class="card-subtitle">{{ notification['notiTitle'] }}</h4>
-                                                <span class="card-tag">{{ notification['notiReceiver'] }}</span>
                                             </div>
                                             <p class="card-details">{{ notification['notiDetails'] }}</p>
                                             <div class="card-footer">
@@ -229,14 +229,17 @@
             }
         });
 
-        function viewNotificationDetails(id) {
-            // Example action, could redirect to a notification details page
-            alert(`Notification ID: ${id}`);
-        }  
+        // Close the box when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!notificationBtn.contains(e.target) && !notificationBox.contains(e.target)) {
+                notificationBox.style.display = 'none';
+            }
+        });
 
         function viewRecipeDetails(recipeID) {
             window.location.href = "{{ url_for('get_recipe', id=0) }}".replace('0', recipeID);
         }
+        
     </script>
 </body>
 </html>
