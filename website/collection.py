@@ -121,3 +121,57 @@ class Collection:
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return 'https://i.pinimg.com/736x/cf/80/06/cf8006f5593281fe559838256b8fb161.jpg'
+        
+
+    @staticmethod
+    def add_recipe_to_collection(collection_id, recipe_id):
+        """Add a recipe to a collection."""
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO collection_recipes (collectionID, recipeID)
+                VALUES (?, ?)
+            """, (collection_id, recipe_id))
+            conn.commit()
+            conn.close()
+            return True
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return False
+        
+    @staticmethod
+    def remove_recipe_from_collection(collection_id, recipe_id):
+        """Remove a recipe from a collection."""
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("""
+                DELETE FROM collection_recipes 
+                WHERE collectionID = ? AND recipeID = ?
+            """, (collection_id, recipe_id))
+            conn.commit()
+            conn.close()
+            return True
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return False
+        
+    @staticmethod
+    def get_collection_recipes(collection_id):
+        """Get all recipes in a collection."""
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT r.recipeID, r.recipeName, r.recipePic
+                FROM recipes r
+                INNER JOIN collection_recipes cr ON r.recipeID = cr.recipeID
+                WHERE cr.collectionID = ?
+            """, (collection_id,))
+            recipes = cursor.fetchall()
+            conn.close()
+            return recipes
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return []

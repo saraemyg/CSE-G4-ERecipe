@@ -71,7 +71,7 @@
 
                 <div class="sort-container" style="position: relative; display: inline-block;">
                     <button class="sort-btn" id="sort-btn">Sort By <span class="sort-icon">⬇️</span></button>
-                    <div class="sort-box" id="sort-box" style="display: none;">
+                    <div class="sort-box" id="sort-box" style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #ddd; padding: 10px; z-index: 1000; width: 200px;">
                         <div class="sort-content">
                             <h4>Sort By:</h4>
                             <ul>
@@ -87,7 +87,7 @@
 
                 <div style="position: relative; display: inline-block;">
                     <button class="notification-btn" id="notification-btn">🔔</button>
-                    <div class="notification-box" id="notification-box" style="display: none;">
+                    <div class="notification-box" id="notification-box" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #ddd; padding: 10px; z-index: 1000; width: 500px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
                         <h4>Notifications</h4>
                         <div class="card">
                             {% if notifications %}
@@ -117,12 +117,13 @@
             </header>
 
             <h1>Create New Recipe</h1>
-            <form class="recipe-form">
+            <form id="recipe-form" class="recipe-form" action="{{ url_for('createrecipe') }}" method="POST" enctype="multipart/form-data">
                 <div class="recipe-form-container">
                     <!-- Image Upload Section -->
                     <div class="image-container">
                         <label for="recipe-image">Recipe Image:</label>
-                        <input type="file" id="recipe-image" name="recipe-image">
+                        <input type="file" id="recipe-image" name="recipe_image" accept="image/*" onchange="previewImage(event)">
+                        <img id="preview" src="" alt="Image Preview" style="display: none; max-width: 200px; margin-top: 10px;">
                         <!-- Save Draft & Publish Buttons Below the Image -->
                         <div class="form-buttons">
                             <button type="button" class="save-draft">Save Draft</button>
@@ -132,24 +133,24 @@
 
                     <!-- Recipe Details Section -->
                     <div class="recipe-details">
-                        <input type="text" id="title" placeholder="Title" required>
+                        <input type="text" id="title" name="Title" placeholder="Title" required>
                         
                         <div class="recipe-form-container" style="display: flex; gap: 10px;">
                             <!-- Description & Ingredients in a Column -->
                             <div style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
-                                <textarea id="description" placeholder="Description (max 100 words)" maxlength="100" required style="flex-grow: 1; min-height: 120px;"></textarea>
-                                <textarea id="ingredients" placeholder="Ingredients" required style="flex-grow: 1; min-height: 120px;"></textarea>
+                                <textarea id="description" name="description" placeholder="Description (max 100 words)" maxlength="100" required style="flex-grow: 1; min-height: 120px;"></textarea>
+                                <textarea id="ingredients" name="ingredients" placeholder="Ingredients" required style="flex-grow: 1; min-height: 120px;"></textarea>
                             </div>
 
                         <div style="flex: 1; display: flex; flex-wrap: wrap; gap: 5px;">
-                            <input type="text" id="time" placeholder="Preparation Time" required>
-                            <input type="text" id="calories" placeholder="Calories" required>
-                            <input type="text" id="cuisines" placeholder="Cuisines" required>
-                            <input type="text" id="servings" placeholder="Servings" required>
-                            <input type="text" id="labels" placeholder="Labels" required>
+                            <input type="text" id="time" name="time" placeholder="Preparation Time" required>
+                            <input type="text" id="calories" name="calories" placeholder="Calories" required>
+                            <input type="text" id="cuisines" name="cuisines"  placeholder="Cuisines" required>
+                            <input type="text" id="servings" name="servings" placeholder="Servings" required>
+                            <input type="text" id="labels"  name="labels" placeholder="Labels" required>
                         </div>
                         
-                        <textarea id="steps" placeholder="Steps" required></textarea>
+                        <textarea id="steps" name="steps" placeholder="Steps" required></textarea>
                     </div>
                 </div>
             </form>
@@ -157,17 +158,83 @@
     </div>
 
     <script>
+        // Toggle the filter box
         document.querySelector('.filter-btn').addEventListener('click', function () {
-            alert('Filter options will go here.');
+            const filterBox = document.getElementById('filter-box');
+            filterBox.style.display = filterBox.style.display === 'none' || !filterBox.style.display ? 'block' : 'none';
+        });
+
+        // Close filter box when clicking outside
+        document.addEventListener('click', function (event) {
+            const filterBox = document.getElementById('filter-box');
+            const filterButton = document.querySelector('.filter-btn');
+            if (filterBox.style.display === 'block' && !filterBox.contains(event.target) && event.target !== filterButton) {
+                filterBox.style.display = 'none';
+            }
         });
 
         document.getElementById('sort-btn').addEventListener('click', function () {
-            alert('Sort options will go here.');
+            const sortBox = document.getElementById('sort-box');
+            sortBox.style.display = sortBox.style.display === 'none' || !sortBox.style.display ? 'block' : 'none';
         });
 
-        document.getElementById('notification-btn').addEventListener('click', function () {
-            alert('No new notifications');
+        document.addEventListener('click', function (event) {
+            const sortBox = document.getElementById('sort-box');
+            const sortButton = document.getElementById('sort-btn');
+            if (sortBox.style.display === 'block' && !sortBox.contains(event.target) && event.target !== sortButton) {
+                sortBox.style.display = 'none';
+            }
         });
+
+
+        document.querySelector('.save-draft').addEventListener('click', function() {
+            let formData = new FormData(document.getElementById('recipe-form'));
+
+            fetch("{{ url_for('save_draft') }}", {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message))
+            .catch(error => alert('Error saving draft'));
+        });
+
+        // Show image preview
+        document.getElementById('recipe-image').addEventListener('change', function(event) {
+            let reader = new FileReader();
+            reader.onload = function() {
+                let preview = document.getElementById('preview');
+                preview.src = reader.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        });
+
+
+        const notificationBtn = document.getElementById('notification-btn');
+        const notificationBox = document.getElementById('notification-box');
+
+        notificationBtn.addEventListener('click', () => {
+            notificationBox.style.display = notificationBox.style.display === 'none' ? 'block' : 'none';
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!notificationBox.contains(event.target) && event.target !== notificationBtn) {
+                notificationBox.style.display = 'none';
+            }
+        });
+
+        // Image Preview Function
+        function previewImage(event) {
+            var reader = new FileReader();
+            reader.onload = function() {
+                var preview = document.getElementById('preview');
+                preview.src = reader.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
     </script>
 </body>
 </html>
