@@ -992,6 +992,7 @@ header h1 {
 
 .userhome .card-item {
     flex: 1 1 calc(25% - 10px); /* Four items per row with some spacing */
+    max-width: 250px;
     box-sizing: border-box;
     margin: 5px;
     padding: 10px;

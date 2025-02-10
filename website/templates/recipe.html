@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Homepage</title>
+    <title>Recipe Details</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
@@ -111,132 +111,55 @@
                 <a href="{{ url_for('profile') }}"> <button class="profile-btn">👤</button> </a>
             </header>
 
-            <h2>Recommended For You</h2>
-            <div class="card-container">
-                {% if recipes %}
-                    {% for recipe in recipes %}
-                        <div class="card-item" data-title="{{ recipe['recipeTitle'] | e }}" onclick="viewRecipeDetails('{{ recipe.recipeID }}')">
-                            <img src="{{ recipe['recipePic'] | e }}" alt="{{ recipe['recipeTitle'] | e }}" class="recipe-image">
-                            <div class="card-header">
-                                <span class="card-id">#{{ recipe['recipeID'] | e }}</span>
-                                <h4 class="card-subtitle">{{ recipe['recipeTitle'] | e }}</h4>
-                                <span class="card-tag {{ recipe['recipeStatus'] | e }}">{{ recipe['recipeStatus'] | e }}</span>
-                            </div>
-                            <div class="card-details">{{ recipe['recipeDescription'] | e }}</div>
-                            <div class="card-footer">
-                                <span class="card-time">{{ recipe['recipeTime'] | e }} mins</span>
-                                <span class="card-calories">{{ recipe['recipeCalories'] | e }} cal</span>
-                                <span class="card-cuisine">{{ recipe['recipeCuisine'] | e }}</span>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <p>No recipes available</p>
-                {% endif %}
-            </div>
-        </main>
-    </div>
-
-    <script>
-        // Toggle the filter box
-        document.querySelector('.filter-btn').addEventListener('click', function () {
-            const filterBox = document.getElementById('filter-box');
-            filterBox.style.display = filterBox.style.display === 'none' || !filterBox.style.display ? 'block' : 'none';
-        });
-
-        // Close filter box when clicking outside
-        document.addEventListener('click', function (event) {
-            const filterBox = document.getElementById('filter-box');
-            const filterButton = document.querySelector('.filter-btn');
-            if (filterBox.style.display === 'block' && !filterBox.contains(event.target) && event.target !== filterButton) {
-                filterBox.style.display = 'none';
-            }
-        });
-
-        document.getElementById('sort-btn').addEventListener('click', function () {
-            const sortBox = document.getElementById('sort-box');
-            sortBox.style.display = sortBox.style.display === 'none' || !sortBox.style.display ? 'block' : 'none';
-        });
-
-        document.addEventListener('click', function (event) {
-            const sortBox = document.getElementById('sort-box');
-            const sortButton = document.getElementById('sort-btn');
-            if (sortBox.style.display === 'block' && !sortBox.contains(event.target) && event.target !== sortButton) {
-                sortBox.style.display = 'none';
-            }
-        });
-
-        document.getElementById('search-button').addEventListener('click', function () {
-            let query = document.getElementById('search-input').value.trim();
-
-            if (query) {
-                fetch(`/search?q=${encodeURIComponent(query)}`)
-                    .then(response => response.json())
-                    .then(data =>displaySearchResults(data))
-                    .catch(error => console.error('Error fetching search results:', error));
-            }
-        });
-
-        document.getElementById('search-input').addEventListener('keypress', function (event) {
-        if (event.key === 'Enter') {
-            document.getElementById('search-button').click();
-            }
-        });
-
-        function displaySearchResults(recipe) {
-            let container = document.querySelector('.card-container');
-            container.innerHTML = ''; // Clear previous results
-
-            if (recipe.length === 0) {
-                container.innerHTML = '<p>No recipes found.</p>';
-                return;
-            }
-
-            recipe.forEach(recipe => {
-                let card = document.createElement('div');
-                card.classList.add('card-item');
-                card.setAttribute('data-title', recipe.recipeTitle);
-                card.onclick = () => viewRecipeDetails(recipe.recipeID);
-            
-                card.innerHTML = `
-                    <img src="${recipe.recipePic}" alt="${recipe.recipeTitle}" class="recipe-image">
+            <div class="container recipe-details">
+                <header class="content-header">
+                    <h1>{{ recipe.recipeTitle }}</h1>
+                    <button class="close-button" onclick="window.history.back()"> x </button>
+                </header>
+                <div class="recipeImageContainer">
+                    <img src="{{ recipe.recipePic }}" alt="Recipe Image" class="recipe-view-image">
+                    <div class="like-container">
+                        <span class="heart-icon">&hearts;</span>
+                        <span id="likeCount">{{ recipe.likeCount }}</span>
+                    </div>
+                </div>
+                <div class="card-info">
                     <div class="card-header">
-                        <span class="card-id">#${recipe.recipeID}</span>
-                        <h4 class="card-subtitle">${recipe.recipeTitle}</h4>
+                        <span class="card-id">#{{ recipe.recipeID }}</span>
+                        <h4 class="card-subtitle">{{ recipe.recipeTitle }}</h4>
+                        <span class="card-tag">{{ recipe.recipeStatus }}</span>
+                        <span class="card-tag">User ID: {{ recipe.userID }}</span>
                     </div>
-                    <div class="card-details">${recipe.recipeDescription}</div>
+                    <div class="card-details">{{ recipe.recipeDescription }}</div>
                     <div class="card-footer">
-                        <span class="card-time">${recipe.recipeTime} mins</span>
-                        <span class="card-calories">${recipe.recipeCalories} cal</span>
-                        <span class="card-cuisine">${recipe.recipeCuisine}</span>
+                        <span class="card-time">{{ recipe.recipeTime }} mins</span>
+                        <span class="card-calories">{{ recipe.recipeCalories }} cal</span>
+                        <span class="card-cuisine">{{ recipe.recipeCuisine }}</span>
+                        <span class="card-label">{{ recipe.recipeLabel }}</span>
                     </div>
-                `;
-            
-                container.appendChild(card);
-            });
-        }
+                    <div class="card-details">Ingredients: {{ recipe.recipeIngredients }}</div>
+                    <div class="card-details">Steps: {{ recipe.recipeSteps }}</div>
+                    <div class="card-details comment-section">
+                        <h4 class="comment-title">Comments</h4>
+                        <div class="comment-list">
+                            {% if comments %}
+                                {% for comment in comments %}
+                                    <div class="comment-item">
+                                        <p><strong>User:</strong> {{ comment.userName or 'Anonymous' }}</p>
+                                        <p><strong>Comment:</strong> {{ comment.commentText }}</p>
+                                        <p><em>Posted on: {{ comment.commentTime }}</em></p>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p>No comments available.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        const notificationBtn = document.getElementById('notification-btn');
-        const notificationBox = document.getElementById('notification-box');
-
-        notificationBtn.addEventListener('click', () => {
-            notificationBox.style.display = notificationBox.style.display === 'none' ? 'block' : 'none';
-        });
-
-        document.addEventListener('click', (event) => {
-            if (!notificationBox.contains(event.target) && event.target !== notificationBtn) {
-                notificationBox.style.display = 'none';
-            }
-        });
-
-        function viewNotificationDetails(id) {
-            // Example action, could redirect to a notification details page
-            alert(`Notification ID: ${id}`);
-        }  
-
-        function viewRecipeDetails(recipeID) {
-            window.location.href = "{{ url_for('get_recipe', id=0) }}".replace('0', recipeID);
-        }
-    </script>
-</body>
-</html>
+            <script>
+                
+            </script>
+        </body>
+        </html>

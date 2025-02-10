@@ -193,6 +193,10 @@
         function closeEditProfile() {
             document.getElementById('editProfileForm').classList.add('hidden');
         }
+
+        function viewRecipeDetails(recipeID) {
+            window.location.href = "{{ url_for('get_recipe', id=0) }}".replace('0', recipeID);
+        }
     </script>
 </body>
 </html>
