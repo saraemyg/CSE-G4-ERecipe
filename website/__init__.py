@@ -323,7 +323,7 @@ def create_app():
         # Ensure only the owner can edit the recipe
         if int(recipe['userID']) != user_id:
             flash("You do not have permission to edit this recipe.", "error")
-            return redirect(url_for('userhome'))
+            return redirect(url_for('main'))
 
         if request.method == 'POST':
             # Validate input
