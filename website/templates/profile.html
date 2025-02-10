@@ -163,6 +163,7 @@
                     </form>
                 </div>
 
+                <h3 class="card-title">Published Recipes:</h3>
                 <div class="card-grid" id="viewProfileRecipesGrid">
                     {% if recipes %}
                         {% for recipe in recipes %}
@@ -171,7 +172,7 @@
                                 <div class="card-header">
                                     <span class="card-id">#{{ recipe['recipeID'] | e }}</span>
                                     <h4 class="card-subtitle">{{ recipe['recipeTitle'] | e }}</h4>
-                                    <span class="card-tag {{ recipe['recipeStatus'] | e }}">{{ recipe['recipeStatus'] | e }}</span>
+                                    <!-- <span class="card-tag {{ recipe['recipeStatus'] | e }}">{{ recipe['recipeStatus'] | e }}</span> -->
                                 </div>
                                 <div class="card-details">{{ recipe['recipeDescription'] | e }}</div>
                             </div>

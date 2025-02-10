@@ -111,14 +111,16 @@
                 <a href="{{ url_for('profile') }}"> <button class="profile-btn">👤</button> </a>
             </header>
 
-            <div class="card-view absolute" id="viewRecipeCard">
-                <h3 class="card-title">{{ recipe.recipeTitle }}</h3>
+            <div class="card-view" id="viewRecipeCard">
+                <h3 class="card-title">#{{ recipe.recipeID }} {{ recipe.recipeTitle }}</h3>
                 <button class="close-button" onclick="window.history.back()"> x </button>
                 <div class="card-content">
                     <div class="recipeImageContainer">
                         <img src="{{ recipe.recipePic }}" alt="Recipe Image" class="recipe-view-image">
                         <div class="like-container">
-                            <span class="heart-icon">&hearts;</span>
+                            <button class="heart-icon" id="like-button" onclick="toggleLike('{{ recipe.recipeID }}')">
+                                {{ '❤️' if user_liked else '🤍' }}
+                            </button>
                             <span id="likeCount">{{ recipe.likeCount }}</span>
                         </div>
                     </div>
@@ -126,8 +128,8 @@
                         <div class="card-header">
                             <span class="card-id">#{{ recipe.recipeID }}</span>
                             <h4 class="card-subtitle">{{ recipe.recipeTitle }}</h4>
-                            <span class="card-tag">{{ recipe.recipeStatus }}</span>
-                            <span class="card-tag">User ID: {{ recipe.userID }}</span>
+                            <!--<span class="card-tag">{{ recipe.recipeStatus }}</span>
+                            <span class="card-tag">User ID: {{ recipe.userID }}</span>-->
                         </div>
                         <div class="card-details">{{ recipe.recipeDescription }}</div>
                         <div class="card-footer">
@@ -140,26 +142,92 @@
                         <div class="card-details">Steps: {{ recipe.recipeSteps }}</div>
                         <div class="card-details comment-section">
                             <h4 class="comment-title">Comments</h4>
-                            <div class="comment-list">
+                            <div class="comment-list" id="comment-list">
                                 {% if comments %}
                                     {% for comment in comments %}
-                                        <div class="comment-item">
-                                            <p><strong>User:</strong> {{ comment.userName or 'Anonymous' }}</p>
-                                            <p><strong>Comment:</strong> {{ comment.commentText }}</p>
-                                            <p><em>Posted on: {{ comment.commentTime }}</em></p>
+                                        <div class="comment-item" data-comment-id="{{ comment.commentID }}">
+                                            <div class="comment-header">
+                                                <p class="comment-user"><strong>{{ comment.userName or 'Anonymous' }}</strong></p>
+                                                <p class="comment-time"><em>{{ comment.commentTime }}</em></p>
+                                            </div>
+                                            <p class="comment-text">{{ comment.commentText }}</p>
                                         </div>
                                     {% endfor %}
                                 {% else %}
                                     <p>No comments available.</p>
                                 {% endif %}
                             </div>
+                            <form id="comment-form" onsubmit="addComment(event, '{{ recipe.recipeID }}')">
+                                <textarea name="comment" id="comment" placeholder="Add a comment..." required></textarea>
+                                <button type="submit" class="btn-submit-comment">Submit</button>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
 
             <script>
-                
+                const currentUser = "{{ session['user'] }}";
+                function toggleLike(recipeID) {
+                    fetch(`/recipe/${recipeID}/like`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('likeCount').innerText = data.likeCount;
+                            const likeButton = document.getElementById('like-button');
+                            if (likeButton.innerText === '❤️') {
+                                likeButton.innerText = '🤍';
+                            } else {
+                                likeButton.innerText = '❤️';
+                            }
+                        } else {
+                            alert(data.error || 'Failed to like/unlike recipe');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                }
+
+                function addComment(event, recipeID) {
+                    event.preventDefault();
+                    const formData = new FormData(document.getElementById('comment-form'));
+                    fetch(`/recipe/${recipeID}/comment`, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const commentList = document.getElementById('comment-list');
+                            commentList.innerHTML = '';
+                            data.comments.forEach(comment => {
+                                const commentItem = document.createElement('div');
+                                commentItem.classList.add('comment-item');
+                                commentItem.setAttribute('data-comment-id', comment.commentID);
+                                commentItem.innerHTML = `
+                                    <div class="comment-header">
+                                        <p class="comment-user"><strong>${comment.userName || 'Anonymous'}</strong></p>
+                                        <p class="comment-time"><em>${comment.commentTime}</em></p>
+                                    </div>
+                                    <p class="comment-text">${comment.commentText}</p>
+                                `;
+                                commentList.appendChild(commentItem);
+                            });
+                            document.getElementById('comment-form').reset();
+                        } else {
+                            alert(data.error || 'Failed to add comment');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                }
             </script>
         </body>
         </html>

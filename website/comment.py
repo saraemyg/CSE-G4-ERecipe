@@ -68,6 +68,19 @@ class Comment:
             print(f"Database error: {e}")
             return []
 
+    @staticmethod
+    def add_comment(recipe_id, user_id, comment_text):
+        """Add a new comment to the database."""
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO comment (recipeID, userID, commentText) VALUES (?, ?, ?)", (recipe_id, user_id, comment_text))
+            conn.commit()
+            conn.close()
+            return True
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return False
 
     @staticmethod
     def create_comment(comment_text, user_id, recipe_id):

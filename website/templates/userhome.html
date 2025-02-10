@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Homepage</title>
+    <title>Home</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
@@ -120,7 +120,7 @@
                             <div class="card-header">
                                 <span class="card-id">#{{ recipe['recipeID'] | e }}</span>
                                 <h4 class="card-subtitle">{{ recipe['recipeTitle'] | e }}</h4>
-                                <span class="card-tag {{ recipe['recipeStatus'] | e }}">{{ recipe['recipeStatus'] | e }}</span>
+                                <!-- <span class="card-tag {{ recipe['recipeStatus'] | e }}">{{ recipe['recipeStatus'] | e }}</span> -->
                             </div>
                             <div class="card-details">{{ recipe['recipeDescription'] | e }}</div>
                             <div class="card-footer">
