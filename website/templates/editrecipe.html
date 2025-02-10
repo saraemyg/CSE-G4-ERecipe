@@ -70,7 +70,7 @@
 
                 <div class="sort-container" style="position: relative; display: inline-block;">
                     <button class="sort-btn" id="sort-btn">Sort By <span class="sort-icon">⬇️</span></button>
-                    <div class="sort-box" id="sort-box" style="display: none;">
+                    <div class="sort-box" id="sort-box" style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #ddd; padding: 10px; z-index: 1000; width: 200px;">
                         <div class="sort-content">
                             <h4>Sort By:</h4>
                             <ul>
@@ -86,7 +86,7 @@
 
                 <div style="position: relative; display: inline-block;">
                     <button class="notification-btn" id="notification-btn">🔔</button>
-                    <div class="notification-box" id="notification-box" style="display: none;">
+                    <div class="notification-box" id="notification-box" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #ddd; padding: 10px; z-index: 1000; width: 500px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
                         <h4>Notifications</h4>
                         <div class="card">
                             {% if notifications %}
@@ -158,16 +158,46 @@
     </div>
 
     <script>
+        // Toggle the filter box
         document.querySelector('.filter-btn').addEventListener('click', function () {
-            alert('Filter options will go here.');
+            const filterBox = document.getElementById('filter-box');
+            filterBox.style.display = filterBox.style.display === 'none' || !filterBox.style.display ? 'block' : 'none';
+        });
+
+        // Close filter box when clicking outside
+        document.addEventListener('click', function (event) {
+            const filterBox = document.getElementById('filter-box');
+            const filterButton = document.querySelector('.filter-btn');
+            if (filterBox.style.display === 'block' && !filterBox.contains(event.target) && event.target !== filterButton) {
+                filterBox.style.display = 'none';
+            }
         });
 
         document.getElementById('sort-btn').addEventListener('click', function () {
-            alert('Sort options will go here.');
+            const sortBox = document.getElementById('sort-box');
+            sortBox.style.display = sortBox.style.display === 'none' || !sortBox.style.display ? 'block' : 'none';
         });
 
-        document.getElementById('notification-btn').addEventListener('click', function () {
-            alert('No new notifications');
+        document.addEventListener('click', function (event) {
+            const sortBox = document.getElementById('sort-box');
+            const sortButton = document.getElementById('sort-btn');
+            if (sortBox.style.display === 'block' && !sortBox.contains(event.target) && event.target !== sortButton) {
+                sortBox.style.display = 'none';
+            }
+        });
+
+
+        const notificationBtn = document.getElementById('notification-btn');
+        const notificationBox = document.getElementById('notification-box');
+
+        notificationBtn.addEventListener('click', () => {
+            notificationBox.style.display = notificationBox.style.display === 'none' ? 'block' : 'none';
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!notificationBox.contains(event.target) && event.target !== notificationBtn) {
+                notificationBox.style.display = 'none';
+            }
         });
     </script>
 </body>

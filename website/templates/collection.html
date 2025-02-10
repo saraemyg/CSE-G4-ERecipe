@@ -125,13 +125,24 @@
                             <div class="card-item" onclick="viewCollection('{{ collection[collectionName] }}')">
                                 <img src="{{ collection['collectionPic'] }}" alt="{{ collection['collectionName'] }}">
                                 <p>{{ collection['collectionName'] }} <span>{{ collection['collectionSize'] }} recipes</span></p>
+                                <button onclick="viewCollection('{{ collection.collectionID }}')">View</button>
+                                <button onclick="deleteCollection('{{ collection.collectionID }}')">Delete</button>
                             </div>
                         {% endfor %}
                     {% endif %}
 
                     <div class="card-item create-new" onclick="createNewCollection()">
                         <p>+ Create New Collection</p>
+                    
+                    
+                    <!-- Create Collection Form (Initially Hidden) -->
+                    <div class="card-item create-new-form hidden" id="createNewCollectionForm">
+                        <input type="text" id="newCollectionName" placeholder="Collection Name" required>
+                        <textarea id="newCollectionDescription" placeholder="Description"></textarea>
+                        <button onclick="createCollection()">Create</button>
+                        <button onclick="cancelCreateCollection()">Cancel</button>
                     </div>
+                    
                 </div>
             </section>
         </main>
@@ -153,7 +164,6 @@
             }
         });
 
-        // Toggle sort box
         document.getElementById('sort-btn').addEventListener('click', function () {
             const sortBox = document.getElementById('sort-box');
             sortBox.style.display = sortBox.style.display === 'none' || !sortBox.style.display ? 'block' : 'none';
@@ -161,19 +171,112 @@
 
         document.addEventListener('click', function (event) {
             const sortBox = document.getElementById('sort-box');
-            if (!sortBox.contains(event.target) && event.target !== document.getElementById('sort-btn')) {
+            const sortButton = document.getElementById('sort-btn');
+            if (sortBox.style.display === 'block' && !sortBox.contains(event.target) && event.target !== sortButton) {
                 sortBox.style.display = 'none';
             }
         });
 
-        function viewCollection(collectionName) {
-            alert('Viewing collection: ' + collectionName);
+
+        const notificationBtn = document.getElementById('notification-btn');
+        const notificationBox = document.getElementById('notification-box');
+
+        notificationBtn.addEventListener('click', () => {
+            notificationBox.style.display = notificationBox.style.display === 'none' ? 'block' : 'none';
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!notificationBox.contains(event.target) && event.target !== notificationBtn) {
+                notificationBox.style.display = 'none';
+            }
+        });
+
+        // Show the Create New Collection form
+        function createNewCollection() {
+            const form = document.getElementById("createNewCollectionForm");
+            form.classList.remove("hidden"); // Show the form
         }
 
-        function createNewCollection() {
-            alert('Creating a new collection...');
+        // Hide the Create New Collection form
+        function cancelCreateCollection() {
+            const form = document.getElementById("createNewCollectionForm");
+            form.classList.add("hidden"); // Hide the form
         }
+
+        // Handle form submission for creating a new collection
+        function createCollection() {
+            const name = document.getElementById("newCollectionName").value.trim();
+            const description = document.getElementById("newCollectionDescription").value.trim();
+
+            if (!name) {
+                alert("Please enter a collection name.");
+                return;
+            }
+
+            fetch('/create_collection', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: name, description: description })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Create new collection card
+                    const cardContainer = document.querySelector('.card-container');
+                    const newCollection = document.createElement('div');
+                    newCollection.classList.add('card-item');
+                    newCollection.innerHTML = `
+                        <img src="${data.collectionPic}" alt="${data.collectionName}">
+                        <p>${data.collectionName} <span>${data.collectionSize} recipes</span></p>
+                        <button onclick="viewCollection('${data.collectionID}')">View</button>
+                        <button onclick="deleteCollection('${data.collectionID}')">Delete</button>
+                    `;
+
+                    // Insert new collection before the "Create New Collection" button
+                    const createNewButton = document.querySelector('.create-new');
+                    cardContainer.insertBefore(newCollection, createNewButton);
+
+                    // Reset form and hide the input fields
+                    document.getElementById("newCollectionName").value = "";
+                    document.getElementById("newCollectionDescription").value = "";
+                    cancelCreateCollection(); // Hide form after successful creation
+                } else {
+                    alert("Failed to create collection.");
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+
         
+        function viewCollection(collectionID) {
+            window.location.href = `/collection/${collectionID}`;
+        }
+        function deleteCollection(collectionID) {
+            if (confirm("Are you sure you want to delete this collection?")) {
+                fetch(`/delete_collection/${collectionID}`, { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert("Failed to delete collection");
+                        }
+                    });
+            }
+        }
+
+        function addRecipeToCollection(collectionID, recipeID) {
+            fetch('/add_to_collection', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ collectionID: collectionID, recipeID: recipeID })
+            })
+            .then(response => response.json())
+            .then(data => alert(data.success || data.error))
+            .catch(error => console.error('Error:', error));
+        }
+
+
     </script>
 </body>
 </html>
