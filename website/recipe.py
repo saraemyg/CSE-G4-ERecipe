@@ -123,4 +123,15 @@ class Recipe:
 
         return recipe
 
-
+    @staticmethod
+    def get_published_recipes():
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM recipe WHERE recipeStatus = 'published'")
+            recipes = cursor.fetchall()
+            conn.close()
+            return recipes
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return []

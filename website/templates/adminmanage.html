@@ -60,6 +60,7 @@
                                     <div class="card-footer">
                                         <span class="card-package">{{ user['userPackage'] | e }}</span>
                                     </div>
+                                    <!-- add option to show user collections & comments  -->
                                 </div>
                             {% endfor %}
                         {% else %}
@@ -88,7 +89,6 @@
                                         <span class="card-cuisine">{{ recipe['recipeCuisine'] | e }}</span>
                                     </div>
                                 </div> 
-                                <!-- add option to show user collections & comments  -->
                             {% endfor %}
                         {% else %}
                             <p>No recipes available</p>
@@ -129,11 +129,10 @@
                                 <div id="recipeComments" class="comment-list"></div>
                             </div>                            
                             <div class="card-footer card-action-footer">
-                                <form id="statusUpdateForm" action="" method="POST">
-                                    <select id="statusSelect" name="status" class="content-selector" onchange="updateUserStatus()">
-                                        <option value="active">Unsuspend</option>
-                                        <option value="suspended">Suspend</option>
-                                    </select>
+                                <form id="recipeStatusUpdateForm" action="" method="POST">
+                                    <button type="button" id="recipeStatusButton" class="status-toggle-btn" onclick="updateRecipeStatus()">
+                                        Suspend
+                                    </button>
                                 </form>
                                 <button class="btn-delete" id="deleteButton">Delete</button>
                             </div>
@@ -163,12 +162,13 @@
                     </div>
                     <div class="card-footer card-action-footer">
                         <form id="statusUpdateForm" action="" method="POST">
-                            <select id="statusSelect" name="status" class="content-selector" onchange="updateUserStatus()">
-                                <option value="active">Unsuspend</option>
-                                <option value="suspended">Suspend</option>
-                            </select>
+                            <input type="hidden" name="status" id="statusInput" value="active">
+                            <button type="button" id="statusButton" class="btn-suspend" onclick="updateUserStatus()">
+                                Suspend
+                            </button>
                         </form>
-                        <button class="btn-delete" id="deleteButton">Delete</button>
+                        <button class="btn-delete" id="deleteButton" onclick="deleteUser()">Delete</button>
+                        
                     </div>
                 </div>                               
 
@@ -206,6 +206,7 @@
             // Hide all main cards first
             document.getElementById('usersCard').classList.add('hidden');
             document.getElementById('recipesCard').classList.add('hidden');
+
             const viewProfileCard = document.getElementById('viewProfileCard');
             viewProfileCard.classList.remove('hidden');
 
@@ -221,6 +222,7 @@
                     document.getElementById('profilePackage').innerText = data.userPackage;
                     document.getElementById('profileHeaderPic').src = data.userHeaderPic;
                     document.getElementById('profileProfilePic').src = data.userProfilePic;
+
                 })
                 .catch(() => {
                     viewProfileCard.innerHTML = '<p>Error fetching user details.</p>';
@@ -337,7 +339,6 @@
                 });
         }
 
-
         function closeUserProfile() {
             document.getElementById('viewProfileCard').classList.add('hidden');
             // Restore original view based on selector
@@ -350,30 +351,84 @@
             toggleContent(true);
         }
 
-
-
-
         function updateUserStatus() {
             const userId = document.getElementById('profileId').innerText.replace('#', '');
-            
-            // Update form action dynamically
-            const formAction = `/user/suspend/${userID}`;
-            document.getElementById('statusUpdateForm').action = formAction;
+            const currentStatusElement = document.getElementById('profileStatus');
+            const currentStatus = currentStatusElement.innerText.toLowerCase();
+
+            const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
+            const formAction = `/user/update_status/${userId}`;
 
             fetch(formAction, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `status=${encodeURIComponent(selectedStatus)}`
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `status=${encodeURIComponent(newStatus)}`
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error("Failed to update user status");
+
+                    // Update UI and button label
+                    currentStatusElement.innerText = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+                    currentStatusElement.className = `card-tag ${newStatus}`;
+                    updateButtonLabel(newStatus);
+
+                    alert("User status updated successfully");
+                })
+                .catch(error => {
+                    alert(`Error: ${error.message}`);
+                });
+        }
+
+        function updateButtonLabel(status) {
+            const statusButton = document.getElementById("statusButton");
+            statusButton.textContent = status === "suspended" ? "Unsuspend" : "Suspend";
+        }
+
+        function updateRecipeStatus() {
+            const recipeId = document.getElementById('recipeId').innerText.replace('#', '');
+            const currentStatusElement = document.getElementById('recipeStatus');
+            const currentStatus = currentStatusElement.innerText.toLowerCase();
+
+            const newStatus = currentStatus === 'published' ? 'suspended' : 'published';
+            const formAction = `/recipe/update_status/${recipeId}`;
+
+            fetch(formAction, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `status=${encodeURIComponent(newStatus)}`
             })
             .then(response => {
-                if (!response.ok) {
-                    throw new Error("Failed to suspend user");
-                }
+                if (!response.ok) throw new Error("Failed to update recipe status");
 
-                alert("User suspended successfully");
-                window.location.reload();  // Optionally refresh the page
+                // Update UI and button label
+                currentStatusElement.innerText = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+                currentStatusElement.className = `card-tag ${newStatus}`;
+                updateRecipeButtonLabel(newStatus);
+
+                alert("Recipe status updated successfully");
+            })
+            .catch(error => {
+                alert(`Error: ${error.message}`);
+            });
+        }
+
+        function updateRecipeButtonLabel(status) {
+            const recipeStatusButton = document.getElementById("recipeStatusButton");
+            recipeStatusButton.textContent = status === "suspended" ? "Unsuspend" : "Suspend";
+        }
+        
+        function deleteUser() {
+            const userId = document.getElementById('profileId').innerText.replace('#', '');
+            const deleteUrl = `/user/delete/${userId}`;
+
+            fetch(deleteUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("Failed to delete user");
+                alert("User deleted successfully");
+                // Redirect or update UI after successful deletion
             })
             .catch(error => {
                 alert(`Error: ${error.message}`);
@@ -382,11 +437,6 @@
 
 
 
-        
-        // Add this at the bottom of the script section to initialize the content view
-        document.addEventListener('DOMContentLoaded', function() {
-            toggleContent();
-        });
 
     </script>
 </body>

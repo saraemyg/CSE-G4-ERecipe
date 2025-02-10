@@ -56,10 +56,16 @@ def create_app():
 
             # Check if the user exists in the user table
             user = RegisteredUser.get_user_by_username(username)
-            if user and user['userPassword'] == password:
-                session['user'] = user['userName']
-                session['role'] = 'user'
-                return redirect(url_for('userhome'))
+
+            if user:
+                if user['userStatus'] == 'suspended':
+                    return redirect(url_for('suspended_user_page'))
+                
+                if user and user['userPassword'] == password:
+                    session['user'] = user['userName']
+                    session['role'] = 'user'
+                    session['userPackage'] = user['userPackage'] 
+                    return redirect(url_for('userhome'))
 
             # If not a user, check if it's an admin
             admin = Admin.get_admin_by_username(username)
@@ -81,6 +87,9 @@ def create_app():
         session.pop('role', None)
         return redirect(url_for('main'))
     
+    @app.route('/suspended_user_page')
+    def suspended_user_page():
+        return render_template('suspended.html')
 
     
     @app.route('/user/<int:id>')
@@ -100,6 +109,7 @@ def create_app():
         return {'error': 'User  not found'}, 404
     
     @app.route('/user/username/<string:username>')
+
     def get_user_by_username(username):
         user = RegisteredUser.get_user_by_username(username)
         if user:
@@ -114,7 +124,6 @@ def create_app():
                 'userStatus': user['userStatus']
             }
         return {'error': 'User not found'}, 404
-
 
     @app.route('/recipe/<int:id>')
     def get_recipe(id):
@@ -146,7 +155,6 @@ def create_app():
                 'likeCount': like_count,  # Include the like count in the response
             }
         return {'error': 'Recipe not found'}, 404
-
 
     @app.route('/user/<int:id>/recipes')
     def get_user_recipes(id):
@@ -184,7 +192,6 @@ def create_app():
         if not admin:
             flash("Admin not found", "error")
             return redirect(url_for('login'))
-
         reports = Report.get_all_reports()
         notifications = Notification.get_all_notifications()
 
@@ -215,23 +222,35 @@ def create_app():
     @app.route('/manage')
     def manage():
         users = RegisteredUser.get_all_users()
-        recipes = Recipe.get_all_recipes()
-        userDetails = RegisteredUser.get_user_by_id(id)     
+        recipes = Recipe.get_all_recipes()    
         return render_template('adminmanage.html', users=users, recipes=recipes)
-    
-    @app.route('/update_status/<int:user_id>', methods=['POST'])
+
+    @app.route('/user/update_status/<int:user_id>', methods=['POST'])
     def update_user_status(user_id):
-        status = request.form.get('status')
-        if status in ['active', 'suspended']:
-            # Update the user status in the database
-            user = get_user_by_id(user_id)
-            if user:
-                user.status = status
-                db.session.commit()
-                return jsonify({'success': True, 'message': 'Status updated'})
-        return jsonify({'success': False, 'message': 'Invalid status or user not found'})
+        new_status = request.form.get('status')
+        if not new_status:
+            return "Invalid status", 400
 
+        Admin.update_user_status(user_id, new_status)
+        return jsonify({"message": "User status updated successfully"}), 200
+    
+    @app.route('/recipe/update_status/<int:recipe_id>', methods=['POST'])
+    def update_recipe_status(recipe_id):
+        new_status = request.form.get('status')
+        if not new_status:
+            return "Invalid status", 400
 
+        Admin.update_recipe_status(recipe_id, new_status)
+        return jsonify({"message": "Recipe status updated successfully"}), 200
+
+    @app.route('/user/delete/<int:user_id>', methods=['POST'])
+    def delete_user(user_id):
+        try:
+            Admin.delete_user(user_id)
+            return jsonify({"message": "User deleted successfully"}), 200
+        except Exception as e:
+            print(f"Error: {e}")
+            return jsonify({"error": f"Failed to delete user: {e}"}), 500
 
 
     # ----------------- REPORT ROUTES -----------------
@@ -307,13 +326,18 @@ def create_app():
             receiver = request.form.get('receiver')
             Notification.add_notification(title, details, receiver)
             return redirect(url_for('notifications'))
-    
+
     # ----------------- USER ROUTES -----------------
 
     @app.route('/userhome')
     def userhome():
-        recipes = Recipe.get_all_recipes()
-        notifications = Notification.get_all_notifications()
+        recipes = Recipe.get_published_recipes()
+        # Handle logged-in vs. guest access
+        if 'user' in session:
+            user_package = session.get('userPackage')
+            notifications = Notification.get_all_notifications(user_package)
+        else:
+            notifications = []  # No notifications for guests
         return render_template('userhome.html', recipes=recipes,  notifications=notifications)
     
     @app.route('/createrecipe')
@@ -385,8 +409,6 @@ def create_app():
             RegisteredUser.update_user(user['userID'], email, bio, package, header_pic, profile_pic)
             return redirect(url_for('profile'))
         return render_template('edit_profile.html', user=user)
-    
-
     
     # ----------------- COLLECTION ROUTES -----------------
 

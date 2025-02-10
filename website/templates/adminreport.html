@@ -211,7 +211,7 @@
             const recipeCard = document.getElementById('viewRecipeCard');
             recipeCard.classList.remove('hidden');
 
-            fetch(`/recipe/${recipeID}`)
+            fetch(`/admin/recipe/${recipeID}`)
                 .then(response => {
                     if (!response.ok) throw new Error("Failed to fetch recipe details");
                     return response.json();
