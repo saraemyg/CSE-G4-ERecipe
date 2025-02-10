@@ -13,3 +13,35 @@ instance -> database.db
 
 
 please share your thoughts here and also for to do list
+
+
+
+MASALAH : 
+- REPORT ESOK !!!!
+- CODING BY SELASA SIAP 
+nadia : 
+- view recipe try buat sampai subuh 
+- like commen2t
+fiza : 
+- signup tak masuk database
+- search, filter, sort by : based on database
+- betulkan css homepage
+- app route bila masuk : last
+- lock utk tak login 
+nisa : 
+- problem css 
+- create functionality
+- collection css
+- nak buat collection tu 
+- edit recipe after create 
+- delete archive recipe 
+sara : 
+- fetch user packaage after login
+- suspend delete TT
+- creare report from view recipe
+- user package 
+
+
+ada masa boleh kut : 
+- view profile when click on recipe lol 
+- profile ver 
