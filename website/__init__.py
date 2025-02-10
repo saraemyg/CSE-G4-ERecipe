@@ -534,6 +534,54 @@ def create_app():
             return jsonify({'success': 'Collection created successfully', 'collectionID': new_collection}), 200
 
         return jsonify({'error': 'User not found'}), 404
+    
+    # ----------------- EDIT RECIPE -----------------
+
+    @app.route('/edit_recipe/<int:recipe_id>', methods=['GET', 'POST'])
+    def edit_recipe(recipe_id):
+        username = session.get('user')
+        if not username:
+            flash("Please log in to edit recipes.", "warning")
+            return redirect(url_for('login'))
+
+        # Fetch user details
+        user = RegisteredUser.get_user_by_username(username)
+        if not user:
+            flash("User not found. Please log in again.", "error")
+            return redirect(url_for('login'))
+
+        user_id = int(user['userID'])  # Convert user ID to integer
+        
+        # Fetch the recipe from the database
+        recipe = Recipe.get_recipe_by_id(recipe_id)
+        if not recipe:
+            flash("Recipe not found.", "error")
+            return redirect(url_for('userhome'))
+
+        # Ensure only the owner can edit the recipe
+        if int(recipe['userID']) != user_id:
+            flash("You do not have permission to edit this recipe.", "error")
+            return redirect(url_for('userhome'))
+
+        if request.method == 'POST':
+            # Validate input
+            new_title = request.form.get('title', '').strip()
+            new_description = request.form.get('description', '').strip()
+            new_ingredients = request.form.get('ingredients', '').strip()
+            new_steps = request.form.get('steps', '').strip()
+
+            if not new_title or not new_description or not new_ingredients or not new_steps:
+                flash("All fields are required!", "error")
+                return render_template('editrecipe.html', recipe=recipe)
+
+            # Update recipe in database
+            Recipe.update_recipe(recipe_id, new_title, new_description, new_ingredients, new_steps)
+            flash("Recipe updated successfully!", "success")
+            return redirect(url_for('collection'))  
+
+        return render_template('editrecipe.html', recipe=recipe)
+
+
 
 
 

@@ -154,6 +154,28 @@ class Recipe:
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return False
+        
+
+    @staticmethod
+    def update_recipe(recipe_id, title, description, ingredients, steps, time, calories, cuisines, servings, labels):
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE recipe 
+                SET title = ?, description = ?, ingredients = ?, steps = ?, 
+                    preparationTime = ?, calories = ?, cuisines = ?, servings = ?, labels = ?
+                WHERE recipeID = ?
+            """, (title, description, ingredients, steps, time, calories, cuisines, servings, labels, recipe_id))
+            conn.commit()
+            conn.close()
+            return True
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return False
+
+  
+
 
 
     

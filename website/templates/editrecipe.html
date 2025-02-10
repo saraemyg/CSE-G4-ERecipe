@@ -115,45 +115,46 @@
                 </a>
             </header>
 
-            <h1>Create New Recipe</h1>
-            <form class="recipe-form">
-                <div class="recipe-form-container">
-                    <!-- Image Upload Section -->
-                    <div class="image-container">
-                        <label for="recipe-image">Recipe Image:</label>
-                        <input type="file" id="recipe-image" name="recipe-image">
-                        <!-- Dismiss, Archive, Save Change, Delete Buttons Below the Image -->
-                        <div class="form-buttons">
-                            <button type="button" class="dismiss">Dismiss</button>
-                            <button type="button" class="archive">Archive</button>
-                            <button type="button" class="save-change">Save Change</button>
-                            <button type="button" class="delete">Delete</button>
-                        </div>
-                    </div>
-
-                    <!-- Recipe Details Section -->
-                    <div class="recipe-details">
-                        <input type="text" id="title" placeholder="Title" required>
-                        
-                        <div class="recipe-form-container" style="display: flex; gap: 10px;">
-                            <!-- Description & Ingredients in a Column -->
-                            <div style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
-                                <textarea id="description" placeholder="Description (max 100 words)" maxlength="100" required style="flex-grow: 1; min-height: 125px;"></textarea>
-                                <textarea id="ingredients" placeholder="Ingredients" required style="flex-grow: 1; min-height: 125px;"></textarea>
+                <h1>Edit Recipe</h1>
+                <form class="recipe-form" action="{{ url_for('edit_recipe', recipe_id=recipe.recipeID) }}" method="POST"></form>
+                     <div class="recipe-form-container">
+                        <!-- Image Upload Section -->
+                        <div class="image-container">
+                            <label for="recipe-image">Recipe Image:</label>
+                            <input type="file" id="recipe-image" name="recipe-image">
+                            <img id="preview" src="" alt="Image Preview" style="display: none; max-width: 200px; margin-top: 10px;">
+                            <!-- Dismiss, Archive, Save Change, Delete Buttons Below the Image -->
+                            <div class="form-buttons">
+                                <button type="button" class="dismiss">Dismiss</button>
+                                <button type="submit" class="save-change">Save Change</button>
+                                <button type="button" class="archive">Archive</button>
+                                <button type="button" class="delete">Delete</button>
                             </div>
-
-                        <div style="flex: 1; display: flex; flex-wrap: wrap; gap: 5px;">
-                            <input type="text" id="time" placeholder="Preparation Time" required>
-                            <input type="text" id="calories" placeholder="Calories" required>
-                            <input type="text" id="cuisines" placeholder="Cuisines" required>
-                            <input type="text" id="servings" placeholder="Servings" required>
-                            <input type="text" id="labels" placeholder="Labels" required>
                         </div>
-                        
-                        <textarea id="steps" placeholder="Steps" required></textarea>
-                    </div>
-                </div>
-            </form>
+
+                        <!-- Recipe Details Section -->
+                        <div class="recipe-details">
+                            <input type="text" id="title" name="title" placeholder="Title" required>
+                                
+                            <div class="recipe-form-container" style="display: flex; gap: 10px;">
+                                <!-- Description & Ingredients in a Column -->
+                                <div style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
+                                    <textarea id="description" name="description" placeholder="Description (max 100 words)" maxlength="100" required style="flex-grow: 1; min-height: 125px;"></textarea>
+                                    <textarea id="ingredients" name="ingredients" placeholder="Ingredients" required style="flex-grow: 1; min-height: 125px;"></textarea>
+                                </div>
+
+                            <div style="flex: 1; display: flex; flex-wrap: wrap; gap: 5px;">
+                                <input type="text" id="time" name="time" placeholder="Preparation Time" required>
+                                <input type="text" id="calories" name="calories" placeholder="Calories" required>
+                                <input type="text" id="cuisines" name="cuisines" placeholder="Cuisines" required>
+                                <input type="text" id="servings" name="servings" placeholder="Servings" required>
+                                <input type="text" id="labels" name="lebels" placeholder="Labels" required>
+                            </div>
+                            <textarea id="steps" name="steps" placeholder="Steps" required></textarea>
+                        </div>
+                     </div>
+                </form>
+           
         </main>
     </div>
 
