@@ -111,48 +111,48 @@
                 <a href="{{ url_for('profile') }}"> <button class="profile-btn">👤</button> </a>
             </header>
 
-            <div class="container recipe-details">
-                <header class="content-header">
-                    <h1>{{ recipe.recipeTitle }}</h1>
-                    <button class="close-button" onclick="window.history.back()"> x </button>
-                </header>
-                <div class="recipeImageContainer">
-                    <img src="{{ recipe.recipePic }}" alt="Recipe Image" class="recipe-view-image">
-                    <div class="like-container">
-                        <span class="heart-icon">&hearts;</span>
-                        <span id="likeCount">{{ recipe.likeCount }}</span>
+            <div class="card-view absolute" id="viewRecipeCard">
+                <h3 class="card-title">{{ recipe.recipeTitle }}</h3>
+                <button class="close-button" onclick="window.history.back()"> x </button>
+                <div class="card-content">
+                    <div class="recipeImageContainer">
+                        <img src="{{ recipe.recipePic }}" alt="Recipe Image" class="recipe-view-image">
+                        <div class="like-container">
+                            <span class="heart-icon">&hearts;</span>
+                            <span id="likeCount">{{ recipe.likeCount }}</span>
+                        </div>
                     </div>
-                </div>
-                <div class="card-info">
-                    <div class="card-header">
-                        <span class="card-id">#{{ recipe.recipeID }}</span>
-                        <h4 class="card-subtitle">{{ recipe.recipeTitle }}</h4>
-                        <span class="card-tag">{{ recipe.recipeStatus }}</span>
-                        <span class="card-tag">User ID: {{ recipe.userID }}</span>
-                    </div>
-                    <div class="card-details">{{ recipe.recipeDescription }}</div>
-                    <div class="card-footer">
-                        <span class="card-time">{{ recipe.recipeTime }} mins</span>
-                        <span class="card-calories">{{ recipe.recipeCalories }} cal</span>
-                        <span class="card-cuisine">{{ recipe.recipeCuisine }}</span>
-                        <span class="card-label">{{ recipe.recipeLabel }}</span>
-                    </div>
-                    <div class="card-details">Ingredients: {{ recipe.recipeIngredients }}</div>
-                    <div class="card-details">Steps: {{ recipe.recipeSteps }}</div>
-                    <div class="card-details comment-section">
-                        <h4 class="comment-title">Comments</h4>
-                        <div class="comment-list">
-                            {% if comments %}
-                                {% for comment in comments %}
-                                    <div class="comment-item">
-                                        <p><strong>User:</strong> {{ comment.userName or 'Anonymous' }}</p>
-                                        <p><strong>Comment:</strong> {{ comment.commentText }}</p>
-                                        <p><em>Posted on: {{ comment.commentTime }}</em></p>
-                                    </div>
-                                {% endfor %}
-                            {% else %}
-                                <p>No comments available.</p>
-                            {% endif %}
+                    <div class="card-info">
+                        <div class="card-header">
+                            <span class="card-id">#{{ recipe.recipeID }}</span>
+                            <h4 class="card-subtitle">{{ recipe.recipeTitle }}</h4>
+                            <span class="card-tag">{{ recipe.recipeStatus }}</span>
+                            <span class="card-tag">User ID: {{ recipe.userID }}</span>
+                        </div>
+                        <div class="card-details">{{ recipe.recipeDescription }}</div>
+                        <div class="card-footer">
+                            <span class="card-time">{{ recipe.recipeTime }} mins</span>
+                            <span class="card-calories">{{ recipe.recipeCalories }} cal</span>
+                            <span class="card-cuisine">{{ recipe.recipeCuisine }}</span>
+                            <span class="card-label">{{ recipe.recipeLabel }}</span>
+                        </div>
+                        <div class="card-details">Ingredients: {{ recipe.recipeIngredients }}</div>
+                        <div class="card-details">Steps: {{ recipe.recipeSteps }}</div>
+                        <div class="card-details comment-section">
+                            <h4 class="comment-title">Comments</h4>
+                            <div class="comment-list">
+                                {% if comments %}
+                                    {% for comment in comments %}
+                                        <div class="comment-item">
+                                            <p><strong>User:</strong> {{ comment.userName or 'Anonymous' }}</p>
+                                            <p><strong>Comment:</strong> {{ comment.commentText }}</p>
+                                            <p><em>Posted on: {{ comment.commentTime }}</em></p>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p>No comments available.</p>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>
