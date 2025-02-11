@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify, jsonify
+from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify, redirect
 from .models import DatabaseManager
 from .admin import Admin, Report, Notification
 from .user import RegisteredUser
@@ -732,5 +732,42 @@ def create_app():
 
         recipe = Recipe.search_recipe(query)  # Call a method from Recipe to handle search
         return jsonify(recipe)
+    
+    # ----------------- FILTER ROUTES -----------------
+
+    @app.route('/filter', methods=['POST'])
+    def filter_recipe():
+        print("Received a request!")  # Debugging print
+        data = request.json
+        print("Request data:", data)  # Debugging print
+        cuisines = data.get('cuisines', [])
+        labels = data.get('labels', [])
+
+        conn = DatabaseManager.get_db()
+        cursor = conn.cursor()
+
+        # Build the query dynamically based on filters
+        query = "SELECT * FROM recipe WHERE 1=1"
+        params = []
+
+        if cuisines:
+            placeholders = ','.join(['?'] * len(cuisines))  
+            query += f" AND recipeCuisine IN ({placeholders})"
+            params.extend(cuisines)
+
+        if labels:
+            placeholders = ','.join(['?'] * len(labels))
+            query += f" AND recipeLabel IN ({placeholders})"
+            params.extend(labels)
+
+        print("Executing query:", query)  # 🔍 Debugging: Print the final SQL query
+        print("With parameters:", params)  # 🔍 Debugging: Check parameter values
+
+        cursor.execute(query, params)
+        recipes = cursor.fetchall()
+
+        print("Recipes found:", [dict(recipe) for recipe in recipes])
+
+        return jsonify([dict(recipe) for recipe in recipes])
     
     return app

@@ -15,7 +15,7 @@
                 <ul>
                     <li><a href="{{ url_for('main') }}">🏠</a></li>
                     <li><a href="{{ url_for('createrecipe') }}">➕</a></li>
-                    <li><a href="{{ url_for('collection')}}">❤️</a></li>
+                    <li><a href="{{ url_for('collection')}}">❤</a></li>
                     {% if 'user' in session %}
                         <li><a href="{{ url_for('logout') }}">🚪</a></li>
                     {% else %}
@@ -41,33 +41,28 @@
                             <div class="filter-section cuisines">
                                 <h4>Cuisines:</h4>
                                 <ul>
-                                    <li><input type="checkbox" id="meal" name="cuisine" value="meal"> <label for="meal">Meal</label></li>
-                                    <li><input type="checkbox" id="snack" name="cuisine" value="snack"> <label for="snack">Snack</label></li>
-                                    <li><input type="checkbox" id="dessert" name="cuisine" value="dessert"> <label for="dessert">Dessert</label></li>
-                                    <li><input type="checkbox" id="beverages" name="cuisine" value="beverages"> <label for="beverages">Beverages</label></li>
-                                    <li><input type="checkbox" id="local" name="cuisine" value="local"> <label for="local">Local</label></li>
-                                    <li><input type="checkbox" id="asian" name="cuisine" value="asian"> <label for="asian">Asian</label></li>
-                                    <li><input type="checkbox" id="western" name="cuisine" value="western"> <label for="western">Western</label></li>
+                                    <li><input type="checkbox" id="Italian" name="cuisine" value="Italian"> <label for="Italian">Italian</label></li>
+                                    <li><input type="checkbox" id="Indian" name="cuisine" value="Indian"> <label for="Indian">Indian</label></li>
+                                    <li><input type="checkbox" id="American" name="cuisine" value="American"> <label for="American">American</label></li>
+                                    <li><input type="checkbox" id="Mexican" name="cuisine" value="Mexican"> <label for="Mexican">Mexican</label></li>
+                                    <li><input type="checkbox" id="Asian" name="cuisine" value="Asian"> <label for="Asian">Asian</label></li>
                                 </ul>
                             </div>
                             <!-- Labels Section -->
                             <div class="filter-section labels">
                                 <h4>Label:</h4>
                                 <ul>
-                                    <li><input type="checkbox" id="sugar-free" name="label" value="sugar-free"> <label for="sugar-free">Sugar Free</label></li>
-                                    <li><input type="checkbox" id="soy-free" name="label" value="soy-free"> <label for="soy-free">Soy Free</label></li>
-                                    <li><input type="checkbox" id="gluten-free" name="label" value="gluten-free"> <label for="gluten-free">Gluten Free</label></li>
-                                    <li><input type="checkbox" id="peanut-free" name="label" value="peanut-free"> <label for="peanut-free">Peanut Free</label></li>
-                                    <li><input type="checkbox" id="egg-free" name="label" value="egg-free"> <label for="egg-free">Egg Free</label></li>
-                                    <li><input type="checkbox" id="vegan" name="label" value="vegan"> <label for="vegan">Vegan</label></li>
-                                    <li><input type="checkbox" id="lactose-free" name="label" value="lactose-free"> <label for="lactose-free">Lactose Free</label></li>
+                                    <li><input type="checkbox" id="breakfast" name="label" value="breakfast"> <label for="breakfast">breakfast</label></li>
+                                    <li><input type="checkbox" id="lunch" name="label" value="lunch"> <label for="lunch">lunch</label></li>
+                                    <li><input type="checkbox" id="dessert" name="label" value="dessert"> <label for="dessert">dessert</label></li>
+                                    <li><input type="checkbox" id="dinner" name="label" value="dinner"> <label for="dinner">dinner</label></li>
                                 </ul>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="sort-container" style="position: relative; display: inline-block;">
-                        <button class="sort-btn" id="sort-btn">Sort By <span class="sort-icon">⬇️</span></button>
+                        <button class="sort-btn" id="sort-btn">Sort By <span class="sort-icon">⬇</span></button>
                         <div class="sort-box" id="sort-box" style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #ddd; padding: 10px; z-index: 1000; width: 200px;">
                             <div class="sort-content">
                                 <h4>Sort By:</h4>
@@ -221,6 +216,73 @@
         notificationBtn.addEventListener('click', () => {
             notificationBox.style.display = notificationBox.style.display === 'none' ? 'block' : 'none';
         });
+
+        document.querySelectorAll("input[type='checkbox']").forEach(checkbox => {
+            checkbox.addEventListener("change", () => {
+                filterRecipes();
+            });
+        });
+
+        function filterRecipes() {
+            let selectedCuisines = Array.from(document.querySelectorAll("input[name='cuisine']:checked"))
+                .map(cb => cb.value);
+            let selectedLabels = Array.from(document.querySelectorAll("input[name='label']:checked"))
+                .map(cb => cb.value);
+
+            console.log("Selected Cuisines:", selectedCuisines);
+            console.log("Selected Labels:", selectedLabels);
+
+            fetch("/filter", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    cuisines: selectedCuisines,
+                    labels: selectedLabels
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Filtered Recipes:", data);
+                displayFilteredRecipes(data);
+            })
+            .catch(error => console.error("Error fetching filtered recipes:", error));
+        }
+
+
+        function displayFilteredRecipes(recipes) {
+            let container = document.querySelector(".card-container");
+            container.innerHTML = ""; // Clear previous results
+
+            if (recipes.length === 0) {
+                container.innerHTML = "<p>No recipes found.</p>";
+                return;
+            }
+
+            recipes.forEach(recipe => {
+                let card = document.createElement("div");
+                card.classList.add("card-item");
+                card.setAttribute("data-title", recipe.recipeTitle);
+                card.onclick = () => viewRecipeDetails(recipe.recipeID);
+        
+                card.innerHTML = `
+                    <img src="${recipe.recipePic}" alt="${recipe.recipeTitle}" class="recipe-image">
+                    <div class="card-header">
+                        <span class="card-id">#${recipe.recipeID}</span>
+                        <h4 class="card-subtitle">${recipe.recipeTitle}</h4>
+                    </div>
+                    <div class="card-details">${recipe.recipeDescription}</div>
+                    <div class="card-footer">
+                        <span class="card-time">${recipe.recipeTime} mins</span>
+                        <span class="card-calories">${recipe.recipeCalories} cal</span>
+                        <span class="card-cuisine">${recipe.recipeCuisine}</span>
+                    </div>
+                `;
+        
+                container.appendChild(card);
+            });
+        }
 
         document.addEventListener('click', (event) => {
             if (!notificationBox.contains(event.target) && event.target !== notificationBtn) {
