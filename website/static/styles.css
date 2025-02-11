@@ -1072,35 +1072,6 @@ header h1 {
 
 
 
-/* Add this CSS to control the layout and size of the recipe images */
-.userhome .card-container {
-    display: flex;
-    flex-wrap: wrap;
-    /*justify-content: flex-start;
-    gap: 15px;
-    padding: 20px;*/
-    justify-content: space-between;
-}
-
-.userhome .card-item {
-    flex: 1 1 calc(25% - 10px); /* Four items per row with some spacing */
-    max-width: 250px;
-    box-sizing: border-box;
-    margin: 5px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    overflow: hidden;
-    text-align: center;
-}
-
-.userhome .recipe-image {
-    width: 100%;
-    height: auto;
-    max-width: 100%;
-    max-height: 200px; /* Adjust the max-height as needed */
-    object-fit: cover;
-}
 
 /* Add this CSS to style the header */
 /* .content-header {
@@ -1766,4 +1737,29 @@ textarea {
 
 .edit-button:hover {
     background-color: darkcyan
+}
+
+.userhome .card-container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* Always 5 columns */
+    gap: 20px; /* Space between cards */
+    padding: 20px;
+    justify-content: start; /* Align content to the left */
+}
+
+.userhome .card-item {
+    width: 100%;
+    max-width: 250px;
+    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: center;
+    visibility: visible; /* Ensure they are visible */
+}
+
+/* Hide empty slots if fewer than 5 results */
+.userhome .card-item.empty {
+    visibility: hidden; /* Keeps spacing but hides content */
 }
