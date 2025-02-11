@@ -626,7 +626,6 @@ def create_app():
                     image_filename = secure_filename(file.filename)
                     file.save(os.path.join(app.config['UPLOAD_FOLDER'], image_filename))
             
-
             # Store in DB
             success = Recipe.create_recipe(title, description, ingredients, steps, image_filename, time, calories, labels, cuisines, status, user_id)
             if success:
