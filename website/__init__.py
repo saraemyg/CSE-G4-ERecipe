@@ -236,28 +236,6 @@ def create_app():
         return {'error': 'Recipe not found'}, 404
 
     
-    @app.route('/admin/recipe/<int:id>')
-    def get_recipe_admin(id):
-        recipe = Recipe.get_recipe_by_id(id)
-        if recipe:
-            like_count = Recipe.get_recipe_like_count(id)  # Fetch the like count
-            return {
-                'recipeID': recipe['recipeID'],
-                'recipeTitle': recipe['recipeTitle'],
-                'recipeDescription': recipe['recipeDescription'],
-                'recipeIngredients': recipe['recipeIngredients'],
-                'recipeSteps': recipe['recipeSteps'],
-                'recipePic': recipe['recipePic'],
-                'recipeTime': recipe['recipeTime'],
-                'recipeCalories': recipe['recipeCalories'],
-                'recipeLabel': recipe['recipeLabel'],
-                'recipeCuisine': recipe['recipeCuisine'],
-                'recipeStatus': recipe['recipeStatus'],
-                'userID': recipe['userID'],
-                'likeCount': like_count,  # Include the like count in the response
-            }
-        return {'error': 'Recipe not found'}, 404
-    
     @app.route('/user/<int:id>/recipes')
     def get_user_recipes(id):
         # Fetch user recipes
@@ -265,77 +243,6 @@ def create_app():
         if recipes:
             return {'recipes': [dict(recipe) for recipe in recipes]}  # Return a list of recipes in a JSON-friendly format
         return {'recipes': []}  # If no recipes are found, return an empty list
-    
-    @app.route('/createrecipe', methods=['GET', 'POST'])
-    def createrecipe():
-        if request.method == 'POST':
-            if 'user' not in session:
-                flash("You must be logged in to create a recipe", "error")
-                return redirect(url_for('login'))
-
-            user_id = session['user']['userID']
-            title = request.form.get('title')
-            description = request.form.get('description')
-            ingredients = request.form.get('ingredients')
-            time = request.form.get('time')
-            calories = request.form.get('calories')
-            cuisines = request.form.get('cuisines')
-            servings = request.form.get('servings')
-            labels = request.form.get('labels')
-            steps = request.form.get('steps')
-            
-            # Handle Image Upload
-            image_filename = None
-            if 'recipe_image' in request.files:
-                file = request.files['recipe_image']
-                if file.filename != '':
-                    image_filename = secure_filename(file.filename)
-                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], image_filename))
-
-            try:
-                conn = get_db()
-                cursor = conn.cursor()
-                cursor.execute("""
-                    INSERT INTO recipe (title, description, ingredients, time, calories, cuisines, servings, labels, steps, recipeStatus, image) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (title, description, ingredients, time, calories, cuisines, servings, labels, steps, 'draft', image_filename))
-                conn.commit()
-                conn.close()
-                flash("Recipe created successfully!", "success")
-                return redirect(url_for('userhome'))
-            except sqlite3.Error as e:
-                flash(f"Database error: {e}", "error")
-                return redirect(url_for('createrecipe'))
-        return render_template('createrecipe.html')
-    
-    @app.route('/save_draft', methods=['POST'])
-    def save_draft():
-        data = request.form
-        image = request.files.get('recipe-image')
-        
-        # If an image is uploaded, save it
-        image_filename = None
-        if image:
-            image_filename = f"static/uploads/{image.filename}"
-            image.save(image_filename)
-
-        success = Recipe.save_recipe(
-            title=data.get('title'),
-            description=data.get('description'),
-            ingredients=data.get('ingredients'),
-            preparation_time=data.get('time'),
-            calories=data.get('calories'),
-            cuisines=data.get('cuisines'),
-            servings=data.get('servings'),
-            labels=data.get('labels'),
-            steps=data.get('steps'),
-            image_path=image_filename,
-            status='draft'
-        )
-
-        if success:
-            return jsonify({"message": "Draft saved successfully!"}), 200
-        return jsonify({"message": "Error saving draft"}), 500
     
     @app.route('/edit_recipe/<int:recipe_id>', methods=['GET', 'POST'])
     def edit_recipe(recipe_id):
@@ -728,71 +635,6 @@ def create_app():
             return jsonify({"message": "Draft saved successfully!"}), 200
         return jsonify({"message": "Error saving draft"}), 500
     
-    @app.route('/profile', methods=['GET', 'POST'])
-    def profile():
-        if 'user' not in session:
-            return redirect(url_for('login'))
-        
-        username = session['user']
-        user = RegisteredUser.get_user_by_username(username)
-        recipes = RegisteredUser.get_recipes_by_user_id(user['userID']) if user else []
-        
-        if request.method == 'POST':
-            updated_user = {
-                'userName': request.form.get('userName'),
-                'userEmail': request.form.get('userEmail'),
-                'userBio': request.form.get('userBio'),
-            }
-
-            if 'userProfilePic' in request.files:
-                file = request.files['userProfilePic']
-                if file.filename:
-                    filename = secure_filename(file.filename)
-                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                    updated_user['userProfilePic'] = url_for('static', filename='uploads/' + filename)
-                else:
-                    updated_user['userProfilePic'] = user['userProfilePic']
-                
-            if 'userHeaderPic' in request.files:
-                file = request.files['userHeaderPic']
-                if file.filename:
-                    filename = secure_filename(file.filename)
-                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                    updated_user['userHeaderPic'] = url_for('static', filename='uploads/' + filename)
-                else:
-                    updated_user['userHeaderPic'] = user['userHeaderPic']
-            
-            if RegisteredUser.update_user(user['userID'], updated_user):
-                session['user'] = updated_user['userName']  # Update session with new username
-                flash('Profile updated successfully', 'success')
-            else:
-                flash('Error updating profile', 'error')
-            return redirect(url_for('profile'))
-
-        if user:
-            user_package = user['userPackage'] if 'userPackage' in user else 'free'
-            notifications = Notification.get_notifications_by_package(user_package)
-            return render_template('profile.html', user=user, recipes=recipes, notifications=notifications)
-        else:
-            flash('User not found', 'error')
-            return redirect(url_for('userhome'))
-        
-    @app.route('/profile/edit', methods=['GET', 'POST'])
-    def edit_profile():
-        if 'user' not in session:
-            return redirect(url_for('login'))
-        
-        username = session['user']
-        user = RegisteredUser.get_user_by_username(username)
-        if request.method == 'POST':
-            email = request.form.get('email')
-            bio = request.form.get('bio')
-            package = request.form.get('package')
-            header_pic = request.form.get('header_pic')
-            profile_pic = request.form.get('profile_pic')
-            RegisteredUser.update_user(user['userID'], email, bio, package, header_pic, profile_pic)
-            return redirect(url_for('profile'))
-        return render_template('edit_profile.html', user=user)
     
     # ----------------- COLLECTION ROUTES -----------------
     @app.route('/collection')
