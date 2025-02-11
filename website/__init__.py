@@ -752,13 +752,13 @@ def create_app():
 
         if cuisines:
             placeholders = ','.join(['?'] * len(cuisines))  
-            query += f" AND recipeCuisine IN ({placeholders})"
-            params.extend(cuisines)
+            query += f" AND LOWER(recipeCuisine) IN ({placeholders})"
+            params.extend([c.lower() for c in cuisines])
 
         if labels:
             placeholders = ','.join(['?'] * len(labels))
-            query += f" AND recipeLabel IN ({placeholders})"
-            params.extend(labels)
+            query += f" AND LOWER(recipeLabe)l IN ({placeholders})"
+            params.extend([l.lower() for l in labels])
 
         print("Executing query:", query)  # 🔍 Debugging: Print the final SQL query
         print("With parameters:", params)  # 🔍 Debugging: Check parameter values
