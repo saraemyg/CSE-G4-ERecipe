@@ -6,6 +6,7 @@
     <title>Create New Recipe</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='cake.png') }}" type="image/x-icon">
+    <link rel="icon" href="{{ url_for('static', filename='cake.png') }}" type="image/x-icon">
 </head>
 <body>
     <div class="container userhome">
@@ -121,9 +122,9 @@
                 <div class="recipe-form-container">
                     <!-- Image Upload Section -->
                     <div class="image-container">
-                        <label for="recipe-image">Recipe Image:</label>
-                        <input type="file" id="recipe-image" name="recipe_image" accept="image/*" onchange="previewImage(event)">
-                        <img id="preview" src="" alt="Image Preview" style="display: none; max-width: 200px; margin-top: 10px;">
+                        <label for="edit-image">Recipe Image:</label>
+                        <input type="file" id="edit-image" name="recipe_image" accept="image/*" onchange="previewImage(event)">
+                        <img id="preview" src="" alt="Image Preview" style=" max-width: 200px; margin-top: 10px;">
                         
                         <!-- Dismiss, Archive, Save Change, Delete Buttons Below the Image -->
                         <div class="form-buttons">
@@ -229,6 +230,7 @@
                 preview.src = URL.createObjectURL(file);
                 preview.style.display = 'block';
             } else {
+                preview.src ="";
                 preview.style.display = 'none';
             }
         }
@@ -264,6 +266,8 @@
                     document.getElementById('edit-steps').value = data.recipeSteps;
                     document.getElementById('edit-labels').value = data.recipeLabel;
                     document.getElementById('edit-status').value = data.recipeStatus;
+                    document.getElementById('edit-image').src = data.recipeImage;
+                    document.getElementById('edit-image').style.display = 'block';
                 })
                 .catch(error => {
                     console.error("Error fetching recipe details:", error);
