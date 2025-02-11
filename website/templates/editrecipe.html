@@ -137,7 +137,7 @@
                         
                         <!-- Dismiss, Archive, Save Change, Delete Buttons Below the Image -->
                         <div class="form-buttons">
-                            <button type="button" class="dismiss">Dismiss</button>
+                            <button type="button" class="dismiss" onclick="dismissPage()">Dismiss</button>
                             <button type="submit" class="save-change">Save Change</button>
                             <button type="button" id="recipeStatusButton" class="btn-archive" onclick="toggleRecipeArchive()">Archive</button>
                             <button class="btn-delete" id="deleteButton" onclick="deleteRecipe()">Delete</button>
@@ -242,6 +242,10 @@
                 preview.src ="";
                 preview.style.display = 'none';
             }
+        }
+
+        function dismissPage() {
+            window.location.href = "{{ url_for('main') }}";
         }
 
         window.onload = function () {
