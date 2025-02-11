@@ -32,10 +32,6 @@
             <div class="card-view" id="viewRecipeCard">
                 <h3 class="recipe-details-title">#{{ recipe.recipeID }} {{ recipe.recipeTitle }}</h3>
                 <button class="close-button" onclick="window.history.back()"> x </button>
-                    <a href="{{ url_for('edit_recipe', recipe_id=recipe.recipeID) }}">
-                        <button class="edit-button">Edit Recipe ✏️</button>
-                    </a>
-                        <button onclick="openReportPanel('{{ recipe.recipeID }}')">Report Recipe 📝 </button>
 
                 <div class="card-content">
                     <div class="recipeImageContainer">
@@ -59,6 +55,7 @@
                             <span class="card-id">#{{ recipe.recipeID }}</span>
                             <h4 class="card-subtitle">{{ recipe.recipeTitle }}</h4>
                             <button class="edit-button" onclick="editRecipe('{{ recipe.recipeID }}')">Edit Recipe ✏️</button>
+                            <button class="edit-button" onclick="openReportPanel('{{ recipe.recipeID }}')">Report Recipe 📝 </button>
                         </div>
                         <div class="card-details">{{ recipe.recipeDescription }}</div>
                         <div class="card-footer">
