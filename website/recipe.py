@@ -100,6 +100,17 @@ class Recipe:
             conn.close()
 
     @staticmethod
+    def archive_recipe(recipe_id):
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("UPDATE recipe SET recipeStatus = 'archived' WHERE recipeID = ?", (recipe_id,))
+            conn.commit()
+        finally:
+            conn.close()
+
+
+    @staticmethod
     def search_recipe(query):
         db = get_db()
         cursor = db.cursor()
@@ -200,16 +211,17 @@ class Recipe:
         
     @staticmethod
     def delete_recipe(recipe_id):
-        conn = get_db()
-        cursor = conn.cursor()
         try:
+            conn = get_db()
+            cursor = conn.cursor()
             cursor.execute("DELETE FROM recipe WHERE recipeID = ?", (recipe_id,))
             conn.commit()
+            conn.close()
+            return True
         except sqlite3.Error as e:
             print(f"Database error: {e}")
-            raise e
-        finally:
-            conn.close()
+            raise False
+        
 
     @staticmethod
     def update_recipe_status(recipe_id, new_status):
