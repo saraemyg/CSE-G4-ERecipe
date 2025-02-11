@@ -116,40 +116,155 @@
             </header>
 
             <h1>Saved Collections</h1>
+                <section class="collections-container">
+                    <div class="card-container">
+                        {% if collections %}
+                            {% for collection in collections %}
+                                <div class="card-item" data-title="{{ collection['collectionID'] }}">
+                                    <img src="{{ collection['collectionPic'] }}" alt="{{ collection['collectionName'] }}">
+                                    <p>{{ collection['collectionName'] }} <span>{{ collection['collectionSize'] }} recipes</span></p>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
 
-            <section class="collections-container">
-                <div class="card-container">
-                    {% if collections %}
-                        {% for collection in collections %}
-                            <div class="card-item" onclick="viewCollection('{{ collection[collectionName] }}')">
-                                <img src="{{ collection['collectionPic'] }}" alt="{{ collection['collectionName'] }}">
-                                <p>{{ collection['collectionName'] }} <span>{{ collection['collectionSize'] }} recipes</span></p>
-                                <button onclick="viewCollection('{{ collection.collectionID }}')">View</button>
-                                <button onclick="deleteCollection('{{ collection.collectionID }}')">Delete</button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
+                        <div class="card-item create-new" onclick="createNewCollection()">
+                            <p>+ Create New Collection</p>
+                        </div>
 
-                    <div class="card-item create-new" onclick="createNewCollection()">
-                        <p>+ Create New Collection</p>
-                    
-                    
-                    <!-- Create Collection Form (Initially Hidden) -->
-                    <div class="card-item create-new-form hidden" id="createNewCollectionForm">
-                        <input type="text" id="newCollectionName" placeholder="Collection Name" required>
-                        <textarea id="newCollectionDescription" placeholder="Description"></textarea>
-                        <button onclick="createCollection()">Create</button>
-                        <button onclick="cancelCreateCollection()">Cancel</button>
+                        <div class="card-item create-new-form hidden" id="createNewCollectionForm">
+                            <input type="text" id="newCollectionName" placeholder="Collection Name" required>
+                            <button onclick="createCollection()">Create</button>
+                            <button onclick="cancelCreateCollection()">Cancel</button>
+                        </div>
                     </div>
-                    <div class="container-wrapper">
-                        <div class="collection-container">Collection</div>
-                    </div>
-                </div>
-            </section>
+                </section>
+
+                <div id="viewProfileRecipesGrid" class="card hidden"></div>
+
         </main>
     </div>
 
     <script>
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Delegate clicks to card items for viewing collections
+            document.querySelector('.card-container').addEventListener('click', (event) => {
+                const cardItem = event.target.closest('.card-item');
+                if (cardItem && cardItem.dataset.title) {
+                    const collectionID = cardItem.dataset.title;
+                    viewCollection(collectionID);
+                }
+            });
+        });
+
+        function viewCollection(collectionID) {
+            const recipesGrid = document.getElementById('viewProfileRecipesGrid');
+            const collectionsContainer = document.querySelector('.collections-container');
+
+            // Hide collections and ensure grid visibility
+            collectionsContainer.classList.add('hidden');
+            recipesGrid.classList.remove('hidden');
+            recipesGrid.innerHTML = ''; // Clear previous recipes
+
+            // Create and insert title
+            const title = document.createElement('h3');
+            title.className = 'card-title';
+            title.textContent = 'Saved Recipes in Collection';
+            recipesGrid.appendChild(title);
+
+            // Create and insert the close button
+            const closeButton = document.createElement('button');
+            closeButton.className = 'close-button';
+            closeButton.textContent = 'x';
+            closeButton.onclick = closeViewCollection;
+            recipesGrid.appendChild(closeButton);
+
+            // Create container for cards to ensure separation between elements
+            const recipeCardsContainer = document.createElement('div');
+            recipeCardsContainer.className = 'recipe-cards-container';
+            recipesGrid.appendChild(recipeCardsContainer);
+
+            // Fetch and display recipes
+            fetch(`/collection/${collectionID}/recipes`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.recipes && data.recipes.length > 0) {
+                        data.recipes.forEach(recipe => {
+                            const recipeCard = document.createElement('div');
+                            recipeCard.className = 'card-item';
+                            recipeCard.innerHTML = `
+                                <img src="${recipe.recipePic}" alt="${recipe.recipeTitle}" class="recipe-image">
+                                <h4>${recipe.recipeTitle}</h4>
+                                <p>${recipe.recipeDescription}</p>
+                            `;
+                            recipeCardsContainer.appendChild(recipeCard);
+                        });
+                    } else {
+                        const noRecipesMessage = document.createElement('p');
+                        noRecipesMessage.textContent = 'No recipes found in this collection.';
+                        recipeCardsContainer.appendChild(noRecipesMessage);
+                    }
+                })
+                .catch(() => {
+                    const errorMessage = document.createElement('p');
+                    errorMessage.textContent = 'Error fetching recipes.';
+                    recipeCardsContainer.appendChild(errorMessage);
+                });
+        }
+
+        function closeViewCollection() {
+            const collectionsContainer = document.querySelector('.collections-container');
+            const recipesGrid = document.getElementById('viewProfileRecipesGrid');
+
+            // Clear previous recipes and reset state
+            recipesGrid.innerHTML = '';  // Clear all child elements
+            recipesGrid.classList.add('hidden');  // Hide the grid
+            collectionsContainer.classList.remove('hidden');  // Show collections
+        }
+
+
+        function createCollection() {
+            console.log('createCollection() triggered'); // Debug logging
+            const collectionName = document.getElementById('newCollectionName').value.trim();
+            
+            if (!collectionName) {
+                alert('Collection name is required.');
+                return;
+            }
+
+            fetch('/collection/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ collectionName: collectionName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Collection created successfully') {
+                    alert('Collection created successfully!');
+                    location.reload();
+                } else {
+                    alert(data.error || 'Error creating collection');
+                }
+            })
+            .catch(() => {
+                alert('Network error while creating collection.');
+            });
+        }
+
+        function createNewCollection() {
+            console.log('Opening form...');
+            document.getElementById('createNewCollectionForm').classList.remove('hidden');
+        }
+
+        function cancelCreateCollection() {
+            document.getElementById('createNewCollectionForm').classList.add('hidden');
+            document.getElementById('newCollectionName').value = '';
+        }
+
+
+
         // Toggle the filter box
         document.querySelector('.filter-btn').addEventListener('click', function () {
             const filterBox = document.getElementById('filter-box');
@@ -178,7 +293,6 @@
             }
         });
 
-
         const notificationBtn = document.getElementById('notification-btn');
         const notificationBox = document.getElementById('notification-box');
 
@@ -192,81 +306,6 @@
             }
         });
 
-        /* Show the Create New Collection form
-        //function createNewCollection() {
-            const form = document.getElementById("createNewCollectionForm");
-            form.classList.remove("hidden"); // Show the form
-        }*/
-
-        // Hide the Create New Collection form
-        function cancelCreateCollection() {
-            const form = document.getElementById("createNewCollectionForm");
-            form.classList.add("hidden"); // Hide the form
-        }
-
-        // Handle form submission for creating a new collection
-        function createCollection() {
-            const name = document.getElementById("newCollectionName").value.trim();
-            const description = document.getElementById("newCollectionDescription").value.trim();
-
-            if (!name) {
-                alert("Please enter a collection name.");
-                return;
-            }
-
-            fetch('/create_collection', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: name, description: description })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Create new collection card
-                    const cardContainer = document.querySelector('.card-container');
-                    const newCollection = document.createElement('div');
-                    newCollection.classList.add('card-item');
-                    newCollection.innerHTML = `
-                        <img src="${data.collectionPic}" alt="${data.collectionName}">
-                        <p>${data.collectionName} <span>${data.collectionSize} recipes</span></p>
-                        <button onclick="viewCollection('${data.collectionID}')">View</button>
-                        <button onclick="deleteCollection('${data.collectionID}')">Delete</button>
-                    `;
-
-                    // Insert new collection before the "Create New Collection" button
-                    const createNewButton = document.querySelector('.create-new');
-                    cardContainer.insertBefore(newCollection, createNewButton);
-
-                    // Reset form and hide the input fields
-                    document.getElementById("newCollectionName").value = "";
-                    document.getElementById("newCollectionDescription").value = "";
-                    cancelCreateCollection(); // Hide form after successful creation
-                } else {
-                    alert("Failed to create collection.");
-                }
-            })
-            .catch(error => console.error("Error:", error));
-        }
-
-        
-        function viewCollection(collectionID) {
-            window.location.href = `/collection/${collectionID}`;
-        }
-
-
-        function deleteCollection(collectionID) {
-            if (confirm("Are you sure you want to delete this collection?")) {
-                fetch(`/delete_collection/${collectionID}`, { method: 'POST' })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            location.reload();
-                        } else {
-                            alert("Failed to delete collection");
-                        }
-                    });
-            }
-        }
 
         function addRecipeToCollection(collectionID, recipeID) {
             fetch('/add_to_collection', {
