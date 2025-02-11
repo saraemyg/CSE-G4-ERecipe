@@ -16,8 +16,6 @@
                     <li><a href="{{ url_for('main') }}">🏠</a></li>
                     <li><a href="{{ url_for('createrecipe') }}">➕</a></li>
                     <li><a href="{{ url_for('collection')}}">❤️</a></li>
-                    <li><a href="#">💬</a></li>
-                    <li><a href="#">⚙️</a></li>
                     {% if 'user' in session %}
                         <li><a href="{{ url_for('logout') }}">🚪</a></li>
                     {% else %}
@@ -40,12 +38,19 @@
                 <div class="card-content">
                     <div class="recipeImageContainer">
                         <img src="{{ recipe.recipePic }}" alt="Recipe Image" class="recipe-view-image">
-                        <div class="like-container">
-                            <button class="heart-icon" id="like-button" onclick="toggleLike('{{ recipe.recipeID }}')">
-                                {{ '❤️' if user_liked else '🤍' }}
-                            </button>
-                            <span id="likeCount">{{ recipe.likeCount }}</span>
-                        </div>
+                            <div class="like-container">
+                                <button class="heart-icon" id="like-button" onclick="toggleLike('{{ recipe.recipeID }}')">
+                                    {{ '❤️' if user_liked else '🤍' }}
+                                </button>
+                                <span id="likeCount">{{ recipe.likeCount }}</span>
+                            </div>
+
+                            <div class="collection-container">
+                                <button class="collection-icon" id="collection-button" onclick="toggleCollection('{{ recipe.recipeID }}')">
+                                    {{ '🔖' if user_collected else '📖' }}
+                                </button>
+                            </div>
+
                     </div>
                     <div class="card-info">
                         <div class="card-header">
@@ -149,6 +154,36 @@
                         console.error('Error:', error);
                     });
                 }
+
+                function toggleCollection(recipeID) {
+                    fetch(`/recipe/${recipeID}/collection`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const collectionButton = document.getElementById('collection-button');
+                            collectionButton.classList.toggle('collected');
+
+                            const collectionIcon = document.getElementById('collection-icon');
+
+                            if (collectionButton.innerText === '🔖') {
+                                collectionButton.innerText = '📖'; // Change to an "uncollected" state
+                            } else {
+                                collectionButton.innerText = '🔖'; // Change to a "collected" state
+                            }
+                        } else {
+                            alert(data.error || 'Failed to add/remove from collection');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                }
+
 
                 function editRecipe(recipeID) {
                     window.location.href = "{{ url_for('edit_recipe', recipe_id=0) }}".replace('0', recipeID);

@@ -17,8 +17,6 @@
                     <li><a href="{{ url_for('main') }}">🏠</a></li>
                     <li><a href="{{ url_for('createrecipe') }}">➕</a></li>
                     <li><a href="{{ url_for('collection') }}">❤️</a></li>
-                    <li><a href="#">💬</a></li>
-                    <li><a href="#">⚙️</a></li>
                     {% if 'user' in session %}
                         <li><a href="{{ url_for('logout') }}">🚪</a></li>
                     {% else %}
@@ -143,7 +141,9 @@
                         <button onclick="createCollection()">Create</button>
                         <button onclick="cancelCreateCollection()">Cancel</button>
                     </div>
-                    
+                    <div class="container-wrapper">
+                        <div class="collection-container">Collection</div>
+                    </div>
                 </div>
             </section>
         </main>
@@ -192,11 +192,11 @@
             }
         });
 
-        // Show the Create New Collection form
-        function createNewCollection() {
+        /* Show the Create New Collection form
+        //function createNewCollection() {
             const form = document.getElementById("createNewCollectionForm");
             form.classList.remove("hidden"); // Show the form
-        }
+        }*/
 
         // Hide the Create New Collection form
         function cancelCreateCollection() {
@@ -252,6 +252,8 @@
         function viewCollection(collectionID) {
             window.location.href = `/collection/${collectionID}`;
         }
+
+
         function deleteCollection(collectionID) {
             if (confirm("Are you sure you want to delete this collection?")) {
                 fetch(`/delete_collection/${collectionID}`, { method: 'POST' })
