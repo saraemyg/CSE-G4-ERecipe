@@ -88,6 +88,29 @@ class Recipe:
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return 0
+        
+    @staticmethod
+    def add_to_collection(recipe_id, user_id):
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO collection (recipeID, userID) VALUES (?, ?)", (recipe_id, user_id))
+            conn.commit()
+            conn.close()
+            return True
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return False
+
+    @staticmethod
+    def remove_from_collection(recipe_id, user_id):
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM collection WHERE recipeID = ? AND userID = ?", (recipe_id, user_id))
+        conn.commit()
+        conn.close()
+        return True
+
 
     @staticmethod
     def suspend_recipe(recipe_id):

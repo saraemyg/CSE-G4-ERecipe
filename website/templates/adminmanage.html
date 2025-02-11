@@ -39,7 +39,6 @@
             </header>
 
             <section class="dashboard-content">
-                
                 <!-- Users Card -->
                 <div class="card" id="usersCard">
                     <h3 class="card-title">Registered Users</h3>
@@ -61,7 +60,6 @@
                                     <div class="card-footer">
                                         <span class="card-package">{{ user['userPackage'] | e }}</span>
                                     </div>
-                                    <!-- add option to show user collections & comments  -->
                                 </div>
                             {% endfor %}
                         {% else %}
@@ -203,14 +201,10 @@
         }
 
         function viewUserProfile(userId) {
-            // Hide all main cards first
             document.getElementById('usersCard').classList.add('hidden');
             document.getElementById('recipesCard').classList.add('hidden');
-
             const viewProfileCard = document.getElementById('viewProfileCard');
             viewProfileCard.classList.remove('hidden');
-
-            // Fetch user details
             fetch(`/user/${userId}`)
                 .then(response => response.json())
                 .then(data => {
@@ -222,13 +216,10 @@
                     document.getElementById('profilePackage').innerText = data.userPackage;
                     document.getElementById('profileHeaderPic').src = data.userHeaderPic;
                     document.getElementById('profileProfilePic').src = data.userProfilePic;
-
                 })
                 .catch(() => {
                     viewProfileCard.innerHTML = '<p>Error fetching user details.</p>';
                 });
-
-           // Fetch user's recipes
             fetch(`/user/${userId}/recipes`)
                 .then(response => response.json())
                  .then(data => {
@@ -241,7 +232,6 @@
                             recipeCard.className = 'card-item';
                             recipeCard.setAttribute('data-title', recipe.recipeTitle);
                             recipeCard.onclick = () => viewRecipeDetails(recipe.recipeID);
-
                             recipeCard.innerHTML = `
                                 <img src="${recipe.recipePic}" alt="${recipe.recipeTitle}" class="recipe-image">
                                 <div class="card-header">
@@ -256,7 +246,6 @@
                                     <span class="card-cuisine">${recipe.recipeCuisine}</span>
                                 </div>
                             `;
-
                             recipesGrid.appendChild(recipeCard);
                         });
                     } 
@@ -266,10 +255,8 @@
                     const recipesGrid = document.getElementById('viewProfileRecipesGrid');
                     recipesGrid.innerHTML = '<p>Error fetching user recipes.</p>';
                 });
-            
             document.getElementById('usersCard').classList.add('hidden');
             document.getElementById('recipesCard').classList.add('hidden');
-
         }
 
         function viewRecipeDetails(recipeId) {
@@ -456,9 +443,6 @@
                 });
             }
         }
-
-
-
     </script>
 </body>
 </html>
