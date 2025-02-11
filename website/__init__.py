@@ -716,6 +716,9 @@ def create_app():
         cuisines = data.get('cuisines', [])
         labels = data.get('labels', [])
 
+        filters = data.get('filters', [])  # Combined filters (e.g., ["Italian", "Breakfast"])
+
+
         conn = DatabaseManager.get_db()
         cursor = conn.cursor()
 
@@ -730,7 +733,7 @@ def create_app():
 
         if labels:
             placeholders = ','.join(['?'] * len(labels))
-            query += f" AND LOWER(recipeLabe)l IN ({placeholders})"
+            query += f" AND LOWER(recipeLabeL) IN ({placeholders})"
             params.extend([l.lower() for l in labels])
 
         print("Executing query:", query)  # 🔍 Debugging: Print the final SQL query
