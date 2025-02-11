@@ -117,23 +117,24 @@
             </header>
 
             <h1>Create New Recipe</h1>
-            <form id="recipe-form" class="recipe-form" action="{{ url_for('createrecipe') }}" method="POST" enctype="multipart/form-data">
+            <form id="recipe-form" class="recipe-form" method="POST" enctype="multipart/form-data">
                 <div class="recipe-form-container">
                     <!-- Image Upload Section -->
                     <div class="image-container">
                         <label for="recipe-image">Recipe Image:</label>
+
                         <input type="file" id="recipe-image" name="recipe_image" accept="image/*" onchange="previewImage(event)">
                         <img id="preview" src="" alt="Image Preview" style="display: none; max-width: 200px; margin-top: 10px;">
+
                         <!-- Save Draft & Publish Buttons Below the Image -->
                         <div class="form-buttons">
-                            <button type="button" class="save-draft">Save Draft</button>
                             <button type="submit" class="publish">Publish</button>
                         </div>
                     </div>
 
                     <!-- Recipe Details Section -->
                     <div class="recipe-details">
-                        <input type="text" id="title" name="Title" placeholder="Title" required>
+                        <input type="text" id="title" name="title" placeholder="Title" required>
                         
                         <div class="recipe-form-container" style="display: flex; gap: 10px;">
                             <!-- Description & Ingredients in a Column -->
@@ -166,7 +167,6 @@
                                 <option value="dessert">Dessert</option>
                             </select>
                         </div>
-                        
                         <textarea id="steps" name="steps" placeholder="Steps" required></textarea>
                     </div>
                 </div>
@@ -177,8 +177,6 @@
 
     <script>
         // Toggle the filter box
-        const currentUser = "{{ session['user'] }}";
-
         document.querySelector('.filter-btn').addEventListener('click', function () {
             const filterBox = document.getElementById('filter-box');
             filterBox.style.display = filterBox.style.display === 'none' || !filterBox.style.display ? 'block' : 'none';
@@ -206,30 +204,6 @@
             }
         });
 
-        document.querySelector('.save-draft').addEventListener('click', function() {
-            let formData = new FormData(document.getElementById('recipe-form'));
-
-            fetch("{{ url_for('save_draft') }}", {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => alert(data.message))
-            .catch(error => alert('Error saving draft'));
-        });
-
-        // Show image preview
-        document.getElementById('recipe-image').addEventListener('change', function(event) {
-            let reader = new FileReader();
-            reader.onload = function() {
-                let preview = document.getElementById('preview');
-                preview.src = reader.result;
-                preview.style.display = 'block';
-            };
-            reader.readAsDataURL(event.target.files[0]);
-        });
-
-
         const notificationBtn = document.getElementById('notification-btn');
         const notificationBox = document.getElementById('notification-box');
 
@@ -242,17 +216,6 @@
                 notificationBox.style.display = 'none';
             }
         });
-
-        // // Image Preview Function
-        // function previewImage(event) {
-        //     var reader = new FileReader();
-        //     reader.onload = function() {
-        //         var preview = document.getElementById('preview');
-        //         preview.src = reader.result;
-        //         preview.style.display = 'block';
-        //     };
-        //     reader.readAsDataURL(event.target.files[0]);
-        // }
 
         // Image preview handler
         function previewImage(event) {

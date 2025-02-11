@@ -113,7 +113,7 @@ class RegisteredUser:
         finally:
             if conn:
                 conn.close()
-                print("Datavase connection closed.")
+                print("Database connection closed.")
         
     @staticmethod
     def update_user(user_id, updated_user):

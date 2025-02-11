@@ -116,46 +116,64 @@
                 </a>
             </header>
 
-                <h1>Edit Recipe</h1>
-                <form class="recipe-form" action="{{ url_for('edit_recipe', recipe_id=recipe.recipeID) }}" method="POST"></form>
-                     <div class="recipe-form-container">
-                        <!-- Image Upload Section -->
-                        <div class="image-container">
-                            <label for="recipe-image">Recipe Image:</label>
-                            <input type="file" id="recipe-image" name="recipe-image">
-                            <img id="preview" src="" alt="Image Preview" style="display: none; max-width: 200px; margin-top: 10px;">
-                            <!-- Dismiss, Archive, Save Change, Delete Buttons Below the Image -->
-                            <div class="form-buttons">
-                                <button type="button" class="dismiss">Dismiss</button>
-                                <button type="submit" class="save-change">Save Change</button>
-                                <button type="button" class="archive">Archive</button>
-                                <button type="button" class="delete">Delete</button>
-                            </div>
+            <h1>Edit Recipe</h1>
+            <form id="recipe-form" class="recipe-form" method="POST" enctype="multipart/form-data">
+                <div class="recipe-form-container">
+                    <!-- Image Upload Section -->
+                    <div class="image-container">
+                        <label for="recipe-image">Recipe Image:</label>
+                        <input type="file" id="recipe-image" name="recipe_image" accept="image/*" onchange="previewImage(event)">
+                        <img id="preview" src="" alt="Image Preview" style="display: none; max-width: 200px; margin-top: 10px;">
+                        
+                        <!-- Dismiss, Archive, Save Change, Delete Buttons Below the Image -->
+                        <div class="form-buttons">
+                            <button type="button" class="dismiss">Dismiss</button>
+                            <button type="submit" class="save-change">Save Change</button>
+                            <button type="button" class="archive">Archive</button>
+                            <button type="button" class="delete">Delete</button>
                         </div>
-
-                        <!-- Recipe Details Section -->
-                        <div class="recipe-details">
-                            <input type="text" id="title" name="title" placeholder="Title" required>
-                                
-                            <div class="recipe-form-container" style="display: flex; gap: 10px;">
-                                <!-- Description & Ingredients in a Column -->
-                                <div style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
-                                    <textarea id="description" name="description" placeholder="Description (max 100 words)" maxlength="100" required style="flex-grow: 1; min-height: 125px;"></textarea>
-                                    <textarea id="ingredients" name="ingredients" placeholder="Ingredients" required style="flex-grow: 1; min-height: 125px;"></textarea>
-                                </div>
-
+                    </div>
+            
+                    <!-- Recipe Details Section -->
+                    <div class="recipe-details">
+                        <input type="text" id="edit-title" name="title" required>
+                        
+                        <div class="recipe-form-container" style="display: flex; gap: 10px;">
+                            <!-- Description & Ingredients in a Column -->
+                            <div style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
+                                <textarea id="edit-description" name="description" placeholder="Description (max 100 words)" maxlength="100" required style="flex-grow: 1; min-height: 120px;"></textarea>
+                                <textarea id="edit-ingredients" name="ingredients" placeholder="Ingredients" required style="flex-grow: 1; min-height: 120px;"></textarea>
+                            </div>
+            
                             <div style="flex: 1; display: flex; flex-wrap: wrap; gap: 5px;">
-                                <input type="text" id="time" name="time" placeholder="Preparation Time" required>
-                                <input type="text" id="calories" name="calories" placeholder="Calories" required>
-                                <input type="text" id="cuisines" name="cuisines" placeholder="Cuisines" required>
-                                <input type="text" id="servings" name="servings" placeholder="Servings" required>
-                                <input type="text" id="labels" name="lebels" placeholder="Labels" required>
+                                <input type="number" id="edit-time" name="time" placeholder="Preparation Time (minutes)" min="1" required>
+                                <input type="number" id="edit-calories" name="calories" placeholder="Calories (kcal)" min="1" required>
+                                <select id="edit-cuisines" name="cuisines" class="content-selector" required>
+                                    <option value="" disabled selected>Select a cuisine</option>
+                                    <option value="italian">Italian</option>
+                                    <option value="chinese">Chinese</option>
+                                    <option value="mexican">Mexican</option>
+                                    <option value="indian">Indian</option>
+                                    <option value="japanese">Japanese</option>
+                                    <option value="western">Western</option>
+                                    <option value="malay">Malay</option>
+                                    <option value="asian">Asian</option>
+                                    <option value="korean">Korean</option>
+                                </select>
+                                <select id="edit-labels" name="labels" class="content-selector" required>
+                                    <option value="" disabled selected>Select a label</option>
+                                    <option value="breakfast">Breakfast</option>
+                                    <option value="lunch">Lunch</option>
+                                    <option value="dinner">Dinner</option>
+                                    <option value="snack">Snack</option>
+                                    <option value="dessert">Dessert</option>
+                                </select>
                             </div>
-                            <textarea id="steps" name="steps" placeholder="Steps" required></textarea>
+                            <textarea id="edit-steps" name="steps" placeholder="Steps" required></textarea>
                         </div>
-                     </div>
-                </form>
-           
+                    </div>
+                </div>
+            </form>
         </main>
     </div>
 
@@ -188,7 +206,6 @@
             }
         });
 
-
         const notificationBtn = document.getElementById('notification-btn');
         const notificationBox = document.getElementById('notification-box');
 
@@ -201,6 +218,57 @@
                 notificationBox.style.display = 'none';
             }
         });
+
+        // Image preview handler
+        function previewImage(event) {
+            const preview = document.getElementById('preview');
+            const file = event.target.files[0];
+
+            if (file) {
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        window.onload = function () {
+            const recipeId = getRecipeIdFromPath();
+            if (recipeId) {
+                fetchRecipeDetailsForEdit(recipeId);
+            } else {
+                console.error("Recipe ID not found in URL.");
+            }
+        };
+
+        function getRecipeIdFromPath() {
+            const path = window.location.pathname;
+            const segments = path.split('/');
+            return segments[segments.length - 1]; // Extracts the last segment (recipe_id)
+        }
+
+        function fetchRecipeDetailsForEdit(recipeId) {
+            if (!recipeId) return;
+            
+            fetch(`/admin/recipe/${recipeId}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Update the form fields with recipe data
+                    document.getElementById('edit-title').value = data.recipeTitle;
+                    document.getElementById('edit-description').value = data.recipeDescription;
+                    document.getElementById('edit-time').value = data.recipeTime;
+                    document.getElementById('edit-calories').value = data.recipeCalories;
+                    document.getElementById('edit-cuisines').value = data.recipeCuisine;
+                    document.getElementById('edit-ingredients').value = data.recipeIngredients;
+                    document.getElementById('edit-steps').value = data.recipeSteps;
+                    document.getElementById('edit-labels').value = data.recipeLabel;
+                })
+                .catch(error => {
+                    console.error("Error fetching recipe details:", error);
+                    document.getElementById('editRecipeCard').innerHTML = '<p>Error fetching recipe details.</p>';
+                });
+        }
+
     </script>
 </body>
 </html>

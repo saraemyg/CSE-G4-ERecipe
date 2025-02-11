@@ -114,7 +114,6 @@ def create_app():
         return {'error': 'User  not found'}, 404
     
     @app.route('/user/username/<string:username>')
-
     def get_user_by_username(username):
         user = RegisteredUser.get_user_by_username(username)
         if user:
@@ -220,7 +219,6 @@ def create_app():
             return render_template('recipe.html', recipe=recipe, like_count=like_count, comments=comments, user_liked=user_liked)
         return {'error': 'Recipe not found'}, 404
 
-    
     @app.route('/api/recipe/<int:id>', methods=['GET'])
     def get_recipe_data(id):
         recipe = Recipe.get_recipe_by_id(id)
@@ -235,7 +233,6 @@ def create_app():
             return recipe_data, 200
         return {'error': 'Recipe not found'}, 404
 
-    
     @app.route('/user/<int:id>/recipes')
     def get_user_recipes(id):
         # Fetch user recipes
@@ -251,42 +248,103 @@ def create_app():
             flash("Please log in to edit recipes.", "warning")
             return redirect(url_for('login'))
 
-        # Fetch user details
         user = RegisteredUser.get_user_by_username(username)
-        if not user:
-            flash("User not found. Please log in again.", "error")
-            return redirect(url_for('login'))
-
-        user_id = int(user['userID'])  # Convert user ID to integer
-        
-        # Fetch the recipe from the database
+        user_id = user['userID']
         recipe = Recipe.get_recipe_by_id(recipe_id)
         if not recipe:
             flash("Recipe not found.", "error")
             return redirect(url_for('userhome'))
 
-        # Ensure only the owner can edit the recipe
         if int(recipe['userID']) != user_id:
             flash("You do not have permission to edit this recipe.", "error")
             return redirect(url_for('main'))
 
         if request.method == 'POST':
-            # Validate input
             new_title = request.form.get('title', '').strip()
             new_description = request.form.get('description', '').strip()
             new_ingredients = request.form.get('ingredients', '').strip()
             new_steps = request.form.get('steps', '').strip()
+            new_time = request.form.get('time', '').strip()
+            new_calories = request.form.get('calories', '').strip()
+            new_cuisines = request.form.get('cuisines', '').strip()
+            new_labels = request.form.get('labels', '').strip()
+            image_url = None
+
+
+            if 'recipe_image' in request.files:
+                file = request.files['recipe_image']
+                if file.filename != '':
+                    image_filename = secure_filename(file.filename)
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], image_filename))
+                    image_url = url_for('static', filename='uploads/' + image_filename)
 
             if not new_title or not new_description or not new_ingredients or not new_steps:
                 flash("All fields are required!", "error")
                 return render_template('editrecipe.html', recipe=recipe)
-
-            # Update recipe in database
-            Recipe.update_recipe(recipe_id, new_title, new_description, new_ingredients, new_steps)
-            flash("Recipe updated successfully!", "success")
-            return redirect(url_for('collection'))  
-
+            
+            success = Recipe.update_recipe(recipe_id, new_title, new_description, new_ingredients, new_steps, new_time, new_calories, new_cuisines, new_labels, image_url)
+            if success:
+                flash("Recipe updated successfully!", "success")
+                return render_template('editrecipe.html', recipe=recipe)
+            else:
+                flash("Failed to update recipe.", "error")
         return render_template('editrecipe.html', recipe=recipe)
+    
+    @app.route('/api/recipes/<int:recipe_id>', methods=['GET'])
+    def get_recipe_edit(recipe_id):
+        recipe = Recipe.query.get(recipe_id)
+        if not recipe:
+            return jsonify({"error": "Recipe not found"}), 404
+        return jsonify({
+            "title": recipe.title,
+            "description": recipe.description,
+            "ingredients": recipe.ingredients,
+            "steps": recipe.steps,
+            "time": recipe.time,
+            "calories": recipe.calories,
+            "cuisines": recipe.cuisines,
+            "labels": recipe.labels
+        })
+
+
+
+
+    @app.route('/createrecipe', methods=['GET', 'POST'])
+    def createrecipe():
+        username = session.get('user')
+        if not username:
+            flash('Please log in to access your collections.', 'warning')
+            return redirect(url_for('login'))
+            # check if user is premium
+
+        user = RegisteredUser.get_user_by_username(username)
+        if request.method == 'POST':
+            user_id = user['userID']
+            title = request.form.get('title')
+            description = request.form.get('description')
+            ingredients = request.form.get('ingredients')
+            time = request.form.get('time')
+            calories = request.form.get('calories')
+            cuisines = request.form.get('cuisines')
+            labels = request.form.get('labels')
+            steps = request.form.get('steps')
+            status = 'published'
+            
+            # Handle Image Upload
+            if 'recipe_image' in request.files:
+                file = request.files['recipe_image']
+                if file.filename != '':
+                    image_filename = secure_filename(file.filename)
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], image_filename))
+                    image_url = url_for('static', filename='uploads/' + image_filename)
+                            
+            # Store in DB
+            success = Recipe.create_recipe(title, description, ingredients, steps, image_url, time, calories, labels, cuisines, status, user_id)
+            if success:
+                flash("Recipe created successfully!", "success")
+            else:
+                flash("Failed to create recipe.", "error")
+        return render_template('createrecipe.html')
     
     # ----------------- LIKE & COMMENT ROUTES -----------------
     @app.route('/recipe/<int:id>/likes')
@@ -461,7 +519,6 @@ def create_app():
             print(f"Error: {e}")
             return jsonify({"error": f"Failed to delete recipe: {e}"}), 500
 
-
     # ----------------- REPORT ROUTES -----------------
     @app.route('/reports')
     def reports():
@@ -550,7 +607,6 @@ def create_app():
             Notification.add_notification(title, details, receiver)
             return redirect(url_for('notifications'))
 
-        
     # ----------------- USER ROUTES -----------------
 
     @app.route('/userhome')
@@ -564,108 +620,6 @@ def create_app():
             notifications = []  # No notifications for guests
         return render_template('userhome.html', recipes=recipes,  notifications=notifications)
     
-
-    # @app.route('/createrecipe', methods=['POST'])
-    # def createrecipe():
-    #     if request.method == 'POST':
-    #         if 'user' not in session:
-    #             flash("You must be logged in to create a recipe", "error")
-    #             return redirect(url_for('login'))
-
-    #         title = request.form.get('Title')
-    #         description = request.form.get('description')
-    #         ingredients = request.form.get('ingredients')
-    #         steps = request.form.get('steps')
-    #         time = request.form.get('time')
-    #         calories = request.form.get('calories')
-    #         label = request.form.get('labels')
-    #         cuisine = request.form.get('cuisines')
-    #         status = 'draft'  # or 'published' based on user action
-    #         user_id = 2  # Replace with actual logged-in user ID logic
-
-    #         # Handle file upload
-    #         image_file = request.files.get('recipe_image')
-    #         image_path = None
-    #         if image_file and image_file.filename:
-    #             filename = secure_filename(image_file.filename)
-    #             image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    #             image_file.save(image_path)
-
-    #         # Store in DB
-    #         success = Recipe.create_recipe(title, description, ingredients, steps, image_path, time, calories, label, cuisine, status, user_id)
-    #         if success:
-    #             flash("Recipe created successfully!", "success")
-    #         else:
-    #             flash("Failed to create recipe.", "error")
-
-    #     return render_template('createrecipe.html')
-    
-    @app.route('/createrecipe', methods=['GET', 'POST'])
-    def createrecipe():
-        if request.method == 'POST':
-            if 'user' not in session:
-                flash("You must be logged in to create a recipe", "error")
-                return redirect(url_for('login'))
-
-            user_id = 2
-            title = request.form.get('title')
-            description = request.form.get('description')
-            ingredients = request.form.get('ingredients')
-            time = request.form.get('time')
-            calories = request.form.get('calories')
-            cuisines = request.form.get('cuisines')
-            labels = request.form.get('labels')
-            steps = request.form.get('steps')
-            status = 'published'
-            
-            # Handle Image Upload
-            image_filename = None
-            if 'recipe_image' in request.files:
-                file = request.files['recipe_image']
-                if file.filename != '':
-                    image_filename = secure_filename(file.filename)
-                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], image_filename))
-            
-            # Store in DB
-            success = Recipe.create_recipe(title, description, ingredients, steps, image_filename, time, calories, labels, cuisines, status, user_id)
-            if success:
-                flash("Recipe created successfully!", "success")
-            else:
-                flash("Failed to create recipe.", "error")
-        return render_template('createrecipe.html')
-    
-    @app.route('/save_draft', methods=['POST'])
-    def save_draft():
-        data = request.form                                     
-        image = request.files.get('recipe-image')                        
-        
-        # If an image is uploaded, save it
-        image_filename = None
-        if image:
-            image_filename = f"static/uploads/{image.filename}"
-            image.save(image_filename)
-
-        success = Recipe.save_recipe(
-            title=data.get('title'),
-            description=data.get('description'),
-            ingredients=data.get('ingredients'),
-            preparation_time=data.get('time'),
-            calories=data.get('calories'),
-            cuisines=data.get('cuisines'),
-            servings=data.get('servings'),
-            labels=data.get('labels'),
-            steps=data.get('steps'),
-            image_path=image_filename,
-            status='draft'
-        )
-
-        if success:
-            return jsonify({"message": "Draft saved successfully!"}), 200
-        return jsonify({"message": "Error saving draft"}), 500
-    
-
-
-        
     # ----------------- COLLECTION ROUTES -----------------
     @app.route('/collection')
     def collection():
@@ -694,105 +648,105 @@ def create_app():
         flash('User not found. Please log in again.', 'error')
         return redirect(url_for('login'))
     
-    @staticmethod
-    def get_collection_recipes(collection_id):
-        """Fetches all recipes in a given collection."""
-        try:
-            conn = get_db()
-            cursor = conn.cursor()
-            cursor.execute("""
-                SELECT r.recipeID, r.title, r.description, r.image 
-                FROM recipe r
-                INNER JOIN collection_recipes cr ON r.recipeID = cr.recipeID
-                WHERE cr.collectionID = ?
-            """, (collection_id,))
-            recipes = cursor.fetchall()
-            conn.close()
-            return recipes
-        except sqlite3.Error as e:
-            print(f"Database error: {e}")
-            return []
+    # @staticmethod
+    # def get_collection_recipes(collection_id):
+    #     """Fetches all recipes in a given collection."""
+    #     try:
+    #         conn = get_db()
+    #         cursor = conn.cursor()
+    #         cursor.execute("""
+    #             SELECT r.recipeID, r.title, r.description, r.image 
+    #             FROM recipe r
+    #             INNER JOIN collection_recipes cr ON r.recipeID = cr.recipeID
+    #             WHERE cr.collectionID = ?
+    #         """, (collection_id,))
+    #         recipes = cursor.fetchall()
+    #         conn.close()
+    #         return recipes
+    #     except sqlite3.Error as e:
+    #         print(f"Database error: {e}")
+    #         return []
 
     
-    @staticmethod
-    def add_recipe_to_collection(collection_id, recipe_id):
-        """Adds a recipe to a collection."""
-        try:
-            conn = get_db()
-            cursor = conn.cursor()
+    # @staticmethod
+    # def add_recipe_to_collection(collection_id, recipe_id):
+    #     """Adds a recipe to a collection."""
+    #     try:
+    #         conn = get_db()
+    #         cursor = conn.cursor()
 
-            # Check if recipe is already in the collection
-            cursor.execute("SELECT * FROM collection_recipes WHERE collectionID = ? AND recipeID = ?", (collection_id, recipe_id))
-            existing = cursor.fetchone()
+    #         # Check if recipe is already in the collection
+    #         cursor.execute("SELECT * FROM collection_recipes WHERE collectionID = ? AND recipeID = ?", (collection_id, recipe_id))
+    #         existing = cursor.fetchone()
 
-            if existing:
-                print("Recipe already exists in this collection.")
-                return False  # Prevent duplicates
+    #         if existing:
+    #             print("Recipe already exists in this collection.")
+    #             return False  # Prevent duplicates
 
-            # Insert recipe into collection
-            cursor.execute("INSERT INTO collection_recipes (collectionID, recipeID) VALUES (?, ?)", (collection_id, recipe_id))
-            conn.commit()
-            conn.close()
-            return True
-        except sqlite3.Error as e:
-            print(f"Database error: {e}")
-            return False
-
-        
-    @staticmethod
-    def get_collections_by_user_id(user_id):
-        """Fetch collections for a specific user."""
-        try:
-            conn = get_db()
-            cursor = conn.cursor()
-            cursor.execute("""
-                SELECT * FROM collections
-                WHERE userID = ?
-            """, (user_id,))
-            collections = cursor.fetchall()
-            conn.close()
-            return collections
-        except sqlite3.Error as e:
-            print(f"Database error: {e}")
-            return []
-        
-
-    @staticmethod
-    def remove_recipe_from_collection(collection_id, recipe_id):
-        """Removes a recipe from a collection."""
-        try:
-            conn = get_db()
-            cursor = conn.cursor()
-            cursor.execute("DELETE FROM collection_recipes WHERE collectionID = ? AND recipeID = ?", (collection_id, recipe_id))
-            conn.commit()
-            conn.close()
-            return True
-        except sqlite3.Error as e:
-            print(f"Database error: {e}")
-            return False
-
+    #         # Insert recipe into collection
+    #         cursor.execute("INSERT INTO collection_recipes (collectionID, recipeID) VALUES (?, ?)", (collection_id, recipe_id))
+    #         conn.commit()
+    #         conn.close()
+    #         return True
+    #     except sqlite3.Error as e:
+    #         print(f"Database error: {e}")
+    #         return False
 
         
+    # @staticmethod
+    # def get_collections_by_user_id(user_id):
+    #     """Fetch collections for a specific user."""
+    #     try:
+    #         conn = get_db()
+    #         cursor = conn.cursor()
+    #         cursor.execute("""
+    #             SELECT * FROM collections
+    #             WHERE userID = ?
+    #         """, (user_id,))
+    #         collections = cursor.fetchall()
+    #         conn.close()
+    #         return collections
+    #     except sqlite3.Error as e:
+    #         print(f"Database error: {e}")
+    #         return []
+        
 
-    @staticmethod
-    def get_collection_pic(collection_id):
-        """Fetch the first recipe image in a collection."""
-        try:
-            conn = get_db()
-            cursor = conn.cursor()
-            cursor.execute("""
-                SELECT r.recipePic 
-                FROM recipe r
-                INNER JOIN collection_recipes cr ON r.recipeID = cr.recipeID
-                WHERE cr.collectionID = ?
-                ORDER BY r.recipeID ASC LIMIT 1
-            """, (collection_id,))
-            result = cursor.fetchone()
-            conn.close()
-            return result['recipePic'] if result else 'https://i.pinimg.com/736x/cf/80/06/cf8006f5593281fe559838256b8fb161.jpg/'
-        except sqlite3.Error as e:
-            print(f"Database error: {e}")
-            return 'https://i.pinimg.com/736x/cf/80/06/cf8006f5593281fe559838256b8fb161.jpg'
+    # @staticmethod
+    # def remove_recipe_from_collection(collection_id, recipe_id):
+    #     """Removes a recipe from a collection."""
+    #     try:
+    #         conn = get_db()
+    #         cursor = conn.cursor()
+    #         cursor.execute("DELETE FROM collection_recipes WHERE collectionID = ? AND recipeID = ?", (collection_id, recipe_id))
+    #         conn.commit()
+    #         conn.close()
+    #         return True
+    #     except sqlite3.Error as e:
+    #         print(f"Database error: {e}")
+    #         return False
+
+
+        
+
+    # @staticmethod
+    # def get_collection_pic(collection_id):
+    #     """Fetch the first recipe image in a collection."""
+    #     try:
+    #         conn = get_db()
+    #         cursor = conn.cursor()
+    #         cursor.execute("""
+    #             SELECT r.recipePic 
+    #             FROM recipe r
+    #             INNER JOIN collection_recipes cr ON r.recipeID = cr.recipeID
+    #             WHERE cr.collectionID = ?
+    #             ORDER BY r.recipeID ASC LIMIT 1
+    #         """, (collection_id,))
+    #         result = cursor.fetchone()
+    #         conn.close()
+    #         return result['recipePic'] if result else 'https://i.pinimg.com/736x/cf/80/06/cf8006f5593281fe559838256b8fb161.jpg/'
+    #     except sqlite3.Error as e:
+    #         print(f"Database error: {e}")
+    #         return 'https://i.pinimg.com/736x/cf/80/06/cf8006f5593281fe559838256b8fb161.jpg'
 
 
     
