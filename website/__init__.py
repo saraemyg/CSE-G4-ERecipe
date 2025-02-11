@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify, redirect, jsonify
+from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify, jsonify
 from .models import DatabaseManager
 from .admin import Admin, Report, Notification
 from .user import RegisteredUser
@@ -208,7 +208,7 @@ def create_app():
             return None, False
 
         if int(recipe['userID']) != user_id:
-            flash("You do not have permission to edit this recipe.", "error")
+            flash("You do not have permission to like this recipe.", "error")
             return recipe, False
 
         return recipe, True
@@ -225,12 +225,12 @@ def create_app():
 
         recipe = Recipe.get_recipe_by_id(recipe_id)
         if not recipe:
-            flash("Recipe not found.", "error")
+            # flash("Recipe not found.", "error")
             return redirect(url_for('main'))
 
         if int(recipe['userID']) != user_id:
-            flash("You do not have permission to edit this recipe.", "error")
-            return render_template('editrecipe.html', recipe=recipe)
+            # flash("You do not have permission to edit this recipe.", "error")
+            return redirect(url_for('main'))
 
         if request.method == 'POST':
             new_title = request.form.get('title', '').strip()
@@ -256,10 +256,10 @@ def create_app():
             
             success = Recipe.update_recipe(recipe_id, new_title, new_description, new_ingredients, new_steps, new_time, new_calories, new_cuisines, new_labels, image_url)
 
-            if success:
-                flash("Recipe updated successfully!", "success")
-            else:
-                flash("Failed to update recipe.", "error")
+            # if success:
+            #     flash("Recipe updated successfully!", "success")
+            # else:
+            #     flash("Failed to update recipe.", "error")
             return redirect(url_for('edit_recipe', recipe_id=recipe_id))
         return render_template('editrecipe.html', recipe=recipe)
 
