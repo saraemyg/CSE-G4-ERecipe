@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify, redirect, jsonify
+from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify, redirect
 from .models import DatabaseManager
 from .admin import Admin, Report, Notification
 from .user import RegisteredUser
@@ -208,7 +208,7 @@ def create_app():
             return None, False
 
         if int(recipe['userID']) != user_id:
-            flash("You do not have permission to edit this recipe.", "error")
+            flash("You do not have permission to like this recipe.", "error")
             return recipe, False
 
         return recipe, True
@@ -225,12 +225,12 @@ def create_app():
 
         recipe = Recipe.get_recipe_by_id(recipe_id)
         if not recipe:
-            flash("Recipe not found.", "error")
+            # flash("Recipe not found.", "error")
             return redirect(url_for('main'))
 
         if int(recipe['userID']) != user_id:
-            flash("You do not have permission to edit this recipe.", "error")
-            return render_template('editrecipe.html', recipe=recipe)
+            # flash("You do not have permission to edit this recipe.", "error")
+            return redirect(url_for('main'))
 
         if request.method == 'POST':
             new_title = request.form.get('title', '').strip()
@@ -256,10 +256,10 @@ def create_app():
             
             success = Recipe.update_recipe(recipe_id, new_title, new_description, new_ingredients, new_steps, new_time, new_calories, new_cuisines, new_labels, image_url)
 
-            if success:
-                flash("Recipe updated successfully!", "success")
-            else:
-                flash("Failed to update recipe.", "error")
+            # if success:
+            #     flash("Recipe updated successfully!", "success")
+            # else:
+            #     flash("Failed to update recipe.", "error")
             return redirect(url_for('edit_recipe', recipe_id=recipe_id))
         return render_template('editrecipe.html', recipe=recipe)
 
@@ -705,5 +705,42 @@ def create_app():
 
         recipe = Recipe.search_recipe(query)  # Call a method from Recipe to handle search
         return jsonify(recipe)
+    
+    # ----------------- FILTER ROUTES -----------------
+
+    @app.route('/filter', methods=['POST'])
+    def filter_recipe():
+        print("Received a request!")  # Debugging print
+        data = request.json
+        print("Request data:", data)  # Debugging print
+        cuisines = data.get('cuisines', [])
+        labels = data.get('labels', [])
+
+        conn = DatabaseManager.get_db()
+        cursor = conn.cursor()
+
+        # Build the query dynamically based on filters
+        query = "SELECT * FROM recipe WHERE 1=1"
+        params = []
+
+        if cuisines:
+            placeholders = ','.join(['?'] * len(cuisines))  
+            query += f" AND LOWER(recipeCuisine) IN ({placeholders})"
+            params.extend([c.lower() for c in cuisines])
+
+        if labels:
+            placeholders = ','.join(['?'] * len(labels))
+            query += f" AND LOWER(recipeLabe)l IN ({placeholders})"
+            params.extend([l.lower() for l in labels])
+
+        print("Executing query:", query)  # 🔍 Debugging: Print the final SQL query
+        print("With parameters:", params)  # 🔍 Debugging: Check parameter values
+
+        cursor.execute(query, params)
+        recipes = cursor.fetchall()
+
+        print("Recipes found:", [dict(recipe) for recipe in recipes])
+
+        return jsonify([dict(recipe) for recipe in recipes])
     
     return app
