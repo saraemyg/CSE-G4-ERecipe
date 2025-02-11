@@ -143,22 +143,42 @@
                             </div>
 
                         <div style="flex: 1; display: flex; flex-wrap: wrap; gap: 5px;">
-                            <input type="text" id="time" name="time" placeholder="Preparation Time" required>
-                            <input type="text" id="calories" name="calories" placeholder="Calories" required>
-                            <input type="text" id="cuisines" name="cuisines"  placeholder="Cuisines" required>
-                            <input type="text" id="servings" name="servings" placeholder="Servings" required>
-                            <input type="text" id="labels"  name="labels" placeholder="Labels" required>
+                            <input type="number" id="time" name="time" placeholder="Preparation Time (minutes)" min="1" required>
+                            <input type="number" id="calories" name="calories" placeholder="Calories (kcal)" min="1" required>
+                            <select id="cuisines" name="cuisines" class="content-selector" required>
+                                <option value="" disabled selected>Select a cuisine</option>
+                                <option value="italian">Italian</option>
+                                <option value="chinese">Chinese</option>
+                                <option value="mexican">Mexican</option>
+                                <option value="indian">Indian</option>
+                                <option value="japanese">Japanese</option>
+                                <option value="western">Western</option>
+                                <option value="malay">Malay</option>
+                                <option value="asian">Asian</option>
+                                <option value="korean">Korean</option>
+                            </select>
+                            <select id="labels" name="labels" class="content-selector" required>
+                                <option value="" disabled selected>Select a label</option>
+                                <option value="breakfast">Breakfast</option>
+                                <option value="lunch">Lunch</option>
+                                <option value="dinner">Dinner</option>
+                                <option value="snack">Snack</option>
+                                <option value="dessert">Dessert</option>
+                            </select>
                         </div>
                         
                         <textarea id="steps" name="steps" placeholder="Steps" required></textarea>
                     </div>
                 </div>
             </form>
+
         </main>
     </div>
 
     <script>
         // Toggle the filter box
+        const currentUser = "{{ session['user'] }}";
+
         document.querySelector('.filter-btn').addEventListener('click', function () {
             const filterBox = document.getElementById('filter-box');
             filterBox.style.display = filterBox.style.display === 'none' || !filterBox.style.display ? 'block' : 'none';
@@ -185,7 +205,6 @@
                 sortBox.style.display = 'none';
             }
         });
-
 
         document.querySelector('.save-draft').addEventListener('click', function() {
             let formData = new FormData(document.getElementById('recipe-form'));
@@ -224,17 +243,30 @@
             }
         });
 
-        // Image Preview Function
-        function previewImage(event) {
-            var reader = new FileReader();
-            reader.onload = function() {
-                var preview = document.getElementById('preview');
-                preview.src = reader.result;
-                preview.style.display = 'block';
-            };
-            reader.readAsDataURL(event.target.files[0]);
-        }
+        // // Image Preview Function
+        // function previewImage(event) {
+        //     var reader = new FileReader();
+        //     reader.onload = function() {
+        //         var preview = document.getElementById('preview');
+        //         preview.src = reader.result;
+        //         preview.style.display = 'block';
+        //     };
+        //     reader.readAsDataURL(event.target.files[0]);
+        // }
 
+        // Image preview handler
+        function previewImage(event) {
+            const preview = document.getElementById('preview');
+            const file = event.target.files[0];
+
+            if (file) {
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+        
     </script>
 </body>
 </html>

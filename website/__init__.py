@@ -564,6 +564,42 @@ def create_app():
             notifications = []  # No notifications for guests
         return render_template('userhome.html', recipes=recipes,  notifications=notifications)
     
+
+    # @app.route('/createrecipe', methods=['POST'])
+    # def createrecipe():
+    #     if request.method == 'POST':
+    #         if 'user' not in session:
+    #             flash("You must be logged in to create a recipe", "error")
+    #             return redirect(url_for('login'))
+
+    #         title = request.form.get('Title')
+    #         description = request.form.get('description')
+    #         ingredients = request.form.get('ingredients')
+    #         steps = request.form.get('steps')
+    #         time = request.form.get('time')
+    #         calories = request.form.get('calories')
+    #         label = request.form.get('labels')
+    #         cuisine = request.form.get('cuisines')
+    #         status = 'draft'  # or 'published' based on user action
+    #         user_id = 2  # Replace with actual logged-in user ID logic
+
+    #         # Handle file upload
+    #         image_file = request.files.get('recipe_image')
+    #         image_path = None
+    #         if image_file and image_file.filename:
+    #             filename = secure_filename(image_file.filename)
+    #             image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    #             image_file.save(image_path)
+
+    #         # Store in DB
+    #         success = Recipe.create_recipe(title, description, ingredients, steps, image_path, time, calories, label, cuisine, status, user_id)
+    #         if success:
+    #             flash("Recipe created successfully!", "success")
+    #         else:
+    #             flash("Failed to create recipe.", "error")
+
+    #     return render_template('createrecipe.html')
+    
     @app.route('/createrecipe', methods=['GET', 'POST'])
     def createrecipe():
         if request.method == 'POST':
@@ -571,16 +607,16 @@ def create_app():
                 flash("You must be logged in to create a recipe", "error")
                 return redirect(url_for('login'))
 
-            user_id = session['user']['userID']
+            user_id = 2
             title = request.form.get('title')
             description = request.form.get('description')
             ingredients = request.form.get('ingredients')
             time = request.form.get('time')
             calories = request.form.get('calories')
             cuisines = request.form.get('cuisines')
-            servings = request.form.get('servings')
             labels = request.form.get('labels')
             steps = request.form.get('steps')
+            status = 'published'
             
             # Handle Image Upload
             image_filename = None
@@ -589,21 +625,14 @@ def create_app():
                 if file.filename != '':
                     image_filename = secure_filename(file.filename)
                     file.save(os.path.join(app.config['UPLOAD_FOLDER'], image_filename))
+            
 
-            try:
-                conn = get_db()
-                cursor = conn.cursor()
-                cursor.execute("""
-                    INSERT INTO recipe (title, description, ingredients, time, calories, cuisines, servings, labels, steps, recipeStatus, image) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (title, description, ingredients, time, calories, cuisines, servings, labels, steps, 'draft', image_filename))
-                conn.commit()
-                conn.close()
+            # Store in DB
+            success = Recipe.create_recipe(title, description, ingredients, steps, image_filename, time, calories, labels, cuisines, status, user_id)
+            if success:
                 flash("Recipe created successfully!", "success")
-                return redirect(url_for('userhome'))
-            except sqlite3.Error as e:
-                flash(f"Database error: {e}", "error")
-                return redirect(url_for('createrecipe'))
+            else:
+                flash("Failed to create recipe.", "error")
         return render_template('createrecipe.html')
     
     @app.route('/save_draft', methods=['POST'])
@@ -635,7 +664,9 @@ def create_app():
             return jsonify({"message": "Draft saved successfully!"}), 200
         return jsonify({"message": "Error saving draft"}), 500
     
-    
+
+
+        
     # ----------------- COLLECTION ROUTES -----------------
     @app.route('/collection')
     def collection():
