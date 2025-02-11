@@ -123,23 +123,23 @@
 
     <script>
 
-    function openEditPanel(notiId) {
-            const panel = document.getElementById('editPanel');
-            panel.classList.add('active');
-            
-            // Update form action URL
-            const form = document.getElementById('editForm');
-            form.action = `/notification/edit/${notiId}`;
-            
-            // Get notification data and populate form
-            fetch(`/notification/${notiId}`)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('editTitle').value = data.title;
-                    document.getElementById('editDetails').value = data.details;
-                    document.getElementById('editReceiver').value = data.receiver;
-                });
-        }
+        function openEditPanel(notiId) {
+                const panel = document.getElementById('editPanel');
+                panel.classList.add('active');
+                
+                // Update form action URL
+                const form = document.getElementById('editForm');
+                form.action = `/notification/edit/${notiId}`;
+                
+                // Get notification data and populate form
+                fetch(`/notification/${notiId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('editTitle').value = data.title;
+                        document.getElementById('editDetails').value = data.details;
+                        document.getElementById('editReceiver').value = data.receiver;
+                    });
+            }
 
         function closeEditPanel() {
             const panel = document.getElementById('editPanel');
@@ -154,7 +154,36 @@
 
         function closeCreatePanel() {
             document.getElementById('createPanel').classList.remove('active');
-        } //change active to hideen later
+        } 
+
+        // Wait for the DOM to load before attaching event listeners
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            // Confirmation for creating notification
+            document.getElementById('createForm').addEventListener('submit', function (event) {
+                if (!confirm("Are you sure you want to create this notification?")) {
+                    event.preventDefault();
+                }
+            });
+
+            // Confirmation for updating notification
+            document.getElementById('editForm').addEventListener('submit', function (event) {
+                if (!confirm("Are you sure you want to update this notification?")) {
+                    event.preventDefault();
+                }
+            });
+
+            // Confirmation for deleting notification
+            document.querySelectorAll('.card-actions form').forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!confirm("Are you sure you want to delete this notification? This action cannot be undone.")) {
+                        event.preventDefault();
+                    }
+                });
+            });
+
+        });
+
 
 
     </script>   

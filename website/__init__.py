@@ -141,27 +141,20 @@ def create_app():
             return render_template('recipe.html', recipe=recipe, like_count=like_count, comments=comments, user_liked=user_liked)
         return {'error': 'Recipe not found'}, 404
     
-    @app.route('/admin/recipe/<int:id>')
-    def get_recipe_admin(id):
+    @app.route('/api/recipe/<int:id>', methods=['GET'])
+    def get_recipe_data(id):
         recipe = Recipe.get_recipe_by_id(id)
         if recipe:
-            like_count = Recipe.get_recipe_like_count(id)  # Fetch the like count
-            return {
+            recipe_data = {
                 'recipeID': recipe['recipeID'],
-                'recipeTitle': recipe['recipeTitle'],
-                'recipeDescription': recipe['recipeDescription'],
-                'recipeIngredients': recipe['recipeIngredients'],
-                'recipeSteps': recipe['recipeSteps'],
-                'recipePic': recipe['recipePic'],
-                'recipeTime': recipe['recipeTime'],
-                'recipeCalories': recipe['recipeCalories'],
-                'recipeLabel': recipe['recipeLabel'],
-                'recipeCuisine': recipe['recipeCuisine'],
-                'recipeStatus': recipe['recipeStatus'],
-                'userID': recipe['userID'],
-                'likeCount': like_count,  # Include the like count in the response
+                'userID': recipe['userID']
             }
+            if 'user' in session:
+                user = RegisteredUser.get_user_by_username(session['user'])
+                recipe_data['reportSenderUserID'] = user['userID'] if user else None
+            return recipe_data, 200
         return {'error': 'Recipe not found'}, 404
+
     
     @app.route('/admin/recipe/<int:id>')
     def get_recipe_admin(id):
@@ -184,8 +177,7 @@ def create_app():
                 'likeCount': like_count,  # Include the like count in the response
             }
         return {'error': 'Recipe not found'}, 404
-
-
+    
     @app.route('/user/<int:id>/recipes')
     def get_user_recipes(id):
         # Fetch user recipes
@@ -317,7 +309,7 @@ def create_app():
         if not new_status:
             return "Invalid status", 400
 
-        Admin.update_user_status(user_id, new_status)
+        RegisteredUser.update_user_status(user_id, new_status)
         return jsonify({"message": "User status updated successfully"}), 200
     
     @app.route('/recipe/update_status/<int:recipe_id>', methods=['POST'])
@@ -326,17 +318,26 @@ def create_app():
         if not new_status:
             return "Invalid status", 400
 
-        Admin.update_recipe_status(recipe_id, new_status)
+        Recipe.update_recipe_status(recipe_id, new_status)
         return jsonify({"message": "Recipe status updated successfully"}), 200
 
     @app.route('/user/delete/<int:user_id>', methods=['POST'])
     def delete_user(user_id):
         try:
-            Admin.delete_user(user_id)
+            RegisteredUser.delete_user(user_id)
             return jsonify({"message": "User deleted successfully"}), 200
         except Exception as e:
             print(f"Error: {e}")
             return jsonify({"error": f"Failed to delete user: {e}"}), 500
+
+    @app.route('/recipe/delete/<int:recipe_id>', methods=['POST'])
+    def delete_recipe(recipe_id):
+        try:
+            Recipe.delete_recipe(recipe_id)
+            return jsonify({"message": "Recipe deleted successfully"}), 200
+        except Exception as e:
+            print(f"Error: {e}")
+            return jsonify({"error": f"Failed to delete recipe: {e}"}), 500
 
 
     # ----------------- REPORT ROUTES -----------------
@@ -354,7 +355,6 @@ def create_app():
         Report.update_report_status(id, new_status)
         return redirect(url_for('reports'))
 
-        
     @app.route('/report/<int:report_id>')
     def get_report_details(report_id):
         report = Report.get_report_details(report_id)
@@ -370,6 +370,21 @@ def create_app():
                 'relatedRecipe': report['relatedRecipe']
             }
         return {'error': 'Report not found'}, 404
+    
+    @app.route('/report/create/<int:recipe_id>/<int:sender_id>/<int:reported_user_id>', methods=['POST'])
+    def create_report(recipe_id, sender_id, reported_user_id):
+        if request.method == 'POST':
+            title = request.form.get('title')
+            details = request.form.get('details')
+
+            success = Report.create_report(title, details, sender_id, reported_user_id, recipe_id)
+            if success:
+                flash("Report created successfully", "success")
+            else:
+                flash("Failed to create report", "error")
+
+        # Redirect to the appropriate recipe or report overview page
+        return redirect(url_for('get_recipe', id=recipe_id))
 
     # ----------------- NOTIFICATION ROUTES -----------------
     @app.route('/notifications')
@@ -412,7 +427,7 @@ def create_app():
             receiver = request.form.get('receiver')
             Notification.add_notification(title, details, receiver)
             return redirect(url_for('notifications'))
-
+        
     # ----------------- USER ROUTES -----------------
 
     @app.route('/userhome')
@@ -470,8 +485,8 @@ def create_app():
     
     @app.route('/save_draft', methods=['POST'])
     def save_draft():
-        data = request.form
-        image = request.files.get('recipe-image')
+        data = request.form                                     
+        image = request.files.get('recipe-image')                        
         
         # If an image is uploaded, save it
         image_filename = None

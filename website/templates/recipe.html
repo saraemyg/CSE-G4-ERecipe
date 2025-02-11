@@ -118,8 +118,7 @@
                     <a href="{{ url_for('edit_recipe', recipe_id=recipe.recipeID) }}">
                         <button class="edit-button">Edit Recipe ✏️</button>
                     </a>
-                
-
+                        <button onclick="openReportPanel('{{ recipe.recipeID }}')">Report Recipe 📝 </button>
 
                 <div class="card-content">
                     <div class="recipeImageContainer">
@@ -171,9 +170,38 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Create Report Panel -->
+                <div id="createReport" class="side-panel">
+                    <div class="panel-content">
+                        <h2>Create Report</h2>
+                        <label id="reportedRecipeID"></label>
+                        <label id="reportedUserID"></label>
+                        <label id="reportSender"></label>
+                
+                        <form id="createForm" method="POST">
+                            <div class="form-group">
+                                <label>Report Title</label>
+                                <input type="text" name="title" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Report Details</label>
+                                <textarea name="details" required></textarea>
+                            </div>
+                
+                            <div class="button-group">
+                                <button type="submit" class="btn btn-create">Create</button>
+                                <button type="button" class="btn btn-cancel" onclick="closeReportPanel()">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+
             </div>
 
             <script>
+
                 const currentUser = "{{ session['user'] }}";
                 function toggleLike(recipeID) {
                     fetch(`/recipe/${recipeID}/like`, {
@@ -235,6 +263,40 @@
                         console.error('Error:', error);
                     });
                 }
+
+                function openReportPanel(recipeId) {
+                    if (!recipeId) {
+                        console.error("Invalid recipeId:", recipeId);
+                        return;
+                    }
+                    console.log("Fetching data for recipeId:", recipeId);
+
+                    const panel = document.getElementById('createReport');
+                    panel.classList.add('active');
+
+                    fetch(`/api/recipe/${recipeId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.error) {
+                                alert(data.error);
+                                return;
+                            }
+
+                            document.getElementById('reportedRecipeID').textContent = `Recipe ID: ${data.recipeID}`;
+                            document.getElementById('reportedUserID').textContent = `Reported User ID: ${data.userID}`;
+                            document.getElementById('reportSender').textContent = `Sender User ID: ${data.reportSenderUserID}`;
+
+                            // Update form action with dynamic parameters
+                            const form = document.getElementById('createForm');
+                            form.action = `/report/create/${data.recipeID}/${data.reportSenderUserID}/${data.userID}`;
+                        })
+                        .catch(error => console.error('Error fetching recipe data:', error));
+                }
+
+                function closeReportPanel() {
+                    document.getElementById('createReport').classList.remove('active');
+                }
+                
             </script>
         </body>
         </html>

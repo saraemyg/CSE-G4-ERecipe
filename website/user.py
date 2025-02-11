@@ -88,14 +88,16 @@ class RegisteredUser:
 
     @staticmethod
     def add_user(username, password, email):
+        default_profile_pic = "https://i.pinimg.com/736x/cb/e9/04/cbe904dd49b801c0756a95400361dced.jpg"
+        default_header_pic = "https://i.pinimg.com/736x/3d/15/48/3d1548514ea2160fc07f76eea0238236.jpg"
         try:
             conn = get_db()
             cursor = conn.cursor()
             print("Database connection established.")
             cursor.execute("""
                 INSERT INTO user (userName, userPassword, userEmail, userPackage, userStatus, userBio, userProfilePic, userHeaderPic)
-                VALUES (?, ?, ?, 'free', 'active', '', '', '')
-            """, (username, password, email))
+                VALUES (?, ?, ?, 'free', 'active', '', ?, ?)
+            """, (username, password, email, default_profile_pic, default_header_pic))
             conn.commit()
             print("User added successfully.")
             return True
@@ -131,3 +133,31 @@ class RegisteredUser:
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return False
+        
+    @staticmethod
+    def delete_user(user_id):
+        conn = get_db()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("DELETE FROM user WHERE userID = ?", (user_id,))
+            conn.commit()
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            raise e
+        finally:
+            conn.close()
+
+    @staticmethod
+    def update_user_status(user_id, new_status):
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE user
+                SET userStatus = ?
+                WHERE userID = ?
+            """, (new_status, user_id))
+            conn.commit()
+            conn.close()
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")

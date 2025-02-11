@@ -45,22 +45,6 @@ class Recipe:
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return []
-
-    @staticmethod
-    def update_recipe_status(recipe_id, new_status):
-        try:
-            conn = get_db()
-            cursor = conn.cursor()
-            cursor.execute("""
-                UPDATE recipe 
-                SET recipeStatus = ? 
-                WHERE recipeID = ?""", (new_status, recipe_id))
-            conn.commit()
-            conn.close()
-            return True
-        except sqlite3.Error as e:
-            print(f"Database error: {e}")
-            return False
         
     @staticmethod
     def like_recipe(recipe_id, user_id):
@@ -112,16 +96,6 @@ class Recipe:
             conn = get_db()
             cursor = conn.cursor()
             cursor.execute("UPDATE recipe SET recipeStatus = 'suspended' WHERE recipeID = ?", (recipe_id,))
-            conn.commit()
-        finally:
-            conn.close()
-
-    @staticmethod
-    def delete_recipe(recipe_id):
-        try:
-            conn = get_db()
-            cursor = conn.cursor()
-            cursor.execute("DELETE FROM recipe WHERE recipeID = ?", (recipe_id,))
             conn.commit()
         finally:
             conn.close()
@@ -205,12 +179,6 @@ class Recipe:
             print(f"Database error: {e}")
             return False
 
-  
-
-
-
-    
-
     @staticmethod
     def get_published_recipes():
         try:
@@ -223,3 +191,31 @@ class Recipe:
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return []
+        
+    @staticmethod
+    def delete_recipe(recipe_id):
+        conn = get_db()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("DELETE FROM recipe WHERE recipeID = ?", (recipe_id,))
+            conn.commit()
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            raise e
+        finally:
+            conn.close()
+
+    @staticmethod
+    def update_recipe_status(recipe_id, new_status):
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE recipe
+                SET recipeStatus = ?
+                WHERE recipeID = ?
+            """, (new_status, recipe_id))
+            conn.commit()
+            conn.close()
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
