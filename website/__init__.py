@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify, jsonify
+from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify, redirect
 from .models import DatabaseManager
 from .admin import Admin, Report, Notification
 from .user import RegisteredUser
@@ -303,14 +303,6 @@ def create_app():
             return {'recipes': [dict(recipe) for recipe in recipes]}  # Return a list of recipes in a JSON-friendly format
         return {'recipes': []}  # If no recipes are found, return an empty list
     
-    # @app.route('/recipe/update_archive/<int:recipe_id>', methods=['POST'])
-    # def update_recipe_archive(recipe_id):
-    #     new_status = request.form.get("status")
-    #     db.execute("UPDATE recipes SET status = ? WHERE recipeID = ?", (new_status, recipe_id))
-    #     db.commit()
-    #     return jsonify({"message": f"Recipe {recipe_id} is now {new_status}"})
-
-
 
     @app.route('/createrecipe', methods=['GET', 'POST'])
     def createrecipe():
@@ -636,13 +628,14 @@ def create_app():
         if user:
             user_id = user['userID']
             collections = Collection.get_collections_by_user_id(user_id)
-            
-            # Fetch collection data with the first recipe image
+
+            # No need for separate pic and size fetching if data already includes them
             formatted_collections = [
                 {
                     'collectionID': collection['collectionID'],
                     'collectionName': collection['collectionName'],
-                    'collectionPic': Collection.get_collection_pic(collection['collectionID'])
+                    'collectionPic': collection['collectionPic'],
+                    'collectionSize': collection['collectionSize']
                 }
                 for collection in collections
             ]
@@ -652,7 +645,36 @@ def create_app():
         flash('User not found. Please log in again.', 'error')
         return redirect(url_for('login'))
     
-    
+    @app.route('/collection/<int:collection_id>/recipes')
+    def get_collection_recipes(collection_id):
+        recipes = Collection.get_recipes_by_collection(collection_id)
+        return jsonify({'recipes': recipes})
+
+
+    @app.route('/collection/create', methods=['POST'])
+    def create_collection():
+        username = session.get('user')
+        if not username:
+            return jsonify({'error': 'User not logged in'}), 401
+
+        user = RegisteredUser.get_user_by_username(username)
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        user_id = user['userID']
+        data = request.get_json()
+        collection_name = data.get('collectionName')
+
+        if not collection_name:
+            return jsonify({'error': 'Collection name is required'}), 400
+
+        result = Collection.create_collection(user_id, collection_name)
+        if result:
+            return jsonify({'message': 'Collection created successfully'}), 200
+        else:
+            return jsonify({'error': 'Failed to create collection'}), 500
+
+
     @app.route('/add_to_collection', methods=['POST'])
     def add_to_collection():
         if 'user' not in session:
@@ -671,55 +693,6 @@ def create_app():
         except Exception as e:
             return jsonify({'error': str(e)}), 500
         
-
-    @app.route('/create_collection', methods=['POST'])
-    def create_collection():
-        if 'user' not in session:
-            return jsonify({'error': 'User not logged in'}), 401
-
-        data = request.json  # Get JSON request data
-        collection_name = data.get('name')  # Use 'name' from form input
-        description = data.get('description', '')
-
-        if not collection_name:
-            return jsonify({'error': 'Collection name is required'}), 400
-
-        user = RegisteredUser.get_user_by_username(session['user'])
-        if user:
-            new_collection = Collection.create_new_collection(user['userID'], collection_name, description)
-            return jsonify({'success': 'Collection created successfully', 'collectionID': new_collection}), 200
-
-        return jsonify({'error': 'User not found'}), 404
-    
-    @app.route('/collection/<int:collectionID>')
-    def view_collection(collectionID):
-        username = session.get('user')
-        if not username:
-            flash('Please log in to access your collections.', 'warning')
-            return redirect(url_for('login'))
-
-        user = RegisteredUser.get_user_by_username(username)
-        if not user:
-            flash('User not found. Please log in again.', 'error')
-            return redirect(url_for('login'))
-
-        user_id = user['userID']
-        
-        # Fetch all collections of the user
-        collections = Collection.get_collections_by_user_id(user_id)
-        
-        # Check if the collectionID belongs to the user
-        collection = next((c for c in collections if c['collectionID'] == collectionID), None)
-        if not collection:
-            flash('Collection not found or unauthorized access.', 'error')
-            return redirect(url_for('collection'))
-
-        # Fetch recipes inside the collection
-        recipes = Collection.get_recipes_by_collection_id(collectionID)
-
-        return render_template('collection_details.html', collection=collection, recipes=recipes)
-
-    
     
     # ----------------- SEARCH ROUTES -----------------
 
@@ -732,5 +705,105 @@ def create_app():
 
         recipe = Recipe.search_recipe(query)  # Call a method from Recipe to handle search
         return jsonify(recipe)
+    
+    # ----------------- FILTER ROUTES -----------------
+
+    @app.route('/filter', methods=['POST'])
+    def filter_recipe():
+        print("Received a request!")  # Debugging print
+        data = request.json
+        print("Request data:", data)  # Debugging print
+        cuisines = data.get('cuisines', [])
+        labels = data.get('labels', [])
+
+        filters = data.get('filters', [])  # Combined filters (e.g., ["Italian", "Breakfast"])
+
+
+        conn = DatabaseManager.get_db()
+        cursor = conn.cursor()
+
+        # Build the query dynamically based on filters
+        query = "SELECT * FROM recipe WHERE 1=1"
+        params = []
+
+        if cuisines:
+            placeholders = ','.join(['?'] * len(cuisines))  
+            query += f" AND LOWER(recipeCuisine) IN ({placeholders})"
+            params.extend([c.lower() for c in cuisines])
+
+        if labels:
+            placeholders = ','.join(['?'] * len(labels))
+            query += f" AND LOWER(recipeLabeL) IN ({placeholders})"
+            params.extend([l.lower() for l in labels])
+
+        print("Executing query:", query)  # 🔍 Debugging: Print the final SQL query
+        print("With parameters:", params)  # 🔍 Debugging: Check parameter values
+
+        cursor.execute(query, params)
+        recipes = cursor.fetchall()
+
+        print("Recipes found:", [dict(recipe) for recipe in recipes])
+
+        return jsonify([dict(recipe) for recipe in recipes])
+    
+    # ----------------- SORT BY ROUTES -----------------
+    @app.route('/sort', methods=['POST'])
+    def sort_recipes():
+        data = request.json
+        sort_by = data.get("sort_by")  # Default sort by time
+        order = data.get("order", "asc")  # Default to ascending order
+
+        print(f"Received sorting request: sort_by={sort_by}, order={order}")  # Debugging
+
+        # Map valid sorting fields to database columns
+        valid_fields = {
+            "title": "recipeTitle",
+            "time": "recipeTime",
+            "calories": "recipeCalories"
+        }
+
+        # Validate and get the database column for sorting
+        sort_column = valid_fields.get(sort_by)
+        if not sort_column:
+            print(f"Invalid or missing sort_by value received: {sort_by}")  # Debugging
+            return jsonify({"error": "Invalid sorting field."}), 400
+
+        # Ensure the order is either ASC or DESC
+        order = "ASC" if order.lower() == "asc" else "DESC"
+
+        # Construct the query dynamically
+        query = f"""
+            SELECT recipeID, recipeTitle, recipePic, recipeDescription, recipeTime, recipeCalories, recipeCuisine
+            FROM recipe
+            ORDER BY {sort_column} {order}
+        """
+
+        try:
+            # Use the existing DatabaseManager to execute the query
+            conn = DatabaseManager.get_db()
+            cursor = conn.cursor()
+            cursor.execute(query)
+            recipes = cursor.fetchall()
+            conn.close()
+
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            return jsonify({"error": "Unexpected error occurred."}), 500
+
+        # Convert the database rows to a list of dictionaries
+        recipes_list = [
+            {
+                "recipeID": recipe["recipeID"],
+                "recipeTitle": recipe["recipeTitle"],
+                "recipePic": recipe["recipePic"],
+                "recipeDescription": recipe["recipeDescription"],
+                "recipeTime": recipe["recipeTime"],
+                "recipeCalories": recipe["recipeCalories"],
+                "recipeCuisine": recipe["recipeCuisine"]
+            }
+            for recipe in recipes
+        ]
+
+        return jsonify(recipes_list)
     
     return app
