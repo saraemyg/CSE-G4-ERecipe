@@ -306,12 +306,12 @@ def create_app():
             "labels": recipe.labels
         })
     
-    @app.route('/recipe/update_archive/<int:recipe_id>', methods=['POST'])
-    def update_recipe_archive(recipe_id):
-        new_status = request.form.get("status")
-        db.execute("UPDATE recipes SET status = ? WHERE recipeID = ?", (new_status, recipe_id))
-        db.commit()
-        return jsonify({"message": f"Recipe {recipe_id} is now {new_status}"})
+    # @app.route('/recipe/update_archive/<int:recipe_id>', methods=['POST'])
+    # def update_recipe_archive(recipe_id):
+    #     new_status = request.form.get("status")
+    #     db.execute("UPDATE recipes SET status = ? WHERE recipeID = ?", (new_status, recipe_id))
+    #     db.commit()
+    #     return jsonify({"message": f"Recipe {recipe_id} is now {new_status}"})
 
 
 
@@ -525,7 +525,6 @@ def create_app():
             print(f"Error: {e}")
             return jsonify({"error": f"Failed to delete recipe: {e}"}), 500
         
-
 
     # ----------------- REPORT ROUTES -----------------
     @app.route('/reports')

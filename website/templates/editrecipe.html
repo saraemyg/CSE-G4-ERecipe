@@ -263,6 +263,7 @@
                     document.getElementById('edit-ingredients').value = data.recipeIngredients;
                     document.getElementById('edit-steps').value = data.recipeSteps;
                     document.getElementById('edit-labels').value = data.recipeLabel;
+                    document.getElementById('edit-status').value = data.recipeStatus;
                 })
                 .catch(error => {
                     console.error("Error fetching recipe details:", error);
@@ -271,13 +272,18 @@
         }
 
         function toggleRecipeArchive() {
-            const recipeId = document.getElementById('recipeId').innerText.replace('#', '');
+            const recipeId = getRecipeIdFromPath(); // Get recipe ID from the URL
+
+            if (!recipeId || isNaN(recipeId)) {
+                alert("Invalid Recipe ID.");
+                return;
+            }
             const archiveButton = document.getElementById("recipeStatusButton");
             
             // Determine current status
             const isArchived = archiveButton.innerText.toLowerCase() === "unarchive";
-            const newStatus = isArchived ? "active" : "archived"; // Toggle status
-            const formAction = `/recipe/update_archive/${recipeId}`;
+            const newStatus = isArchived ? "published" : "archived"; // Toggle status
+            const formAction = `/recipe/update_status/${recipeId}`;
 
             if (confirm(`Are you sure you want to ${isArchived ? "unarchive" : "archive"} this recipe?`)) {
                 fetch(formAction, {
@@ -303,15 +309,13 @@
         }
 
         function deleteRecipe() {
-            const recipeElement = document.getElementById('recipeId');
-            
-            if (!recipeElement) {
-                alert("Error: Recipe ID not found.");
+            const recipeId = getRecipeIdFromPath(); // Get recipe ID from the URL
+
+            if (!recipeId || isNaN(recipeId)) {
+                alert("Invalid Recipe ID.");
                 return;
             }
 
-            const recipeId = recipeElement.innerText.replace('#', '').trim();
-            console.log("Deleting Recipe ID:", recipeId); // Debugging line
             const deleteUrl = `/recipe/delete/${recipeId}`;
 
             if (confirm("Are you sure you want to delete this recipe? This action cannot be undone.")) {
@@ -321,19 +325,10 @@
                 })
                 .then(response => {
                     if (!response.ok) throw new Error("Failed to delete recipe");
-                    return response.json(); // Assuming the backend returns JSON
+                    return response.json();
                 })
                 .then(data => {
-                    alert("Recipe deleted successfully");
-
-                    // Check if we are on editrecipe.html or adminmanage.html
-                    if (window.location.pathname.includes("editrecipe")) {
-                        // Redirect to recipe list or dashboard after deletion
-                        window.location.href = "/recipes"; // Change to the actual route
-                    } else {
-                        // Remove recipe from the list dynamically in adminmanage.html
-                        document.getElementById(`recipe-card-${recipeId}`)?.remove();
-                    }
+                    alert(data.message || "Recipe deleted successfully");
                 })
                 .catch(error => {
                     alert(`Error: ${error.message}`);
@@ -341,15 +336,6 @@
                 });
             }
         }
-
-        fetch(deleteUrl, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' }
-        })
-
-
-
-
 
     </script>
 </body>
