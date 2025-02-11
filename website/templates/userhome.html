@@ -16,8 +16,6 @@
                     <li><a href="{{ url_for('main') }}">🏠</a></li>
                     <li><a href="{{ url_for('createrecipe') }}">➕</a></li>
                     <li><a href="{{ url_for('collection')}}">❤️</a></li>
-                    <li><a href="#">💬</a></li>
-                    <li><a href="#">⚙️</a></li>
                     {% if 'user' in session %}
                         <li><a href="{{ url_for('logout') }}">🚪</a></li>
                     {% else %}
