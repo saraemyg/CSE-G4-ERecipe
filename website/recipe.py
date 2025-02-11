@@ -1,5 +1,4 @@
 import sqlite3
-from .models import DatabaseManager
 
 def get_db():
     conn = sqlite3.connect('instance/database2.db')
@@ -45,22 +44,6 @@ class Recipe:
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return []
-
-    @staticmethod
-    def update_recipe_status(recipe_id, new_status):
-        try:
-            conn = get_db()
-            cursor = conn.cursor()
-            cursor.execute("""
-                UPDATE recipe 
-                SET recipeStatus = ? 
-                WHERE recipeID = ?""", (new_status, recipe_id))
-            conn.commit()
-            conn.close()
-            return True
-        except sqlite3.Error as e:
-            print(f"Database error: {e}")
-            return False
         
     @staticmethod
     def like_recipe(recipe_id, user_id):
@@ -77,7 +60,7 @@ class Recipe:
     
     @staticmethod
     def unlike_recipe(recipe_id, user_id):
-        conn = DatabaseManager.get_db()
+        conn = get_db()
         cursor = conn.cursor()
         cursor.execute("DELETE FROM like WHERE recipeID = ? AND userID = ?", (recipe_id, user_id))
         conn.commit()
@@ -86,7 +69,7 @@ class Recipe:
         
     @staticmethod
     def has_user_liked(recipe_id, user_id):
-        conn = DatabaseManager.get_db()
+        conn = get_db()
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM like WHERE recipeID = ? AND userID = ?", (recipe_id, user_id))
         like = cursor.fetchone()
@@ -117,18 +100,8 @@ class Recipe:
             conn.close()
 
     @staticmethod
-    def delete_recipe(recipe_id):
-        try:
-            conn = get_db()
-            cursor = conn.cursor()
-            cursor.execute("DELETE FROM recipe WHERE recipeID = ?", (recipe_id,))
-            conn.commit()
-        finally:
-            conn.close()
-
-    @staticmethod
     def search_recipe(query):
-        db = DatabaseManager.get_db()
+        db = get_db()
         cursor = db.cursor()
 
         cursor.execute("""
@@ -205,12 +178,6 @@ class Recipe:
             print(f"Database error: {e}")
             return False
 
-  
-
-
-
-    
-
     @staticmethod
     def get_published_recipes():
         try:
@@ -223,3 +190,31 @@ class Recipe:
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return []
+        
+    @staticmethod
+    def delete_recipe(recipe_id):
+        conn = get_db()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("DELETE FROM recipe WHERE recipeID = ?", (recipe_id,))
+            conn.commit()
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            raise e
+        finally:
+            conn.close()
+
+    @staticmethod
+    def update_recipe_status(recipe_id, new_status):
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE recipe
+                SET recipeStatus = ?
+                WHERE recipeID = ?
+            """, (new_status, recipe_id))
+            conn.commit()
+            conn.close()
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")

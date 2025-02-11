@@ -25,51 +25,8 @@ class Admin:
         conn.close()
         return user
 
-    @staticmethod
-    def update_user_status(user_id, new_status):
-        try:
-            conn = get_db()
-            cursor = conn.cursor()
-            cursor.execute("""
-                UPDATE user
-                SET userStatus = ?
-                WHERE userID = ?
-            """, (new_status, user_id))
-            conn.commit()
-            conn.close()
-        except sqlite3.Error as e:
-            print(f"Database error: {e}")
-
-    @staticmethod
-    def update_recipe_status(recipe_id, new_status):
-        try:
-            conn = get_db()
-            cursor = conn.cursor()
-            cursor.execute("""
-                UPDATE recipe
-                SET recipeStatus = ?
-                WHERE recipeID = ?
-            """, (new_status, recipe_id))
-            conn.commit()
-            conn.close()
-        except sqlite3.Error as e:
-            print(f"Database error: {e}")
-
-    @staticmethod
-    def delete_user(user_id):
-        conn = get_db()
-        cursor = conn.cursor()
-        try:
-            cursor.execute("DELETE FROM user WHERE userID = ?", (user_id,))
-            conn.commit()
-        except sqlite3.Error as e:
-            print(f"Database error: {e}")
-            raise e
-        finally:
-            conn.close()
-
-
 class Report:
+
     @staticmethod
     def get_all_reports():
         try:
@@ -93,7 +50,6 @@ class Report:
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return []
-
 
     @staticmethod
     def update_report_status(report_id, new_status):
@@ -146,6 +102,23 @@ class Report:
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return None
+        
+    @staticmethod
+    def create_report(title, details, sender_id, reported_user_id, recipe_id):
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO report (reportTitle, reportDetails, reportTime, reportStatus, reportSenderUserID, reportedUserID, reportedRecipeID)
+                VALUES (?, ?, datetime('now'), 'pending', ?, ?, ?)
+            """, (title, details, sender_id, reported_user_id, recipe_id))
+            
+            conn.commit()
+            conn.close()
+            return True
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return False
 
 class Notification:
     
@@ -174,7 +147,6 @@ class Notification:
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return []
-
 
     @staticmethod
     def get_notification_by_id(noti_id):
