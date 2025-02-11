@@ -694,6 +694,108 @@ def create_app():
         flash('User not found. Please log in again.', 'error')
         return redirect(url_for('login'))
     
+    @staticmethod
+    def get_collection_recipes(collection_id):
+        """Fetches all recipes in a given collection."""
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT r.recipeID, r.title, r.description, r.image 
+                FROM recipe r
+                INNER JOIN collection_recipes cr ON r.recipeID = cr.recipeID
+                WHERE cr.collectionID = ?
+            """, (collection_id,))
+            recipes = cursor.fetchall()
+            conn.close()
+            return recipes
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return []
+
+    
+    @staticmethod
+    def add_recipe_to_collection(collection_id, recipe_id):
+        """Adds a recipe to a collection."""
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+
+            # Check if recipe is already in the collection
+            cursor.execute("SELECT * FROM collection_recipes WHERE collectionID = ? AND recipeID = ?", (collection_id, recipe_id))
+            existing = cursor.fetchone()
+
+            if existing:
+                print("Recipe already exists in this collection.")
+                return False  # Prevent duplicates
+
+            # Insert recipe into collection
+            cursor.execute("INSERT INTO collection_recipes (collectionID, recipeID) VALUES (?, ?)", (collection_id, recipe_id))
+            conn.commit()
+            conn.close()
+            return True
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return False
+
+        
+    @staticmethod
+    def get_collections_by_user_id(user_id):
+        """Fetch collections for a specific user."""
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT * FROM collections
+                WHERE userID = ?
+            """, (user_id,))
+            collections = cursor.fetchall()
+            conn.close()
+            return collections
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return []
+        
+
+    @staticmethod
+    def remove_recipe_from_collection(collection_id, recipe_id):
+        """Removes a recipe from a collection."""
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM collection_recipes WHERE collectionID = ? AND recipeID = ?", (collection_id, recipe_id))
+            conn.commit()
+            conn.close()
+            return True
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return False
+
+
+        
+
+    @staticmethod
+    def get_collection_pic(collection_id):
+        """Fetch the first recipe image in a collection."""
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT r.recipePic 
+                FROM recipe r
+                INNER JOIN collection_recipes cr ON r.recipeID = cr.recipeID
+                WHERE cr.collectionID = ?
+                ORDER BY r.recipeID ASC LIMIT 1
+            """, (collection_id,))
+            result = cursor.fetchone()
+            conn.close()
+            return result['recipePic'] if result else 'https://i.pinimg.com/736x/cf/80/06/cf8006f5593281fe559838256b8fb161.jpg/'
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return 'https://i.pinimg.com/736x/cf/80/06/cf8006f5593281fe559838256b8fb161.jpg'
+
+
+    
     @app.route('/add_to_collection', methods=['POST'])
     def add_to_collection():
         if 'user' not in session:

@@ -13,10 +13,10 @@ class Collection:
         try:
             conn = get_db()
             cursor = conn.cursor()
-            cursor.execute("SELECT collectionID, collectionName, collectionPic FROM collections")
+            cursor.execute("SELECT collectionID, collectionName, collectionPic FROM collection")
             collections = cursor.fetchall()
             conn.close()
-            return collections
+            return [dict(row) for row in collections]
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return []
@@ -27,10 +27,10 @@ class Collection:
         try:
             conn = get_db()
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM collections WHERE collectionID = ?", (collection_id,))
+            cursor.execute("SELECT * FROM collection WHERE collectionID = ?", (collection_id,))
             collection = cursor.fetchone()
             conn.close()
-            return collection
+            return dict(collection) if collection else None
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return None
@@ -42,7 +42,7 @@ class Collection:
             conn = get_db()
             cursor = conn.cursor()
             cursor.execute("""
-                INSERT INTO collections (name, description, user_id) 
+                INSERT INTO collection (name, description, user_id) 
                 VALUES (?, ?, ?)
             """, (name, description, user_id))
             conn.commit()
@@ -59,8 +59,8 @@ class Collection:
             conn = get_db()
             cursor = conn.cursor()
             cursor.execute("""
-                UPDATE collections 
-                SET name = ?, description = ?
+                UPDATE collection 
+                SET collectionName = ?, description = ?
                 WHERE collectionID = ?
             """, (name, description, collection_id))
             conn.commit()
@@ -76,7 +76,7 @@ class Collection:
         try:
             conn = get_db()
             cursor = conn.cursor()
-            cursor.execute("DELETE FROM collections WHERE collectionID = ?", (collection_id,))
+            cursor.execute("DELETE FROM collection WHERE collectionID = ?", (collection_id,))
             conn.commit()
             conn.close()
             return True
@@ -97,7 +97,7 @@ class Collection:
             """, (user_id,))
             collections = cursor.fetchall()
             conn.close()
-            return collections
+            return [dict(row) for row in collections]
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return []
@@ -171,7 +171,7 @@ class Collection:
             """, (collection_id,))
             recipes = cursor.fetchall()
             conn.close()
-            return recipes
+            return [dict(row) for row in recipes]
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return []
