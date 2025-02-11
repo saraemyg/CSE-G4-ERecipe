@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='cake.png') }}" type="image/x-icon">
 </head>
 <body>
     <div class="container userhome">
@@ -12,7 +13,7 @@
         <aside class="sidebar" style="background-color: white;">
             <nav>
                 <ul>
-                    <li><a href="{{ url_for('userhome') }}">🏠</a></li>
+                    <li><a href="{{ url_for('main') }}">🏠</a></li>
                     <li><a href="{{ url_for('createrecipe') }}">➕</a></li>
                     <li><a href="{{ url_for('collection')}}">❤️</a></li>
                     <li><a href="#">💬</a></li>
@@ -121,7 +122,7 @@
                     <h4 id="profileName" class="card-subtitle">{{ user['userName'] }}</h4>
                     <span id="profileStatus" class="card-tag">{{ user['userStatus'] }}</span>
                     <!-- Add Edit Profile Button -->
-                    <button class="edit-profile-btn" onclick="openEditProfile()">Edit Profile</button>
+                    <button class="edit-button" onclick="openEditProfile()">Edit Profile</button>
                 </div>
                 <p id="profileBio" class="card-bio">{{ user['userBio'] }}</p>
                 <p id="profileEmail" class="card-details">{{ user['userEmail'] }}</p>
@@ -163,6 +164,7 @@
                     </form>
                 </div>
 
+                <h3 class="card-title">Published Recipes:</h3>
                 <div class="card-grid" id="viewProfileRecipesGrid">
                     {% if recipes %}
                         {% for recipe in recipes %}
@@ -171,7 +173,8 @@
                                 <div class="card-header">
                                     <span class="card-id">#{{ recipe['recipeID'] | e }}</span>
                                     <h4 class="card-subtitle">{{ recipe['recipeTitle'] | e }}</h4>
-                                    <span class="card-tag {{ recipe['recipeStatus'] | e }}">{{ recipe['recipeStatus'] | e }}</span>
+                                    <!-- <span class="card-tag {{ recipe['recipeStatus'] | e }}">{{ recipe['recipeStatus'] | e }}</span> -->
+                                    <!-- <button class="edit-recipe-btn" onclick="editRecipe('{{ recipe.recipeID }}')">✏️ Edit</button> -->
                                 </div>
                                 <div class="card-details">{{ recipe['recipeDescription'] | e }}</div>
                             </div>
@@ -196,6 +199,7 @@
         function viewRecipeDetails(recipeID) {
             window.location.href = "{{ url_for('get_recipe', id=0) }}".replace('0', recipeID);
         }
+
     </script>
 </body>
 </html>

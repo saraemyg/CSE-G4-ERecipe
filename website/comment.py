@@ -55,7 +55,7 @@ class Comment:
             conn = get_db()
             cursor = conn.cursor()
             query = """
-                SELECT comment.commentText, comment.commentTime, user.userName
+                SELECT comment.commentID, comment.commentText, comment.commentTime, user.userName
                 FROM comment
                 JOIN user ON comment.userID = user.userID
                 WHERE comment.recipeID = ?
@@ -63,11 +63,24 @@ class Comment:
             cursor.execute(query, (recipe_id,))
             comments = cursor.fetchall()
             conn.close()
-            return [{'commentText': row[0], 'commentTime': row[1], 'userName': row[2]} for row in comments]
+            return [{'commentID': row[0], 'commentText': row[1], 'commentTime': row[2], 'userName': row[3]} for row in comments]
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return []
 
+    @staticmethod
+    def add_comment(recipe_id, user_id, comment_text):
+        """Add a new comment to the database."""
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO comment (recipeID, userID, commentText) VALUES (?, ?, ?)", (recipe_id, user_id, comment_text))
+            conn.commit()
+            conn.close()
+            return True
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return False
 
     @staticmethod
     def create_comment(comment_text, user_id, recipe_id):

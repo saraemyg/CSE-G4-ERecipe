@@ -11,46 +11,50 @@ class Collection:
     def get_all_collections():
         """Fetches all collections from the database."""
         try:
-            conn = get_db()
+            conn = get_db() 
             cursor = conn.cursor()
-            cursor.execute("SELECT collectionID, collectionName, collectionPic FROM collections")
+            cursor.execute("SELECT collectionID, collectionName, collectionPic FROM collection")
             collections = cursor.fetchall()
-            conn.close()
-            return collections
+            return [dict(row) for row in collections]
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return []
+        finally:
+            conn.close()
     
+    #Gets details of a single collection.
     @staticmethod
     def get_collection_by_id(collection_id):
         """Fetches a single collection by its ID."""
         try:
             conn = get_db()
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM collections WHERE collectionID = ?", (collection_id,))
+            cursor.execute("SELECT * FROM collection WHERE collectionID = ?", (collection_id,))
             collection = cursor.fetchone()
-            conn.close()
-            return collection
+            return dict(collection) if collection else None
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return None
+        finally:
+            conn.close()
 
     @staticmethod
-    def create_collection(name, description, user_id):
+    def create_collection(collection_name, description, user_id):
         """Inserts a new collection into the database."""
         try:
             conn = get_db()
             cursor = conn.cursor()
             cursor.execute("""
-                INSERT INTO collections (name, description, user_id) 
+                INSERT INTO collection (collectionName, description, user_id) 
                 VALUES (?, ?, ?)
             """, (name, description, user_id))
             conn.commit()
-            conn.close()
+            conn.close
             return True
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return False
+       
     
     @staticmethod
     def update_collection(collection_id, name, description):
@@ -59,8 +63,8 @@ class Collection:
             conn = get_db()
             cursor = conn.cursor()
             cursor.execute("""
-                UPDATE collections 
-                SET name = ?, description = ?
+                UPDATE collection 
+                SET collectionName = ?, description = ?
                 WHERE collectionID = ?
             """, (name, description, collection_id))
             conn.commit()
@@ -76,7 +80,7 @@ class Collection:
         try:
             conn = get_db()
             cursor = conn.cursor()
-            cursor.execute("DELETE FROM collections WHERE collectionID = ?", (collection_id,))
+            cursor.execute("DELETE FROM collection WHERE collectionID = ?", (collection_id,))
             conn.commit()
             conn.close()
             return True
@@ -84,17 +88,15 @@ class Collection:
             print(f"Database error: {e}")
             return False
 
+
+    #Gets all collections for a user.
     @staticmethod
     def get_collections_by_user_id(user_id):
         """Fetch collections for a specific user."""
         try:
             conn = get_db()
             cursor = conn.cursor()
-            cursor.execute("""
-                SELECT *
-                FROM collection
-                WHERE userID = ?
-            """, (user_id,))
+            cursor.execute("SELECT * FROM collection WHERE userID = ?", (user_id,))
             collections = cursor.fetchall()
             conn.close()
             return collections
@@ -121,3 +123,67 @@ class Collection:
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return 'https://i.pinimg.com/736x/cf/80/06/cf8006f5593281fe559838256b8fb161.jpg'
+        
+
+    @staticmethod
+    def add_recipe_to_collection(collection_id, recipe_id):
+        """Add a recipe to a collection."""
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+
+            # Check if the recipe is already in the collection
+            cursor.execute("SELECT * FROM collection WHERE collectionID = ? AND recipeID = ?", (collection_id, recipe_id))
+            existing = cursor.fetchone()
+
+            if existing:
+                print("Recipe already exists in this collection.")
+                return False  # Prevent duplicates
+
+            cursor.execute("""
+                INSERT INTO collection (collectionID, recipeID)
+                VALUES (?, ?)
+            """, (collection_id, recipe_id))
+            conn.commit()
+            conn.close()
+            return True
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return False
+        
+    @staticmethod
+    def remove_recipe_from_collection(collection_id, recipe_id):
+        """Remove a recipe from a collection."""
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("""
+                DELETE FROM collection 
+                WHERE collectionID = ? AND recipeID = ?
+            """, (collection_id, recipe_id))
+            conn.commit()
+            conn.close()
+            return True
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return False
+
+    #Gets all recipes inside a specific collection.    
+    @staticmethod
+    def get_collection_recipes(collection_id):
+        """Get all recipes in a collection."""
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT r.recipeID, r.recipeTitle, r,description, r.recipePic
+                FROM recipes r
+                INNER JOIN collection c ON r.recipeID = r.recipeID
+                WHERE c.collectionID = ?
+            """, (collection_id,))
+            recipes = cursor.fetchall()
+            conn.close()
+            return recipes
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return []

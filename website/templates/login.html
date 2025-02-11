@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='cake.png') }}" type="image/x-icon">
 </head>
 <body id="background">
     <div class="login-container">
-        <button class="closes-button" onclick="closeLoginPage()">&times;</button>
+        <!-- <button class="close-button" onclick="closeLoginPage()">&times;</button> -->
+        <button class="close-button" onclick="window.history.back()"> x </button>
         <div class="toggle-container">
             <button id="login-tab" class="active" onclick="showLogin()">Login</button>
             <button id="signup-tab" onclick="showSignUp()">Sign Up</button>
@@ -16,9 +18,15 @@
         
         <div id="login-form">
             <h2>Login</h2>
-            {% if error %}
-                <p class="error-message">{{ error }}</p>
-            {% endif %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class="flashes">
+                        {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
             <form action="{{ url_for('login') }}" method="POST">
                 <div class="form-group">
                     <label for="username">Username:</label>
@@ -27,7 +35,7 @@
                 <div class="form-group" style="position: relative;">
                     <label for="password">Password:</label>
                     <input type="password" id="password" name="password" required>
-                    <span class="toggle-password" onclick="togglePassword()">😳</span>
+                    <span class="toggle-password" onclick="togglePassword()">🫣</span>
                 </div>
                 <button class="button-login" type="submit">Login</button>
             </form>
@@ -35,9 +43,15 @@
         
         <div id="signup-form" style="display: none;">
             <h2>Sign Up</h2>
-            {% if signup_message %}
-                <p class="success-message">{{ signup_message }}</p>
-            {% endif %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class="flashes">
+                        {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
             <form action="{{ url_for('signup') }}" method="POST">
                 <div class="form-group">
                     <label for="new-username">Username:</label>
@@ -51,7 +65,7 @@
                     <label for="new-password">Password:</label>
                     <input type="password" id="new-password" name="password" required>
                 </div>
-                <button class="login-button" type="submit">Sign Up</button>
+                <button class="button-login" type="submit">Sign Up</button>
             </form>
         </div>
     </div>
@@ -104,15 +118,15 @@
             const togglePasswordText = document.querySelector('.toggle-password');
             if (passwordField.type === 'password') {
                 passwordField.type = 'text';
-                togglePasswordText.textContent = '🫣';
+                togglePasswordText.textContent = '😳';
             } else {
                 passwordField.type = 'password';
-                togglePasswordText.textContent = '😳';
+                togglePasswordText.textContent = '🫣';
             }
         }
 
         function closeLoginPage() {
-            window.location.href = "{{ url_for('userhome') }}";
+            window.location.href = "{{ url_for('main') }}";
         }
     </script>
 </body>
