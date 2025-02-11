@@ -1,5 +1,4 @@
 import sqlite3
-from .models import DatabaseManager
 
 def get_db():
     conn = sqlite3.connect('instance/database2.db')
@@ -61,7 +60,7 @@ class Recipe:
     
     @staticmethod
     def unlike_recipe(recipe_id, user_id):
-        conn = DatabaseManager.get_db()
+        conn = get_db()
         cursor = conn.cursor()
         cursor.execute("DELETE FROM like WHERE recipeID = ? AND userID = ?", (recipe_id, user_id))
         conn.commit()
@@ -70,7 +69,7 @@ class Recipe:
         
     @staticmethod
     def has_user_liked(recipe_id, user_id):
-        conn = DatabaseManager.get_db()
+        conn = get_db()
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM like WHERE recipeID = ? AND userID = ?", (recipe_id, user_id))
         like = cursor.fetchone()
@@ -102,7 +101,7 @@ class Recipe:
 
     @staticmethod
     def search_recipe(query):
-        db = DatabaseManager.get_db()
+        db = get_db()
         cursor = db.cursor()
 
         cursor.execute("""

@@ -35,7 +35,7 @@ class RegisteredUser:
             """, (user_id,))
             user = cursor.fetchone()
             conn.close()
-            return user
+            return dict(user) if user else None
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return None
@@ -79,12 +79,16 @@ class RegisteredUser:
         
     @staticmethod
     def get_user_by_username(username):
-        conn = get_db()
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM user WHERE userName = ?", (username,))
-        user = cursor.fetchone()
-        conn.close()
-        return user
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM user WHERE userName = ?", (username,))
+            user = cursor.fetchone()
+            conn.close()
+            return dict(user) if user else None
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return None
 
     @staticmethod
     def add_user(username, password, email):

@@ -20,8 +20,9 @@ MASALAH :
 - REPORT ESOK !!!!
 - CODING BY SELASA SIAP 
 nadia : 
-- view recipe try buat sampai subuh 
-- like commen2t
+- display user lain
+- display likes
+- report 
 fiza : 
 - signup tak masuk database
 - search, filter, sort by : based on database
