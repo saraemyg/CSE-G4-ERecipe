@@ -13,7 +13,10 @@ class Collection:
         try:
             conn = get_db() 
             cursor = conn.cursor()
-            cursor.execute("SELECT collectionID, collectionName, collectionPic FROM collection")
+            cursor.execute("""
+                SELECT DISTINCT collectionID, collectionName, collectionPic 
+                FROM collection
+            """)
             collections = cursor.fetchall()
             return [dict(row) for row in collections]
         except sqlite3.Error as e:
@@ -96,7 +99,12 @@ class Collection:
         try:
             conn = get_db()
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM collection WHERE userID = ?", (user_id,))
+            cursor.execute("""
+                SELECT DISTINCT collectionID, collectionName
+                FROM collection 
+                WHERE userID = ?
+            """, (user_id,))
+
             collections = cursor.fetchall()
             conn.close()
             return collections
