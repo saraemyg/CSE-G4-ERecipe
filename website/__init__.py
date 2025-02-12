@@ -621,29 +621,38 @@ def create_app():
     def collection():
         username = session.get('user')
         if not username:
+            if request.headers.get('Accept') == 'application/json':  
+                return jsonify({'error': 'User not logged in'}), 401  
             flash('Please log in to access your collections.', 'warning')
             return redirect(url_for('login'))
 
         user = RegisteredUser.get_user_by_username(username)
-        if user:
-            user_id = user['userID']
-            collections = Collection.get_collections_by_user_id(user_id)
+        if not user:
+            if request.headers.get('Accept') == 'application/json':  
+                return jsonify({'error': 'User not found'}), 404  
+            flash('User not found. Please log in again.', 'error')
+            return redirect(url_for('login'))
 
-            # No need for separate pic and size fetching if data already includes them
-            formatted_collections = [
-                {
-                    'collectionID': collection['collectionID'],
-                    'collectionName': collection['collectionName'],
-                    'collectionPic': collection['collectionPic'],
-                    'collectionSize': collection['collectionSize']
-                }
-                for collection in collections
-            ]
+        user_id = user['userID']
+        collections = Collection.get_collections_by_user_id(user_id)
 
-            return render_template('collection.html', collections=formatted_collections)
+        formatted_collections = [
+            {
+                'collectionID': collection['collectionID'],
+                'collectionName': collection['collectionName'],
+                'collectionPic': collection['collectionPic'],
+                'collectionSize': collection['collectionSize']
+            }
+            for collection in collections
+        ]
 
-        flash('User not found. Please log in again.', 'error')
-        return redirect(url_for('login'))
+        # If request is for JSON data, return it
+        if request.headers.get('Accept') == 'application/json':  
+            return jsonify({'collections': formatted_collections})  
+
+        # Otherwise, render HTML
+        return render_template('collection.html', collections=formatted_collections)
+
     
     @app.route('/collection/<int:collection_id>/recipes')
     def get_collection_recipes(collection_id):
@@ -675,23 +684,25 @@ def create_app():
             return jsonify({'error': 'Failed to create collection'}), 500
 
 
-    @app.route('/add_to_collection', methods=['POST'])
-    def add_to_collection():
-        if 'user' not in session:
-            return jsonify({'error': 'User not logged in'}), 401
-
+    @app.route('/recipe/<int:recipe_id>/collection', methods=['POST'])
+    def save_recipe_to_collection(recipe_id):
         data = request.json
         collection_id = data.get('collectionID')
-        recipe_id = data.get('recipeID')
 
-        if not collection_id or not recipe_id:
-            return jsonify({'error': 'Missing collectionID or recipeID'}), 400
+        if not collection_id:
+            return jsonify({'error': 'Collection ID is required'}), 400
 
-        try:
-            Collection.add_recipe_to_collection(collection_id, recipe_id)
-            return jsonify({'success': 'Recipe added successfully'}), 200
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
+        print(f"Adding recipe {recipe_id} to collection {collection_id}")  # Debugging
+
+        success = Collection.add_recipe_to_collection(collection_id, recipe_id)
+
+        if success:
+            print(f"Successfully added recipe {recipe_id} to collection {collection_id}")  # Debugging
+            return jsonify({'success': True})
+        else:
+            print(f"Failed to add recipe {recipe_id} to collection {collection_id}")  # Debugging
+            return jsonify({'error': 'Failed to add recipe to collection'}), 500
+
         
     
     # ----------------- SEARCH ROUTES -----------------

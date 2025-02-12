@@ -95,27 +95,38 @@ class Collection:
 
     @staticmethod
     def add_recipe_to_collection(collection_id, recipe_id):
-        """Add a recipe to a collection."""
         try:
-            conn = get_db()
+            conn = sqlite3.connect('instance/database2.db')
             cursor = conn.cursor()
 
-            # Check if the recipe is already in the collection
-            cursor.execute("SELECT * FROM collection WHERE collectionID = ? AND recipeID = ?", (collection_id, recipe_id))
-            existing = cursor.fetchone()
+            # Step 1: Check if collectionID exists and fetch collectionName and userID
+            cursor.execute("SELECT collectionName, userID FROM collection WHERE collectionID = ?", (collection_id,))
+            result = cursor.fetchone()
 
-            if existing:
-                print("Recipe already exists in this collection.")
-                return False  # Prevent duplicates
+            if not result:
+                print(f"Collection {collection_id} does not exist.")  # Debugging
+                conn.close()
+                return False  # Return False if collectionID is invalid
 
-            cursor.execute("""
-                INSERT INTO collection (collectionID, recipeID)
-                VALUES (?, ?)
-            """, (collection_id, recipe_id))
+            collection_name, user_id = result  # Extract collection name and user ID
+            print(f"Adding recipe {recipe_id} to collection '{collection_name}' (ID: {collection_id}, User: {user_id})")  # Debugging
+
+            # Step 2: Insert into the correct many-to-many relationship table (collection_recipe)
+            cursor.execute(
+                "INSERT INTO collection (collectionID, collectionName, userID, recipeID) VALUES (?, ? , ?, ?)",
+                (collection_id, collection_name, user_id, recipe_id)
+            )
+
             conn.commit()
             conn.close()
             return True
+
+        except sqlite3.IntegrityError:
+            print(f"Recipe {recipe_id} is already in collection {collection_id}.")  # Debugging
+            return False  # Prevent duplicate entries
+
         except sqlite3.Error as e:
-            print(f"Database error: {e}")
+            print(f"Database error: {e}")  # Debugging
             return False
-        
+
+

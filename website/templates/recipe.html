@@ -45,6 +45,14 @@
                                 <button class="collection-icon" id="collection-button" onclick="toggleCollection('{{ recipe.recipeID }}')">
                                     {{ '🔖' if user_collected else '📖' }}
                                 </button>
+                                <!-- Collection Selector Dropdown -->
+                                <div id="collection-selector" class="hidden">
+                                    <select id="collection-dropdown">
+                                        <option value="" disabled selected>Select a collection</option>
+                                    </select>
+                                    <button id="confirm-collection-btn">Confirm</button>
+                                </div>
+
                             </div>
 
                     </div>
@@ -153,33 +161,67 @@
                 }
 
                 function toggleCollection(recipeID) {
+                // Fetch user collections
+                fetch('/collection', {
+                    headers: { 'Accept': 'application/json' }  // Ensure it returns JSON
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.collections && data.collections.length > 0) {
+                        const collectionDropdown = document.getElementById('collection-dropdown');
+                        collectionDropdown.innerHTML = ''; // Clear previous options
+
+                        // Populate the dropdown with collection options
+                        data.collections.forEach(collection => {
+                            const option = document.createElement('option');
+                            option.value = collection.collectionID;
+                            option.textContent = collection.collectionName;
+                            collectionDropdown.appendChild(option);
+                        });
+
+                        // Show the collection selection UI
+                        document.getElementById('collection-selector').classList.remove('hidden');
+
+                        // Assign event to confirm button
+                        document.getElementById('confirm-collection-btn').onclick = function () {
+                            const selectedCollectionID = collectionDropdown.value;
+
+                            if (selectedCollectionID) {
+                                addToCollection(recipeID, selectedCollectionID);
+                            } else {
+                                alert('Please select a collection.');
+                            }
+                        };
+                    } else {
+                        alert('No collections available. Create one first!');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching collections:', error);
+                });
+            }
+
+                // Function to save the recipe to the selected collection
+                function addToCollection(recipeID, collectionID) {
                     fetch(`/recipe/${recipeID}/collection`, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ collectionID })
                     })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            const collectionButton = document.getElementById('collection-button');
-                            collectionButton.classList.toggle('collected');
-
-                            const collectionIcon = document.getElementById('collection-icon');
-
-                            if (collectionButton.innerText === '🔖') {
-                                collectionButton.innerText = '📖'; // Change to an "uncollected" state
-                            } else {
-                                collectionButton.innerText = '🔖'; // Change to a "collected" state
-                            }
+                            alert('Recipe successfully added to collection!');
+                            document.getElementById('collection-selector').classList.add('hidden');
                         } else {
-                            alert(data.error || 'Failed to add/remove from collection');
+                            alert(data.error || 'Failed to add recipe to collection.');
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
                     });
                 }
+
 
                 function editRecipe(recipeID) {
                     window.location.href = "{{ url_for('edit_recipe', recipe_id=0) }}".replace('0', recipeID);
