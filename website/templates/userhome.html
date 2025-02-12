@@ -68,16 +68,15 @@
                             <div class="sort-content">
                                 <h4>Sort By:</h4>
                                 <ul>
-                                    <li><input type="checkbox" id="popularity" name="sort" value="popularity"> <label for="popularity">Popularity</label></li>
-                                    <li><input type="checkbox" id="newest" name="sort" value="newest"> <label for="newest">Newest</label></li>
-                                    <li><input type="checkbox" id="least-time" name="sort" value="least-time"> <label for="least-time">Least Time</label></li>
-                                    <li><input type="checkbox" id="least-calories" name="sort" value="least-calories"> <label for="least-calories">Least Calories</label></li>
-                                    <li><input type="checkbox" id="least-ingredients" name="sort" value="least-ingredients"> <label for="least-ingredients">Least Ingredients</label></li>
+                                    <div class="radio-group-vertical">
+                                        <label><input type="radio" name="sort" value="title"> <span>Title</span></label>
+                                        <label><input type="radio" name="sort" value="time"> <span>Time</span></label>
+                                        <label><input type="radio" name="sort" value="calories"> <span>Calories</span></label>
+                                    </div>
                                 </ul>
                             </div>
                         </div>
                     </div>
-
                     <div style="position: relative; display: inline-block;">
                         <button class="notification-btn" id="notification-btn">🔔</button>
                         <div class="notification-box" id="notification-box" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #ddd; padding: 10px; z-index: 1000; width: 500px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
@@ -283,6 +282,88 @@
         
                 container.appendChild(card);
             });
+        }
+
+        document.querySelectorAll("input[name='sort']").forEach(checkbox => {
+            checkbox.addEventListener("change", function () {
+                // Uncheck all other checkboxes
+                document.querySelectorAll("input[name='sort']").forEach(cb => {
+                    if (cb !== this) cb.checked = false;
+                });
+
+                // If unchecked, reset sorting
+            if (!this.checked) {
+                resetRecipes(); // Function to reset recipes to original order
+                return;
+            }
+
+                sortRecipes();
+            });
+        });
+
+        function sortRecipes() {
+            let selectedSort = document.querySelector("input[name='sort']:checked")?.value || "";
+            let selectedCuisines = Array.from(document.querySelectorAll("input[name='cuisine']:checked")).map(cb => cb.value);
+            let selectedLabels = Array.from(document.querySelectorAll("input[name='label']:checked")).map(cb => cb.value);
+
+            fetch("/sort", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    sort_by: selectedSort,
+                    order: "asc",
+                })
+            })
+            .then(response => response.json())
+            .then(data => displaySortedRecipes(data))
+            .catch(error => console.error("Error fetching sorted recipes:", error));
+
+            console.log({
+                sort_by: selectedSort,
+                order: "asc",
+                cuisines: selectedCuisines,
+                labels: selectedLabels  
+            });
+        }
+
+
+        function displaySortedRecipes(recipes) {
+            let container = document.querySelector(".card-container");
+            container.innerHTML = ""; // Clear previous results
+
+            if (recipes.length === 0) {
+                container.innerHTML = "<p>No recipes found.</p>";
+                return;
+            }
+
+            recipes.forEach(recipe => {
+                let card = document.createElement("div");
+                card.classList.add("card-item");
+                card.setAttribute("data-title", recipe.recipeTitle);
+                card.onclick = () => viewRecipeDetails(recipe.recipeID);
+
+                card.innerHTML = `
+                    <img src="${recipe.recipePic}" alt="${recipe.recipeTitle}" class="recipe-image">
+                    <div class="card-header">
+                        <span class="card-id">#${recipe.recipeID}</span>
+                        <h4 class="card-subtitle">${recipe.recipeTitle}</h4>
+                    </div>
+                    <div class="card-details">${recipe.recipeDescription}</div>
+                    <div class="card-footer">
+                        <span class="card-time">${recipe.recipeTime} mins</span>
+                        <span class="card-calories">${recipe.recipeCalories} cal</span>
+                        <span class="card-cuisine">${recipe.recipeCuisine}</span>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+
+            console.log("Recipes displayed."); // Debugging
+        }
+
+        function resetRecipes() {
+            console.log("Resetting recipes...");
         }
 
         document.addEventListener('click', (event) => {

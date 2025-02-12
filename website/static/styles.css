@@ -1681,3 +1681,15 @@ textarea {
 .userhome .card-item.empty {
     visibility: hidden; /* Keeps spacing but hides content */
 }
+
+.radio-group-vertical {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    gap: 10px; /* Space between options */
+}
+
+.radio-group-vertical label {
+    display: flex;
+    align-items: center; /* Align text and radio button */
+    gap: 5px; /* Space between radio button and text */
+}

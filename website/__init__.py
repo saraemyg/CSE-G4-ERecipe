@@ -716,6 +716,9 @@ def create_app():
         cuisines = data.get('cuisines', [])
         labels = data.get('labels', [])
 
+        filters = data.get('filters', [])  # Combined filters (e.g., ["Italian", "Breakfast"])
+
+
         conn = DatabaseManager.get_db()
         cursor = conn.cursor()
 
@@ -730,7 +733,7 @@ def create_app():
 
         if labels:
             placeholders = ','.join(['?'] * len(labels))
-            query += f" AND LOWER(recipeLabe)l IN ({placeholders})"
+            query += f" AND LOWER(recipeLabeL) IN ({placeholders})"
             params.extend([l.lower() for l in labels])
 
         print("Executing query:", query)  # 🔍 Debugging: Print the final SQL query
@@ -742,5 +745,65 @@ def create_app():
         print("Recipes found:", [dict(recipe) for recipe in recipes])
 
         return jsonify([dict(recipe) for recipe in recipes])
+    
+    # ----------------- SORT BY ROUTES -----------------
+    @app.route('/sort', methods=['POST'])
+    def sort_recipes():
+        data = request.json
+        sort_by = data.get("sort_by")  # Default sort by time
+        order = data.get("order", "asc")  # Default to ascending order
+
+        print(f"Received sorting request: sort_by={sort_by}, order={order}")  # Debugging
+
+        # Map valid sorting fields to database columns
+        valid_fields = {
+            "title": "recipeTitle",
+            "time": "recipeTime",
+            "calories": "recipeCalories"
+        }
+
+        # Validate and get the database column for sorting
+        sort_column = valid_fields.get(sort_by)
+        if not sort_column:
+            print(f"Invalid or missing sort_by value received: {sort_by}")  # Debugging
+            return jsonify({"error": "Invalid sorting field."}), 400
+
+        # Ensure the order is either ASC or DESC
+        order = "ASC" if order.lower() == "asc" else "DESC"
+
+        # Construct the query dynamically
+        query = f"""
+            SELECT recipeID, recipeTitle, recipePic, recipeDescription, recipeTime, recipeCalories, recipeCuisine
+            FROM recipe
+            ORDER BY {sort_column} {order}
+        """
+
+        try:
+            # Use the existing DatabaseManager to execute the query
+            conn = DatabaseManager.get_db()
+            cursor = conn.cursor()
+            cursor.execute(query)
+            recipes = cursor.fetchall()
+            conn.close()
+
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            return jsonify({"error": "Unexpected error occurred."}), 500
+
+        # Convert the database rows to a list of dictionaries
+        recipes_list = [
+            {
+                "recipeID": recipe["recipeID"],
+                "recipeTitle": recipe["recipeTitle"],
+                "recipePic": recipe["recipePic"],
+                "recipeDescription": recipe["recipeDescription"],
+                "recipeTime": recipe["recipeTime"],
+                "recipeCalories": recipe["recipeCalories"],
+                "recipeCuisine": recipe["recipeCuisine"]
+            }
+            for recipe in recipes
+        ]
+
+        return jsonify(recipes_list)
     
     return app
