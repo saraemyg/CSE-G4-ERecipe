@@ -265,10 +265,6 @@ def create_app():
 
     @app.route('/recipe/<int:id>')
     def get_recipe(id):
-        if 'user' not in session:
-            flash('Please log in to view the recipe details.', 'warning')
-            return redirect(url_for('login'))
-
         recipe = Recipe.get_recipe_by_id(id)
         if recipe:
             like_count = Recipe.get_recipe_like_count(id)
