@@ -448,6 +448,7 @@ header h1 {
     overflow: hidden; /* Ensure content doesn't overflow */
     display: flex;
     flex-direction: column;
+
 }
  
 .recipe-details-title {
@@ -872,6 +873,7 @@ header h1 {
 /* Improve card transitions */
 .card {
     transition: opacity 0.3s ease;
+    position: relative;
 }
 
 .comment-section {
@@ -1226,91 +1228,7 @@ header h1 {
   .collection-item .content {
     padding: 16px;
   }
-  
-  
 
-/* Collection Page Styles 
-.collection-page .main-content {
-    flex-grow: 1;
-    padding: 20px;
-}
-
-.collection-page .content-header h2 {
-    font-size: 24px;
-    margin-bottom: 20px;
-}
-
-.collection-page .collection-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: start;
-}
-
-.collection-page .collection {
-    flex: 1 1 calc(25% - 10px); /* Four items per row with some spacing 
-    box-sizing: border-box;
-    margin: 5px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    overflow: hidden;
-    text-align: center;
-    background-color: white;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    transition: transform 0.2s;
-}
-
-.collection-page .collection:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-}
-
-.collection-page .collection img {
-    width: 100%;
-    height: auto;
-    max-width: 100%;
-    max-height: 200px; /* Adjust the max-height as needed 
-    object-fit: cover;
-    border-radius: 8px 8px 0 0;
-}
-
-.collection-page .collection p {
-    font-size: 16px;
-    font-weight: bold;
-    margin-top: 10px;
-}
-
-.collection-page .collection span {
-    font-size: 14px;
-    color: #666;
-}
-
-.collection-page .create-new {
-    flex: 1 1 calc(25% - 10px); /* Match collection items layout 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    color: gray;
-    border: 2px dashed gray;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: transform 0.2s;
-    box-sizing: border-box;
-    margin: 5px;
-    padding: 10px;
-}
-
-.collection-card {
-    width: 90px; /* Adjust as needed 
-}
-
-
-.collection-page .create-new:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-}*/
 
 
 /* Login Page Styles */
@@ -1762,4 +1680,16 @@ textarea {
 /* Hide empty slots if fewer than 5 results */
 .userhome .card-item.empty {
     visibility: hidden; /* Keeps spacing but hides content */
+}
+
+.radio-group-vertical {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    gap: 10px; /* Space between options */
+}
+
+.radio-group-vertical label {
+    display: flex;
+    align-items: center; /* Align text and radio button */
+    gap: 5px; /* Space between radio button and text */
 }
