@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recipe Details</title>
+    <title>#{{ recipe.recipeID }} {{ recipe.recipeTitle }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='cake.png') }}" type="image/x-icon">
 </head>
@@ -41,11 +41,11 @@
                                 <span id="likeCount">{{ recipe.likeCount }}</span>
                             </div>
 
-                            <div class="collection-container">
+                            <!-- <div class="collection-container">
                                 <button class="collection-icon" id="collection-button" onclick="toggleCollection('{{ recipe.recipeID }}')">
                                     {{ '🔖' if user_collected else '📖' }}
                                 </button>
-                            </div>
+                            </div> -->
 
                     </div>
                     <div class="card-info">
