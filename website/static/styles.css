@@ -1043,7 +1043,7 @@ header h1 {
 .collection-container {
     position: absolute;
     bottom: 20px;
-    right: 70px; /* Adjusted to be next to like-container */
+    right: 90px; /* Adjusted to be next to like-container */
     display: flex;
     align-items: center;
     background-color: rgba(255, 255, 255, 0.9);
@@ -1693,3 +1693,4 @@ textarea {
     align-items: center; /* Align text and radio button */
     gap: 5px; /* Space between radio button and text */
 }
+

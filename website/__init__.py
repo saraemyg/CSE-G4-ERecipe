@@ -94,6 +94,7 @@ def create_app():
     def logout():
         session.pop('user', None)
         session.pop('role', None)
+        session.pop('userPackage', None)
         return redirect(url_for('main'))
 
     # ----------------- USER ROUTES -----------------
@@ -166,11 +167,7 @@ def create_app():
             
             if RegisteredUser.update_user(user['userID'], updated_user):
                 session['user'] = updated_user['userName']  # Update session with new username
-                flash('Profile updated successfully', 'success')
-            else:
-                flash('Error updating profile', 'error')
-            return redirect(url_for('profile'))
-
+                # add confirm / error message
         if user:
             user_package = user['userPackage'] if 'userPackage' in user else 'free'
             notifications = Notification.get_notifications_by_package(user_package)
@@ -178,8 +175,8 @@ def create_app():
         else:
             flash('User not found', 'error')
             return redirect(url_for('userhome'))
-        
-    @app.route('/profile/edit', methods=['GET', 'POST'])
+
+    @app.route('/profile/edit_profile', methods=['POST'])
     def edit_profile():
         if 'user' not in session:
             return redirect(url_for('login'))
@@ -187,13 +184,31 @@ def create_app():
         username = session['user']
         user = RegisteredUser.get_user_by_username(username)
         if request.method == 'POST':
-            email = request.form.get('email')
-            bio = request.form.get('bio')
-            package = request.form.get('package')
-            header_pic = request.form.get('header_pic')
-            profile_pic = request.form.get('profile_pic')
-            RegisteredUser.update_user(user['userID'], email, bio, package, header_pic, profile_pic)
-            return redirect(url_for('profile'))
+            updated_user = {
+                'userName': request.form.get('userName'),
+                'userEmail': request.form.get('userEmail'),
+                'userBio': request.form.get('userBio'),
+                'userProfilePic': user['userProfilePic'],  # Default to current profile pic
+                'userHeaderPic': user['userHeaderPic']   # Default to current header pic
+            }
+
+            if 'userProfilePic' in request.files:
+                file = request.files['userProfilePic']
+                if file.filename:
+                    filename = secure_filename(file.filename)
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                    updated_user['userProfilePic'] = url_for('static', filename='uploads/' + filename)
+                
+            if 'userHeaderPic' in request.files:
+                file = request.files['userHeaderPic']
+                if file.filename:
+                    filename = secure_filename(file.filename)
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                    updated_user['userHeaderPic'] = url_for('static', filename='uploads/' + filename)
+
+            success = RegisteredUser.update_user(user['userID'], updated_user)
+            if success:
+                return "<script>alert('Profile updated successfully!'); window.location.href = '/profile';</script>"
         return render_template('edit_profile.html', user=user)
         
     @app.route('/suspended_user_page')
@@ -265,6 +280,10 @@ def create_app():
 
     @app.route('/recipe/<int:id>')
     def get_recipe(id):
+        if 'user' not in session:
+            flash('You must be logged in to view this page.', 'warning')
+            return redirect(url_for('login'))
+        
         recipe = Recipe.get_recipe_by_id(id)
         if recipe:
             like_count = Recipe.get_recipe_like_count(id)
@@ -812,5 +831,25 @@ def create_app():
         ]
 
         return jsonify(recipes_list)
+    
+    @app.route('/profile/change_password', methods=['POST'])
+    def change_password():
+        if 'user' not in session:
+            return "<script>alert('Please log in to change your password.'); window.location.href = '/login';</script>"
+
+        username = session['user']
+        user = RegisteredUser.get_user_by_username(username)
+
+        current_password = request.form.get('currentPassword')
+        new_password = request.form.get('newPassword')
+
+        if user and user['userPassword'] == current_password:
+            success = RegisteredUser.update_password(user['userID'], new_password)
+            if success:
+                return "<script>alert('Password changed successfully!'); window.location.href = '/profile';</script>"
+            else:
+                return "<script>alert('Failed to change password. Try again.'); window.location.href = '/profile';</script>"
+        else:
+            return "<script>alert('Current password is incorrect.'); window.location.href = '/profile';</script>"
     
     return app

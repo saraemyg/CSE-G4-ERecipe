@@ -17,7 +17,7 @@
                     <li><a href="{{ url_for('createrecipe') }}">➕</a></li>
                     <li><a href="{{ url_for('collection')}}">❤</a></li>
                     {% if 'user' in session %}
-                        <li><a href="{{ url_for('logout') }}">🚪</a></li>
+                        <li><a href="#" onclick="confirmLogout()">🚪</a></li>
                     {% else %}
                         <li><a href="{{ url_for('login') }}">🔑</a></li>
                     {% endif %}
@@ -132,6 +132,12 @@
     </div>
 
     <script>
+
+        function confirmLogout() {
+            if (confirm("Are you sure you want to log out?")) {
+                window.location.href = "/logout";
+            }
+        }
         // Toggle the filter box
         document.querySelector('.filter-btn').addEventListener('click', function () {
             const filterBox = document.getElementById('filter-box');

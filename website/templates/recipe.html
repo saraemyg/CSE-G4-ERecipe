@@ -17,7 +17,7 @@
                     <li><a href="{{ url_for('createrecipe') }}">➕</a></li>
                     <li><a href="{{ url_for('collection')}}">❤️</a></li>
                     {% if 'user' in session %}
-                        <li><a href="{{ url_for('logout') }}">🚪</a></li>
+                        <li><a href="#" onclick="confirmLogout()">🚪</a></li>
                     {% else %}
                         <li><a href="{{ url_for('login') }}">🔑</a></li>
                     {% endif %}
@@ -41,7 +41,7 @@
                                 <span id="likeCount">{{ recipe.likeCount }}</span>
                             </div>
 
-                            <!-- <div class="collection-container">
+                            <div class="collection-container">
                                 <button class="collection-icon" id="collection-button" onclick="toggleCollection('{{ recipe.recipeID }}')">
                                     {{ '🔖' if user_collected else '📖' }}
                                 </button>
@@ -130,6 +130,12 @@
             </div>
 
             <script>
+
+                function confirmLogout() {
+                    if (confirm("Are you sure you want to log out?")) {
+                        window.location.href = "/logout";
+                    }
+                }
 
                 const currentUser = "{{ session['user'] }}";
                 const COMMENT_MAX_LENGTH = 100;

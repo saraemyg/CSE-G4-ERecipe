@@ -165,3 +165,20 @@ class RegisteredUser:
             conn.close()
         except sqlite3.Error as e:
             print(f"Database error: {e}")
+
+    @staticmethod
+    def update_password(user_id, new_password):
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE user
+                SET userPassword = ?
+                WHERE userID = ?
+            """, (new_password, user_id))
+            conn.commit()
+            conn.close()
+            return True
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return False

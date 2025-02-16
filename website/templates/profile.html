@@ -17,7 +17,7 @@
                     <li><a href="{{ url_for('createrecipe') }}">➕</a></li>
                     <li><a href="{{ url_for('collection')}}">❤️</a></li>
                     {% if 'user' in session %}
-                        <li><a href="{{ url_for('logout') }}">🚪</a></li>
+                        <li><a href="#" onclick="confirmLogout()">🚪</a></li>
                     {% else %}
                         <li><a href="{{ url_for('login') }}">🔑</a></li>
                     {% endif %}
@@ -41,42 +41,38 @@
                             <div class="filter-section cuisines">
                                 <h4>Cuisines:</h4>
                                 <ul>
-                                    <li><input type="checkbox" id="meal" name="cuisine" value="meal"> <label for="meal">Meal</label></li>
-                                    <li><input type="checkbox" id="snack" name="cuisine" value="snack"> <label for="snack">Snack</label></li>
-                                    <li><input type="checkbox" id="dessert" name="cuisine" value="dessert"> <label for="dessert">Dessert</label></li>
-                                    <li><input type="checkbox" id="beverages" name="cuisine" value="beverages"> <label for="beverages">Beverages</label></li>
-                                    <li><input type="checkbox" id="local" name="cuisine" value="local"> <label for="local">Local</label></li>
-                                    <li><input type="checkbox" id="asian" name="cuisine" value="asian"> <label for="asian">Asian</label></li>
-                                    <li><input type="checkbox" id="western" name="cuisine" value="western"> <label for="western">Western</label></li>
+                                    <li><input type="checkbox" id="Italian" name="cuisine" value="Italian"> <label for="Italian">Italian</label></li>
+                                    <li><input type="checkbox" id="Indian" name="cuisine" value="Indian"> <label for="Indian">Indian</label></li>
+                                    <li><input type="checkbox" id="American" name="cuisine" value="American"> <label for="American">American</label></li>
+                                    <li><input type="checkbox" id="Mexican" name="cuisine" value="Mexican"> <label for="Mexican">Mexican</label></li>
+                                    <li><input type="checkbox" id="Asian" name="cuisine" value="Asian"> <label for="Asian">Asian</label></li>
+                                    <li><input type="checkbox" id="French" name="cuisine" value="French"> <label for="French">French</label></li>
                                 </ul>
                             </div>
                             <!-- Labels Section -->
                             <div class="filter-section labels">
                                 <h4>Label:</h4>
                                 <ul>
-                                    <li><input type="checkbox" id="sugar-free" name="label" value="sugar-free"> <label for="sugar-free">Sugar Free</label></li>
-                                    <li><input type="checkbox" id="soy-free" name="label" value="soy-free"> <label for="soy-free">Soy Free</label></li>
-                                    <li><input type="checkbox" id="gluten-free" name="label" value="gluten-free"> <label for="gluten-free">Gluten Free</label></li>
-                                    <li><input type="checkbox" id="peanut-free" name="label" value="peanut-free"> <label for="peanut-free">Peanut Free</label></li>
-                                    <li><input type="checkbox" id="egg-free" name="label" value="egg-free"> <label for="egg-free">Egg Free</label></li>
-                                    <li><input type="checkbox" id="vegan" name="label" value="vegan"> <label for="vegan">Vegan</label></li>
-                                    <li><input type="checkbox" id="lactose-free" name="label" value="lactose-free"> <label for="lactose-free">Lactose Free</label></li>
+                                    <li><input type="checkbox" id="breakfast" name="label" value="breakfast"> <label for="breakfast">breakfast</label></li>
+                                    <li><input type="checkbox" id="lunch" name="label" value="lunch"> <label for="lunch">lunch</label></li>
+                                    <li><input type="checkbox" id="dessert" name="label" value="dessert"> <label for="dessert">dessert</label></li>
+                                    <li><input type="checkbox" id="dinner" name="label" value="dinner"> <label for="dinner">dinner</label></li>
                                 </ul>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="sort-container" style="position: relative; display: inline-block;">
-                        <button class="sort-btn" id="sort-btn">Sort By <span class="sort-icon">⬇️</span></button>
+                        <button class="sort-btn" id="sort-btn">Sort By <span class="sort-icon">⬇</span></button>
                         <div class="sort-box" id="sort-box" style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #ddd; padding: 10px; z-index: 1000; width: 200px;">
                             <div class="sort-content">
                                 <h4>Sort By:</h4>
                                 <ul>
-                                    <li><input type="checkbox" id="popularity" name="sort" value="popularity"> <label for="popularity">Popularity</label></li>
-                                    <li><input type="checkbox" id="newest" name="sort" value="newest"> <label for="newest">Newest</label></li>
-                                    <li><input type="checkbox" id="least-time" name="sort" value="least-time"> <label for="least-time">Least Time</label></li>
-                                    <li><input type="checkbox" id="least-calories" name="sort" value="least-calories"> <label for="least-calories">Least Calories</label></li>
-                                    <li><input type="checkbox" id="least-ingredients" name="sort" value="least-ingredients"> <label for="least-ingredients">Least Ingredients</label></li>
+                                    <div class="radio-group-vertical">
+                                        <label><input type="radio" name="sort" value="title"> <span>Title</span></label>
+                                        <label><input type="radio" name="sort" value="time"> <span>Time</span></label>
+                                        <label><input type="radio" name="sort" value="calories"> <span>Calories</span></label>
+                                    </div>
                                 </ul>
                             </div>
                         </div>
@@ -88,11 +84,10 @@
                             <div class="card">
                                 {% if notifications %}
                                     {% for notification in notifications %}
-                                        <div class="card-item" data-title="{{ notification['title'] | e }}" >
+                                        <div class="card-list" data-title="{{ notification['title'] | e }}" >
                                             <div class="card-header">
                                                 <span class="card-id">#{{ notification['notiID'] }}</span>
                                                 <h4 class="card-subtitle">{{ notification['notiTitle'] }}</h4>
-                                                <span class="card-tag">{{ notification['notiReceiver'] }}</span>
                                             </div>
                                             <p class="card-details">{{ notification['notiDetails'] }}</p>
                                             <div class="card-footer">
@@ -110,6 +105,7 @@
                 <a href="{{ url_for('profile') }}"> <button class="profile-btn">👤</button> </a>
             </header>
 
+            <!-- Profile Content -->
             <div class="profile-container">
                 <img id="profileHeaderPic" class="user-header-pic" src="{{ user['userHeaderPic'] }}" alt="Header Picture">
                 <div class="user-profile-container">
@@ -121,6 +117,8 @@
                     <span id="profileStatus" class="card-tag">{{ user['userStatus'] }}</span>
                     <!-- Add Edit Profile Button -->
                     <button class="edit-button" onclick="openEditProfile()">Edit Profile</button>
+                    <!-- Add Change Password Button -->
+                    <button class="edit-button" onclick="openChangePassword()">Change Password</button>
                 </div>
                 <p id="profileBio" class="card-bio">{{ user['userBio'] }}</p>
                 <p id="profileEmail" class="card-details">{{ user['userEmail'] }}</p>
@@ -129,7 +127,7 @@
                 </div>
                 <!-- Edit Profile Form -->
                 <div id="editProfileForm" class="edit-profile-form hidden form-spacing">
-                    <form action="{{ url_for('profile') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ url_for('edit_profile') }}" method="POST" enctype="multipart/form-data" onsubmit="return validateEditProfileForm()">
                         <div class="form-group">
                             <label for="userName">Name:</label>
                             <input type="text" id="userName" name="userName" value="{{ user['userName'] }}">
@@ -162,6 +160,29 @@
                     </form>
                 </div>
 
+                <!-- Change Password Form -->
+                <div id="changePasswordForm" class="change-password-form hidden form-spacing">
+                    <form action="{{ url_for('change_password') }}" method="POST" onsubmit="return validateChangePasswordForm()">
+                        <div class="form-group">
+                            <label for="currentPassword">Current Password:</label>
+                            <input type="password" id="currentPassword" name="currentPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">New Password:</label>
+                            <input type="password" id="newPassword" name="newPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm New Password:</label>
+                            <input type="password" id="confirmPassword" name="confirmPassword" required>
+                        </div>
+                        <div class="form-buttons">
+                            <button type="submit" class="save-btn">Save Changes</button>
+                            <button type="button" class="cancel-btn" onclick="closeChangePassword()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Published Recipes -->
                 <h3 class="card-title">Published Recipes:</h3>
                 <div class="card-grid" id="viewProfileRecipesGrid">
                     {% if recipes %}
@@ -184,8 +205,13 @@
             </div>
         </main>
     </div>
-
     <script>
+        function confirmLogout() {
+            if (confirm("Are you sure you want to log out?")) {
+                window.location.href = "/logout";
+            }
+        }
+
         function openEditProfile() {
             document.getElementById('editProfileForm').classList.remove('hidden');
         }
@@ -194,10 +220,63 @@
             document.getElementById('editProfileForm').classList.add('hidden');
         }
 
+        function validateEditProfileForm() {
+            const userName = document.getElementById('userName').value.trim();
+            const userEmail = document.getElementById('userEmail').value.trim();
+
+            if (!userName || !userEmail) {
+                alert("Name and Email fields cannot be empty");
+                return false;
+            }
+            return true;
+        }
+
+        function saveEditProfile() {
+            alert("Profile changes saved successfully");
+        }
+
         function viewRecipeDetails(recipeID) {
             window.location.href = "{{ url_for('get_recipe', id=0) }}".replace('0', recipeID);
         }
 
+        function openChangePassword() {
+            document.getElementById('changePasswordForm').classList.remove('hidden');
+        }
+
+        function closeChangePassword() {
+            document.getElementById('changePasswordForm').classList.add('hidden');
+        }
+
+        function validateChangePasswordForm() {
+            const currentPassword = document.getElementById('currentPassword').value.trim();
+            const newPassword = document.getElementById('newPassword').value.trim();
+            const confirmPassword = document.getElementById('confirmPassword').value.trim();
+
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                alert("All fields are required");
+                return false;
+            }
+
+            if (newPassword.length < 8) {
+                alert("Password must be at least 8 characters long");
+                return false;
+            }
+
+            if (newPassword === currentPassword) {
+                alert("New password cannot be the same as the current password");
+                return false;
+            }
+
+            if (newPassword !== confirmPassword) {
+                alert("New passwords do not match");
+                return false;
+            }
+            return true;
+        }
+
+        function showAlert(message) {
+            alert(message);
+        }
     </script>
 </body>
 </html>
