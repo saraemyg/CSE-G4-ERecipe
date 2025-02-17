@@ -280,10 +280,6 @@ def create_app():
 
     @app.route('/recipe/<int:id>')
     def get_recipe(id):
-        if 'user' not in session:
-            flash('You must be logged in to view this page.', 'warning')
-            return redirect(url_for('login'))
-        
         recipe = Recipe.get_recipe_by_id(id)
         if recipe:
             like_count = Recipe.get_recipe_like_count(id)
@@ -323,10 +319,8 @@ def create_app():
     def createrecipe():
         username = session.get('user')
         if not username:
-            flash('Please log in to access your collections.', 'warning')
+            flash('Please log in to access this feature.', 'warning')
             return redirect(url_for('login'))
-            # check if user is premium
-
         user = RegisteredUser.get_user_by_username(username)
         if request.method == 'POST':
             user_id = user['userID']
